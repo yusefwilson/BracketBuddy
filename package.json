@@ -4,7 +4,6 @@
   "description": "First electron project.",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc src/main.ts && npx electron ./src/main.js"
   },
   "author": "Yusef Wilson",
@@ -12,5 +11,8 @@
   "devDependencies": {
     "electron": "^33.2.1",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "electron-reloader": "^1.2.3"
   }
 }

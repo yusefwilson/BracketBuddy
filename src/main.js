@@ -37,6 +37,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var electron_1 = require("electron");
+// so that the app reloads when the code changes in development
+electron_1.app.isPackaged || require('electron-reloader')(module);
 var create_window = function () { return __awaiter(void 0, void 0, void 0, function () {
     var window;
     return __generator(this, function (_a) {
