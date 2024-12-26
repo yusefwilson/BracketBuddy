@@ -11,11 +11,11 @@ const create_window = async () => {
         width: 800,
         height: 600,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js') //keep in mind all paths like this are relative to the main.js file, which is currently in ./dist
         }
     });
 
-    await window.loadFile('../public/index.html');
+    await window.loadFile('../build-react/index.html');
 }
 
 const main = async () => {

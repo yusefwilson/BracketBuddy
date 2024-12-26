@@ -3,3 +3,9 @@ node_modules
 
 # compiled js files
 dist
+
+# react build
+build-react
+
+# electron typescript build
+build-electron

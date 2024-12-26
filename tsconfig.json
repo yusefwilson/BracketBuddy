@@ -1,17 +1,18 @@
+// mainly for configuring TypeScript compiler options
 {
     "compilerOptions": {
         "target": "ES2020", // Specify ECMAScript target version
         "module": "CommonJS", // Use CommonJS for Node.js compatibility
         "strict": true, // Enable strict type checking
         "esModuleInterop": true, // Enable default imports for CommonJS modules
-        "outDir": "./dist", // Output directory for compiled files
-        "rootDir": "./src", // Specify the root directory of your TypeScript files
+        "outDir": "./build-electron", // Output directory for compiled files
+        "rootDir": "./src/electron", // Specify the root directory of your TypeScript files
         "moduleResolution": "node", // Use Node.js module resolution strategy
         "skipLibCheck": true // Skip type checking for library files
     },
     "include": [
-        "src"
-    ], // Include all TypeScript files in the src folder
+        "src/electron"
+    ], // Include all TypeScript files in the src/electron folder
     "exclude": [
         "node_modules"
     ] // Exclude node_modules from compilation
