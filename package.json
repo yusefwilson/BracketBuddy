@@ -4,7 +4,7 @@
   "description": "First electron project.",
   "main": "main.js",
   "scripts": {
-    "start": "tsc && npx electron ./build-electron/main.js"
+    "start": "cd src-react && npm run build && cd .. && tsc && npx electron ./build-electron/main.js"
   },
   "author": "Yusef Wilson",
   "license": "MIT",

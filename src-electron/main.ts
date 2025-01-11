@@ -15,7 +15,7 @@ const create_window = async () => {
         }
     });
 
-    await window.loadFile('../build-react/index.html');
+    await window.loadFile('../src-react/dist/index.html');
 }
 
 const main = async () => {
