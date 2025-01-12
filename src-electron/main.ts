@@ -4,6 +4,8 @@ import * as path from 'node:path';
 // so that the app reloads when the code changes in development
 app.isPackaged || require('electron-reloader')(module);
 
+const DEV = true;
+
 const create_window = async () => {
 
     console.log('preload path: ' + path.join(__dirname, 'preload.js'))
@@ -15,7 +17,12 @@ const create_window = async () => {
         }
     });
 
-    await window.loadFile('../src-react/dist/index.html');
+    if (DEV) {
+        await window.loadURL('http://localhost:5173');
+    }
+    else {
+        await window.loadFile('../src-react/dist/index.html');
+    }
 }
 
 const main = async () => {

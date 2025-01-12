@@ -4,11 +4,13 @@
   "description": "First electron project.",
   "main": "main.js",
   "scripts": {
-    "start": "cd src-react && npm run build && cd .. && tsc && npx electron ./build-electron/main.js"
+    "start": "concurrently \"cd src-react && npm run dev\" \"tsc && npx electron ./build-electron/main.js\"",
+    "build": "cd src-react && npm run build && cd .. && tsc && npx electron ./build-electron/main.js"
   },
   "author": "Yusef Wilson",
   "license": "MIT",
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "electron": "^33.2.1",
     "typescript": "^5.7.2"
   },
