@@ -1,31 +1,31 @@
 enum Gender {
-    Male,
-    Female,
-    Mixed
+    Male = 'Male',
+    Female = 'Female',
+    Mixed = 'Mixed'
 }
 
 enum AgeGroup {
-    Junior,
-    Senior,
-    Master,
-    Grandmaster,
-    SeniorGrandmaster
+    Junior = 'Junior',
+    Senior = 'Senior',
+    Master = 'Master',
+    Grandmaster = 'Grandmaster',
+    SeniorGrandmaster = 'Senior Grandmaster',
 }
 
 enum Hand {
-    Right,
-    Left
+    Right = 'Right',
+    Left = 'Left',
 }
 
 interface Match {
-    competitor0: string,
-    competitor1: string,
-    winner?: number // 0 for competitor1, 1 for competitor2
+    competitor0Name?: string,
+    competitor1Name?: string,
+    winner?: number // 0 for competitor0, 1 for competitor1
 }
 
 interface Round {
     winnerSide: Match[],
-    loserSide: Match[]
+    loserSide?: Match[]
 }
 
 interface Bracket {
@@ -36,4 +36,4 @@ interface Bracket {
     rounds: Round[]
 }
 
-export type { Bracket };
+export type { Bracket, Match, Round, Gender, AgeGroup, Hand };
