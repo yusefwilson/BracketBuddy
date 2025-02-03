@@ -3,6 +3,27 @@ import BracketView from './BracketView';
 
 export default function App() {
 
+  const winner = (match: Match) => {
+    if (match.winner === undefined)
+      throw new Error('Match must have winner field filled out. Something has gone wrong.');
+    return match.winner === 0 ? match.competitor0Name : match.competitor1Name;
+  }
+
+  const loser = (match: Match) => {
+    if (match.winner === undefined)
+      throw new Error('Match must have winner field filled out. Something has gone wrong.');
+
+    // if the match is a bye, return undefined
+    if (match.winner === 0 && !match.competitor1Name)
+      return undefined;
+
+    return match.winner === 0 ? match.competitor1Name : match.competitor0Name;
+  }
+
+  const isBye = (match: Match) => {
+    return match.winner === 0 && !match.competitor1Name;
+  }
+
   const numWinnerBracketCompetitors = (round: Round): number => {
     let competitors = 0;
     for (let i = 0; i < round.winnerSide.length; i++) {
@@ -33,22 +54,79 @@ export default function App() {
 
   // requires last round to have winner field filled out in all winnerSide matches
   const generateWinnerMatchesFromPreviousRound = (previousRound: Round): Match[] => {
+
     const winnerMatches: Match[] = [];
+
     for (let i = 0; i < previousRound.winnerSide.length; i += 2) {
-      
-      // if the previous two matches don't have winners, throw an error
+
+      // if there are an odd number of matches, add a bye to the next round
+      if (i + 1 >= previousRound.winnerSide.length) {
+        winnerMatches.push({ competitor0Name: winner(previousRound.winnerSide[i]), winner: 0 });
+        break;
+      }
+
+      // if the previous two matches don't have winners, throw an error. this shouldn't be possible
       if (previousRound.winnerSide[i].winner === undefined && previousRound.winnerSide[i + 1].winner === undefined)
-        throw new Error('Previous round winner matches must have winner field filled out');
+        throw new Error('Previous round winner matches must have winner field filled out. Something has gone wrong.');
 
-      //handle bye situation
-      
+      let winner0Name = winner(previousRound.winnerSide[i]);
+      let winner1Name = winner(previousRound.winnerSide[i + 1]);
 
-      let winner0Name = previousRound.winnerSide[i].winner === 0 ? previousRound.winnerSide[i].competitor0Name : previousRound.winnerSide[i].competitor1Name;
-      let winner1Name = previousRound.winnerSide[i + 1].winner === 0 ? previousRound.winnerSide[i + 1].competitor0Name : previousRound.winnerSide[i + 1].competitor1Name;
       winnerMatches.push({ competitor0Name: winner0Name, competitor1Name: winner1Name });
     }
 
     return winnerMatches;
+  }
+
+  // get all winners from previous round loser side
+  const generateLoserMatchesFromPreviousRoundLosers = (previousRound: Round): Match[] => {
+    const loserMatches: Match[] = [];
+
+    for (let i = 0; i < (previousRound.loserSide?.length || 0); i += 2) {
+
+      // if there are an odd number of matches, add a bye to the next round
+      if (i + 1 >= (previousRound.loserSide?.length || 0)) {
+        loserMatches.push({ competitor0Name: winner(previousRound.loserSide[i]), winner: 0 });
+        break;
+      }
+
+      // if the previous two matches don't have winners, throw an error. this shouldn't be possible
+      if (previousRound.loserSide[i].winner === undefined && previousRound.loserSide[i + 1].winner === undefined)
+        throw new Error('Previous round loser matches must have winner field filled out. Something has gone wrong.');
+
+      let winner0Name = winner(previousRound.loserSide[i]);
+      let winner1Name = winner(previousRound.loserSide[i + 1]);
+
+      loserMatches.push({ competitor0Name: winner0Name, competitor1Name: winner1Name });
+    }
+
+    return loserMatches;
+  }
+
+  // get all losers from previous round winner side
+  const generateLoserMatchesFromPreviousRoundWinners = (previousRound: Round): Match[] => {
+    let loserMatches: Match[] = [];
+    for (let i = 0; i < previousRound.winnerSide.length; i + 2) {
+
+      if (previousRound.winnerSide[i].winner === undefined)
+        throw new Error('Previous round winner matches must have winner field filled out. Something has gone wrong.');
+
+      // if the match is a bye, skip it as there is no real loser
+      if (previousRound.winnerSide[i].winner === 0 && !previousRound.winnerSide[i].competitor1Name)
+        continue;
+
+      // if there is only one match left
+      if (i + 1 >= previousRound.winnerSide.length) {
+        // if it is a bye, don't add anything
+
+        loserMatches.push({ competitor0Name: loser(previousRound.winnerSide[i]), winner: 0 });
+        break;
+      }
+
+      // if there 
+
+
+    }
   }
 
   const generateBracket = (gender: Gender, ageGroup: AgeGroup, hand: Hand, weightLimit: number, competitorNames: string[]): Bracket => {

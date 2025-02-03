@@ -19,7 +19,7 @@ enum Hand {
 
 interface Match {
     competitor0Name?: string,
-    competitor1Name?: string, // if undefined and competitor0 not undefined, competitor0 gets a bye
+    competitor1Name?: string, // if undefined and competitor0 not undefined, competitor0 gets a bye, winner will also be set to 0 on creation if match is bye
     winner?: number // 0 for competitor0, 1 for competitor, -1 or undefined for TBD
 }
 
