@@ -1,26 +1,32 @@
 import { useState } from 'react';
 
-import WinnerButton from './WinnerButton';
-import LoserButton from './LoserButton';
+import WinnerCheckbox from './WinnerCheckbox';
 import { Match } from '../types';
 
 export default function MatchView({ match }: { match: Match }) {
 
-  const [_winner, _setWinner] = useState(match.winner || 0);
+  const [winner, setWinner] = useState(match.winner || -1);
 
-  const toggleWinner = () => {
-    _setWinner(_winner === 0 ? 1 : 0);
+  const toggleWinner = (newWinner: number) => {
+    if (newWinner === winner) {
+      setWinner(-1);
+      match.winner = undefined;
+    }
+    else {
+      setWinner(newWinner);
+      match.winner = newWinner;
+    }
   }
 
   return (
     <div className='rounded-md bg-purple-400 p-4 flex flex-col gap-4'>
       <div className='flex flex-row bg-blue-400 justify-between items-center p-4 rounded-md'>
         {match.competitor0Name || 'TBD'}
-        {_winner === 0 ? <WinnerButton toggleWinner={toggleWinner} /> : <LoserButton toggleWinner={toggleWinner} />}
-      </div> 
+        {<WinnerCheckbox toggleWinner={() => toggleWinner(0)} checked={winner === 0} />}
+      </div>
       <div className='flex bg-blue-400 justify-between items-center p-4 rounded-md'>
         {match.competitor1Name || 'TBD'}
-        {_winner === 1 ? <WinnerButton toggleWinner={toggleWinner} /> : <LoserButton toggleWinner={toggleWinner} />}
+        {<WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={winner === 1} />}
       </div>
     </div>
   )

@@ -5,12 +5,8 @@ export default function RoundView({ round }: { round: Round }) {
 
   const roundToRoundName = (round: Round) => {
 
-    // get number of competitors. if loserSide doesn't exist, it has 0 length
-    const numCompetitors = (round.winnerSide.length + (round.loserSide?.length ?? 0)) * 2;
-
-    if (!round.loserSide) {
-      return `Round of ${numCompetitors}`;
-    }
+    // get number of competitors
+    const numCompetitors = (round.winnerSide.length + round.loserSide.length) * 2;
 
     switch (numCompetitors) {
       case 2:

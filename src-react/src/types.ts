@@ -19,13 +19,13 @@ enum Hand {
 
 interface Match {
     competitor0Name?: string,
-    competitor1Name?: string,
-    winner?: number // 0 for competitor0, 1 for competitor1
+    competitor1Name?: string, // if undefined and competitor0 not undefined, competitor0 gets a bye
+    winner?: number // 0 for competitor0, 1 for competitor, -1 or undefined for TBD
 }
 
 interface Round {
     winnerSide: Match[],
-    loserSide?: Match[]
+    loserSide: Match[]
 }
 
 interface Bracket {
