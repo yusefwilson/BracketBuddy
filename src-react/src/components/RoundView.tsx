@@ -6,17 +6,15 @@ export default function RoundView({ round }: { round: Round }) {
   const roundToRoundName = (round: Round) => {
 
     // get number of competitors
-    const numCompetitors = (round.winnerSide.length + round.loserSide.length) * 2;
+    const numMatches = (round.winnerSide.length + round.loserSide.length);
 
-    switch (numCompetitors) {
-      case 2:
+    switch (numMatches) {
+      case 1:
         return 'Finals';
-      case 4:
+      case 2:
         return 'Semifinals';
-      case 8:
-        return 'Quarterfinals';
       default:
-        return `Round of ${numCompetitors}`;
+        return `Round of ${numMatches}`;
     }
   }
 
@@ -30,7 +28,7 @@ export default function RoundView({ round }: { round: Round }) {
       </div>
       {round.loserSide &&
         <div className='flex flex-col bg-red-200 p-4'>
-          {round.loserSide?.map((match, i) => <MatchView key={i} match={match} />)}
+          {round.loserSide.map((match, i) => <MatchView key={i} match={match} />)}
         </div>
       }
     </div>

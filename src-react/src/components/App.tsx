@@ -3,177 +3,99 @@ import BracketView from './BracketView';
 
 export default function App() {
 
-  const winner = (match: Match) => {
-    if (match.winner === undefined)
-      throw new Error('Match must have winner field filled out. Something has gone wrong.');
-    return match.winner === 0 ? match.competitor0Name : match.competitor1Name;
+  const createBye = (competitorName: string): Match => {
+    const newMatch = new Match(competitorName, undefined, 0, true);
+    console.log('just created bye with id', newMatch.id);
+    return newMatch;
   }
 
-  const loser = (match: Match) => {
-    if (match.winner === undefined)
-      throw new Error('Match must have winner field filled out. Something has gone wrong.');
+  const createSideFromCompetitorNames = (competitorNames: string[]): Match[] => {
+    let side: Match[] = [];
 
-    // if the match is a bye, return undefined
-    if (match.winner === 0 && !match.competitor1Name)
-      return undefined;
-
-    return match.winner === 0 ? match.competitor1Name : match.competitor0Name;
-  }
-
-  const isBye = (match: Match) => {
-    return match.winner === 0 && !match.competitor1Name;
-  }
-
-  const numWinnerBracketCompetitors = (round: Round): number => {
-    let competitors = 0;
-    for (let i = 0; i < round.winnerSide.length; i++) {
-      if (round.winnerSide[i].competitor0Name)
-        competitors++;
-      if (round.winnerSide[i].competitor1Name)
-        competitors++;
-    }
-
-    return competitors;
-  }
-
-  const numLoserBracketCompetitors = (round: Round): number => {
-    let competitors = 0;
-    for (let i = 0; i < (round.loserSide?.length || 0); i++) {
-      if (round.loserSide[i].competitor0Name)
-        competitors++;
-      if (round.loserSide[i].competitor1Name)
-        competitors++;
-    }
-
-    return competitors;
-  }
-
-  const numCompetitors = (round: Round) => {
-    return numWinnerBracketCompetitors(round) + numLoserBracketCompetitors(round);
-  }
-
-  // requires last round to have winner field filled out in all winnerSide matches
-  const generateWinnerMatchesFromPreviousRound = (previousRound: Round): Match[] => {
-
-    const winnerMatches: Match[] = [];
-
-    for (let i = 0; i < previousRound.winnerSide.length; i += 2) {
-
-      // if there are an odd number of matches, add a bye to the next round
-      if (i + 1 >= previousRound.winnerSide.length) {
-        winnerMatches.push({ competitor0Name: winner(previousRound.winnerSide[i]), winner: 0 });
-        break;
-      }
-
-      // if the previous two matches don't have winners, throw an error. this shouldn't be possible
-      if (previousRound.winnerSide[i].winner === undefined && previousRound.winnerSide[i + 1].winner === undefined)
-        throw new Error('Previous round winner matches must have winner field filled out. Something has gone wrong.');
-
-      let winner0Name = winner(previousRound.winnerSide[i]);
-      let winner1Name = winner(previousRound.winnerSide[i + 1]);
-
-      winnerMatches.push({ competitor0Name: winner0Name, competitor1Name: winner1Name });
-    }
-
-    return winnerMatches;
-  }
-
-  // get all winners from previous round loser side
-  const generateLoserMatchesFromPreviousRoundLosers = (previousRound: Round): Match[] => {
-    const loserMatches: Match[] = [];
-
-    for (let i = 0; i < (previousRound.loserSide?.length || 0); i += 2) {
-
-      // if there are an odd number of matches, add a bye to the next round
-      if (i + 1 >= (previousRound.loserSide?.length || 0)) {
-        loserMatches.push({ competitor0Name: winner(previousRound.loserSide[i]), winner: 0 });
-        break;
-      }
-
-      // if the previous two matches don't have winners, throw an error. this shouldn't be possible
-      if (previousRound.loserSide[i].winner === undefined && previousRound.loserSide[i + 1].winner === undefined)
-        throw new Error('Previous round loser matches must have winner field filled out. Something has gone wrong.');
-
-      let winner0Name = winner(previousRound.loserSide[i]);
-      let winner1Name = winner(previousRound.loserSide[i + 1]);
-
-      loserMatches.push({ competitor0Name: winner0Name, competitor1Name: winner1Name });
-    }
-
-    return loserMatches;
-  }
-
-  // get all losers from previous round winner side
-  const generateLoserMatchesFromPreviousRoundWinners = (previousRound: Round): Match[] => {
-    let loserMatches: Match[] = [];
-    for (let i = 0; i < previousRound.winnerSide.length; i + 2) {
-
-      if (previousRound.winnerSide[i].winner === undefined)
-        throw new Error('Previous round winner matches must have winner field filled out. Something has gone wrong.');
-
-      // if the match is a bye, skip it as there is no real loser
-      if (previousRound.winnerSide[i].winner === 0 && !previousRound.winnerSide[i].competitor1Name)
-        continue;
-
-      // if there is only one match left
-      if (i + 1 >= previousRound.winnerSide.length) {
-        // if it is a bye, don't add anything
-
-        loserMatches.push({ competitor0Name: loser(previousRound.winnerSide[i]), winner: 0 });
-        break;
-      }
-
-      // if there 
-
-
-    }
-  }
-
-  const generateBracket = (gender: Gender, ageGroup: AgeGroup, hand: Hand, weightLimit: number, competitorNames: string[]): Bracket => {
-    // generate the initial round
-    const initialWinnerSide: Match[] = [];
     for (let i = 0; i < competitorNames.length; i += 2) {
 
+      // if there is only one competitor left, add a bye
       if (i + 1 >= competitorNames.length) {
-        initialWinnerSide.push({ competitor0Name: competitorNames[i] });
+        side.push(createBye(competitorNames[i]));
         break;
       }
-      initialWinnerSide.push({ competitor0Name: competitorNames[i], competitor1Name: competitorNames[i + 1] });
+
+      const newMatch = new Match(competitorNames[i], competitorNames[i + 1], undefined);
+      console.log('just created match with id', newMatch.id);
+
+      side.push(newMatch);
     }
-    const initialRound: Round = { winnerSide: initialWinnerSide, loserSide: [] }
+
+    return side;
+  }
+
+  const generateInitialRound = (competitorNames: string[]): Round => {
+    // generate the initial round
+    const winnerSide = createSideFromCompetitorNames(competitorNames);
+    const loserSide: Match[] = [];
+    return new Round(winnerSide, loserSide);
+  }
+
+  // generate a bracket with the given parameters
+  const generateBracket = (gender: Gender, ageGroup: AgeGroup, hand: Hand, weightLimit: number, competitorNames: string[]): Bracket => {
+
+    const initialRound = generateInitialRound(competitorNames);
+    console.log('Initial round:', initialRound);
 
     // generate the rest of the rounds
     const rounds: Round[] = [initialRound];
 
     let previousRound = initialRound;
 
-    // keep generating rounds until the winner bracket has only one competitor
+    const maxIterations = 8;
+    let iterations = 0;
+
+    // end condition: there is only 1 match in the winner side and the loser side is empty
     while (previousRound.winnerSide.length > 1 || previousRound.loserSide.length > 0) {
 
-      let nextRound: Round;
-
-      if (previousRound.winnerSide.length > 1) {
-
-        nextRound = {
-          // winner side is half the size of the previous round
-          winnerSide: Array.from({ length: Math.max(1, Math.ceil(previousRound.winnerSide.length / 2)) }, () => ({ competitor0Name: undefined, competitor1Name: undefined })),
-          // loser side is half the size of the previous round + half the size of the previous winner side
-          loserSide: Array.from({ length: (previousRound.loserSide.length || 0) / 2 + Math.floor(previousRound.winnerSide.length / 2) }, () => ({ competitor0Name: undefined, competitor1Name: undefined }))
-        };
+      if (iterations++ >= maxIterations) {
+        console.log('Max iterations reached');
+        break;
       }
 
-      else
-        nextRound = {
-          winnerSide: [{ competitor0Name: previousRound.winnerSide[0].competitor0Name }],
-          loserSide: Array.from({ length: (previousRound.loserSide.length) / 2 }, () => ({ competitor0Name: undefined, competitor1Name: undefined }))
-        }
+      let nextRound: Round;
+      console.log('Previous round:', previousRound);
 
+      // special case: there was only 1 bye match in the winners side and only 1 match on the losers side: this is the semifinal, which means the new round will only have 1 match in the winners side, with the winner of the bye match and the winner of the losers match
+      if (previousRound.winnerSide.length === 1 && previousRound.loserSide.length === 1) {
+        const lastWinnerSide = [new Match(previousRound.winnerSide[0].getWinner(), previousRound.loserSide[0].getWinner(), undefined)];
+        nextRound = new Round(lastWinnerSide, []);
+        rounds.push(nextRound);
+        break;
+      }
+
+      // collect winners
+      const winners = previousRound.collectWinners();
+      console.log('Winners:', winners);
+
+      // create winner side
+      const winnerSide = createSideFromCompetitorNames(winners);
+      console.log('Winner side:', winnerSide);
+
+      // collect losers
+      const losers = previousRound.collectLosers();
+      console.log('Losers:', losers);
+
+      // create loser side
+      const loserSide = createSideFromCompetitorNames(losers);
+      console.log('Loser side:', loserSide);
+
+      nextRound = new Round(winnerSide, loserSide);
       rounds.push(nextRound);
 
       previousRound = nextRound;
     }
 
-    return { gender, ageGroup, hand, weightLimit, rounds } as Bracket;
+    const bracket = { gender, ageGroup, hand, weightLimit, rounds } as Bracket
+
+    printBracket(bracket);
+
+    return bracket;
   }
 
   const printBracket = (bracket: Bracket): void => {
@@ -194,7 +116,7 @@ export default function App() {
     }
   }
 
-  const bracket: Bracket = generateBracket('Mixed' as Gender, 'Senior' as AgeGroup, 'Left' as Hand, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny']);
+  const bracket = generateBracket('Mixed' as Gender, 'Senior' as AgeGroup, 'Left' as Hand, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny']);
 
   return (
     <div className='p-4'>
