@@ -1,6 +1,8 @@
 import { Bracket, Round, Match, Gender, Hand, AgeGroup } from '../types';
 import BracketView from './BracketView';
 
+import { useState } from 'react';
+
 export default function App() {
 
   const createBye = (competitorName: string): Match => {
@@ -118,9 +120,33 @@ export default function App() {
 
   const bracket = generateBracket(Gender.Mixed, AgeGroup.Senior, Hand.Left, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny']);
 
+  const [bracketState, setBracketState] = useState(bracket);
+
+  const updateMatch = (matchId: number, winner: number): void => {
+
+    const newBracketState = { ...bracketState };
+
+    for (let i = 0; i < newBracketState.rounds.length; i++) {
+      for (let j = 0; j < newBracketState.rounds[i].winnerSide.length; j++) {
+        if (newBracketState.rounds[i].winnerSide[j].id === matchId) {
+          newBracketState.rounds[i].winnerSide[j].winner = winner;
+          break;
+        }
+      }
+      for (let j = 0; j < newBracketState.rounds[i].loserSide.length; j++) {
+        if (newBracketState.rounds[i].loserSide[j].id === matchId) {
+          newBracketState.rounds[i].loserSide[j].winner = winner;
+          break;
+        }
+      }
+    }
+
+    setBracketState(newBracketState);
+  }
+
   return (
     <div className='p-4'>
-      <BracketView initialBracket={bracket} />
+      <BracketView initialBracket={bracket} updateMatch={updateMatch} />
     </div>
   )
 }

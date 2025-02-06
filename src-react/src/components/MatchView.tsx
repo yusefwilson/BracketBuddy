@@ -3,7 +3,7 @@ import { useState } from 'react';
 import WinnerCheckbox from './WinnerCheckbox';
 import { Match } from '../types';
 
-export default function MatchView({ match }: { match: Match }) {
+export default function MatchView({ match, updateMatch }: { match: Match, updateMatch: (matchId: number, winner: number) => void }) {
 
   const [winner, setWinner] = useState(match.winner || -1);
 
@@ -11,10 +11,12 @@ export default function MatchView({ match }: { match: Match }) {
     if (newWinner === winner) {
       setWinner(-1);
       match.winner = undefined;
+      updateMatch(match.id, -1);
     }
     else {
       setWinner(newWinner);
-      match.winner = newWinner;
+      match.winner = newWinner
+      updateMatch(match.id, newWinner);
     }
   }
 
