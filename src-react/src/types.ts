@@ -94,5 +94,4 @@ class Bracket {
     }
 }
 
-export type { Gender, AgeGroup, Hand };
-export { Bracket, Match, Round };
+export { Bracket, Match, Round, Gender, AgeGroup, Hand };

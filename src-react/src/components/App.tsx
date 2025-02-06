@@ -21,7 +21,7 @@ export default function App() {
       }
 
       const newMatch = new Match(competitorNames[i], competitorNames[i + 1], undefined);
-      console.log('just created match with id', newMatch.id);
+      console.log('just created match with id', newMatch.id, ' and competitors', newMatch.competitor0Name, newMatch.competitor1Name);
 
       side.push(newMatch);
     }
@@ -116,7 +116,7 @@ export default function App() {
     }
   }
 
-  const bracket = generateBracket('Mixed' as Gender, 'Senior' as AgeGroup, 'Left' as Hand, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny']);
+  const bracket = generateBracket(Gender.Mixed, AgeGroup.Senior, Hand.Left, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny']);
 
   return (
     <div className='p-4'>
