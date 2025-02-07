@@ -7,7 +7,6 @@ export default function App() {
 
   const createBye = (competitorName: string): Match => {
     const newMatch = new Match(competitorName, undefined, 0, true);
-    console.log('just created bye with id', newMatch.id);
     return newMatch;
   }
 
@@ -23,7 +22,6 @@ export default function App() {
       }
 
       const newMatch = new Match(competitorNames[i], competitorNames[i + 1], undefined);
-      console.log('just created match with id', newMatch.id, ' and competitors', newMatch.competitor0Name, newMatch.competitor1Name);
 
       side.push(newMatch);
     }
@@ -41,51 +39,30 @@ export default function App() {
   // generate a bracket with the given parameters
   const generateBracket = (gender: Gender, ageGroup: AgeGroup, hand: Hand, weightLimit: number, competitorNames: string[]): Bracket => {
 
+    Match.nextId = 0;
+
     const initialRound = generateInitialRound(competitorNames);
-    console.log('Initial round:', initialRound);
 
     // generate the rest of the rounds
     const rounds: Round[] = [initialRound];
 
     let previousRound = initialRound;
 
-    const maxIterations = 8;
-    let iterations = 0;
-
     // end condition: there is only 1 match in the winner side and the loser side is empty
     while (previousRound.winnerSide.length > 1 || previousRound.loserSide.length > 0) {
 
-      if (iterations++ >= maxIterations) {
-        console.log('Max iterations reached');
-        break;
-      }
-
       let nextRound: Round;
-      console.log('Previous round:', previousRound);
 
       // special case: there was only 1 bye match in the winners side and only 1 match on the losers side: this is the semifinal, which means the new round will only have 1 match in the winners side, with the winner of the bye match and the winner of the losers match
       if (previousRound.winnerSide.length === 1 && previousRound.loserSide.length === 1) {
-        const lastWinnerSide = [new Match(previousRound.winnerSide[0].getWinner(), previousRound.loserSide[0].getWinner(), undefined)];
+        const lastWinnerSide = [Match.createLinkedMatch(previousRound.winnerSide[0], true, previousRound.loserSide[0], true)];
         nextRound = new Round(lastWinnerSide, []);
         rounds.push(nextRound);
         break;
       }
 
-      // collect winners
-      const winners = previousRound.collectWinners();
-      console.log('Winners:', winners);
-
-      // create winner side
-      const winnerSide = createSideFromCompetitorNames(winners);
-      console.log('Winner side:', winnerSide);
-
-      // collect losers
-      const losers = previousRound.collectLosers();
-      console.log('Losers:', losers);
-
-      // create loser side
-      const loserSide = createSideFromCompetitorNames(losers);
-      console.log('Loser side:', loserSide);
+      const winnerSide = previousRound.createNextWinnerSide();
+      const loserSide = previousRound.createNextLoserSide();
 
       nextRound = new Round(winnerSide, loserSide);
       rounds.push(nextRound);
@@ -94,8 +71,6 @@ export default function App() {
     }
 
     const bracket = { gender, ageGroup, hand, weightLimit, rounds } as Bracket
-
-    printBracket(bracket);
 
     return bracket;
   }
@@ -124,11 +99,14 @@ export default function App() {
 
   const updateMatch = (matchId: number, winner: number): void => {
 
+    console.log('matchId:', matchId, 'winner:', winner);
+
     const newBracketState = { ...bracketState };
 
     for (let i = 0; i < newBracketState.rounds.length; i++) {
       for (let j = 0; j < newBracketState.rounds[i].winnerSide.length; j++) {
         if (newBracketState.rounds[i].winnerSide[j].id === matchId) {
+          console.log('updating winner of match', matchId, 'to', winner);
           newBracketState.rounds[i].winnerSide[j].winner = winner;
           break;
         }
@@ -140,6 +118,10 @@ export default function App() {
         }
       }
     }
+
+
+
+    console.log('newBracketState:', newBracketState);
 
     setBracketState(newBracketState);
   }
