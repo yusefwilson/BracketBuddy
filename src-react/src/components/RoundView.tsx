@@ -34,7 +34,6 @@ export default function RoundView({ round, updateMatch }: { round: Round, update
           {round.loserSide.map((match, i) => <MatchView key={i} match={match} updateMatch={updateMatch} />)}
         </div>
       }
-      d
     </div>
   )
 }
