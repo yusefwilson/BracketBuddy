@@ -410,8 +410,8 @@ class Bracket {
         this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket);
 
         // TODO: need to figure what order to generate matches and then generate them using createNext functions in Round class
-        let currentWinnerRound = this.winnersBracket[0];
-        let currentLoserRound = this.losersBracket[0];
+        let currentWinnerRound = this.winnersBracket[this.winnersBracket.length - 1];
+        let currentLoserRound = this.losersBracket[this.losersBracket.length - 1];
 
         while (currentWinnerRound.matches.length > 1) {
 

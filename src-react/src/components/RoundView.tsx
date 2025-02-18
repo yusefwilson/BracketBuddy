@@ -25,7 +25,7 @@ export default function RoundView({ round, updateMatch }: { round: Round, update
 
       <h2 className='text-black text-center font-bold'>{bracketName}</h2>
 
-      <div className='flex flex-col bg-green-200 p-4 gap-4'>
+      <div className={'flex flex-col p-4 gap-4 ' + (round.winnerRound ? 'bg-green-200' : 'bg-red-500')}>
         {round.matches.map((match, i) => <MatchView key={i} match={match} updateMatch={updateMatch} />)}
       </div>
     </div>
