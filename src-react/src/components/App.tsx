@@ -1,6 +1,6 @@
-import { Bracket, Gender, Hand, AgeGroup } from '../types';
+import { Gender, Hand, AgeGroup } from '../types';
+import Bracket from '../Bracket';
 import BracketView from './BracketView';
-
 import { useState } from 'react';
 
 export default function App() {

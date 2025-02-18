@@ -1,7 +1,6 @@
 import { useState } from 'react';
-
 import WinnerCheckbox from './WinnerCheckbox';
-import { Match } from '../types';
+import Match from '../Match';
 
 export default function MatchView({ match, updateMatch }: { match: Match, updateMatch: (matchId: number, winner: number) => void }) {
 
@@ -24,12 +23,12 @@ export default function MatchView({ match, updateMatch }: { match: Match, update
     <div className='rounded-md bg-purple-400 p-4 flex flex-col gap-4'>
       <h3 className='text-center font-bold'>Match {match.id}</h3>
       <div className='flex flex-row justify-between items-center p-4 rounded-md bg-blue-400'>
-        {match.competitor0Name || 'Bye'}
+        {match.competitor0Name}
         {<WinnerCheckbox toggleWinner={() => toggleWinner(0)} checked={winner === 0} />}
       </div>
       <div className={'flex justify-between items-center p-4 rounded-md bg-blue-400'}>
-        {match.competitor1Name || 'Bye'}
-        {<WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={winner === 1}/>}
+        {match.competitor1Name}
+        {<WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={winner === 1} />}
       </div>
     </div>
   )
