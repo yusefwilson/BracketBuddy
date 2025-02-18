@@ -1,4 +1,4 @@
-import { Round } from '../types';
+import Round from '../lib/Round';
 import MatchView from './MatchView';
 
 export default function RoundView({ round, updateMatch }: { round: Round, updateMatch: (matchId: number, winner: number) => void }) {

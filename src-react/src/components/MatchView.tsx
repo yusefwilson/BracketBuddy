@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import WinnerCheckbox from './WinnerCheckbox';
-import Match from '../Match';
+import Match from '../lib/Match';
 
 export default function MatchView({ match, updateMatch }: { match: Match, updateMatch: (matchId: number, winner: number) => void }) {
 

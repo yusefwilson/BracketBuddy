@@ -1,6 +1,6 @@
-import Match from "./Match";
-import Bracket from "./Bracket";
-import { greatestPowerOf2LessThanOrEqualTo } from "./utils";
+import Match from './Match';
+import Bracket from './Bracket';
+import { greatestPowerOf2LessThanOrEqualTo } from './utils';
 
 class Round {
 

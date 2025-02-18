@@ -1,6 +1,6 @@
-import Match from "./Match"
-import Round from "./Round"
-import { Gender, AgeGroup, Hand } from "./types"
+import Match from './Match';
+import Round from './Round';
+import { Gender, AgeGroup, Hand } from './types';
 
 class Bracket {
     gender: Gender

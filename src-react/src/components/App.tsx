@@ -1,5 +1,5 @@
-import { Gender, Hand, AgeGroup } from '../types';
-import Bracket from '../Bracket';
+import { Gender, AgeGroup, Hand } from '../lib/types';
+import Bracket from '../lib/Bracket';
 import BracketView from './BracketView';
 import { useState } from 'react';
 

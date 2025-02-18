@@ -1,4 +1,4 @@
-import Bracket from '../Bracket';
+import Bracket from '../lib/Bracket';
 import RoundView from './RoundView';
 
 export default function BracketView({ initialBracket, updateMatch }: { initialBracket: Bracket, updateMatch: (matchId: number, winner: number) => void }) {
