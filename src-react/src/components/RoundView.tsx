@@ -6,7 +6,7 @@ export default function RoundView({ round, updateMatch }: { round: Round, update
   const roundToRoundName = (round: Round) => {
 
     // get number of competitors
-    const numMatches = (round.winnerSide.length + round.loserSide.length);
+    const numMatches = round.matches.length * 2;
 
     switch (numMatches) {
       case 1:
@@ -21,19 +21,13 @@ export default function RoundView({ round, updateMatch }: { round: Round, update
   const bracketName = roundToRoundName(round);
 
   return (
-    <div className='flex flex-col bg-yellow-200'>
+    <div className='flex flex-col bg-yellow-200 w-1/5'>
 
       <h2 className='text-black text-center font-bold'>{bracketName}</h2>
 
       <div className='flex flex-col bg-green-200 p-4 gap-4'>
-        {round.winnerSide.map((match, i) => <MatchView key={i} match={match} updateMatch={updateMatch} />)}
+        {round.matches.map((match, i) => <MatchView key={i} match={match} updateMatch={updateMatch} />)}
       </div>
-
-      {round.loserSide.length !== 0 &&
-        <div className='flex flex-col bg-red-200 p-4 gap-4'>
-          {round.loserSide.map((match, i) => <MatchView key={i} match={match} updateMatch={updateMatch} />)}
-        </div>
-      }
     </div>
   )
 }

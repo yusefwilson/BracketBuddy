@@ -17,6 +17,14 @@ enum Hand {
     Left,
 }
 
+function greatestPowerOf2LessThanOrEqualTo(n: number): number {
+    let power = 1;
+    while (power * 2 <= n) {
+        power *= 2;
+    }
+    return power;
+}
+
 class Match {
 
     id: number // in ascending numerical order, starting from 0, indicating order that matches should be played in. this ensures that matches must be created in the order they are to be played
@@ -33,14 +41,13 @@ class Match {
     competitor0PreviouslyWinner?: boolean
     competitor1PreviouslyWinner?: boolean
 
-    constructor(id: number, competitor0Name?: string, competitor1Name?: string, winner?: number, bye?: boolean, winnerChild?: Match, loserChild?: Match,
+    constructor(id: number, competitor0Name?: string, competitor1Name?: string, winner?: number, winnerChild?: Match, loserChild?: Match,
         competitor0Parent?: Match, competitor1Parent?: Match, competitor0PreviouslyWinner?: boolean, competitor1PreviouslyWinner?: boolean
     ) {
         this.id = id;
         this.competitor0Name = competitor0Name;
         this.competitor1Name = competitor1Name;
         this.winner = winner;
-        this.bye = bye;
         this.winnerChild = winnerChild;
         this.loserChild = loserChild;
         this.competitor0Parent = competitor0Parent;
@@ -49,36 +56,10 @@ class Match {
         this.competitor1PreviouslyWinner = competitor1PreviouslyWinner;
     }
 
-    static createBye(id: number, competitorName: string) {
-
-        // create new bye match
-        return new Match(id, competitorName, undefined, 0, true);
-    }
-
-    // parentWinner = true means that the competitorName is the winner of the parent match, loser otherwise
-    static createLinkedBye(id: number, parent: Match, parentWinner: boolean) {
-
-        // create new bye match
-        let bye = Match.createBye(id, parentWinner ? parent.getWinner() : parent.getLoser() as string);
-
-        // link parent to child
-        if (parentWinner) {
-            parent.winnerChild = bye;
-        }
-        else {
-            parent.loserChild = bye;
-        }
-
-        bye.competitor0Parent = parent;
-        bye.competitor0PreviouslyWinner = parentWinner;
-
-        return bye;
-    }
-
     static createLinkedMatch(id: number, parent0: Match, parent0Winner: boolean, parent1: Match, parent1Winner: boolean) {
 
         // create new match
-        let newMatch = new Match(id, parent0Winner ? parent0.getWinner() : parent0.getLoser(), parent1Winner ? parent1.getWinner() : parent1.getLoser(), undefined, false);
+        let newMatch = new Match(id, parent0Winner ? parent0.getWinner() : parent0.getLoser(), parent1Winner ? parent1.getWinner() : parent1.getLoser(), undefined);
 
         // link parents to child
         if (parent0Winner) {
@@ -104,8 +85,29 @@ class Match {
         return newMatch;
     }
 
-    isBye() {
-        return this.bye ? true : false; //might seem tautological, but this is to prevent undefined from being returned
+    static createHalfLinkedMatch(id: number, parent0: Match, parent0Winner: boolean, competitor1Name: string) {
+
+        // create new match
+        let newMatch = new Match(id, parent0Winner ? parent0.getWinner() : parent0.getLoser(), competitor1Name, undefined);
+
+        // link parents to child
+        if (parent0Winner) {
+            parent0.winnerChild = newMatch;
+        }
+        else {
+            parent0.loserChild = newMatch;
+        }
+
+        // link child to parents
+        newMatch.competitor0Parent = parent0;
+
+        return newMatch;
+    }
+
+    static createUnlinkedMatch(id: number, competitor0Name: string, competitor1Name: string) {
+
+        // create new match
+        return new Match(id, competitor0Name, competitor1Name);
     }
 
     getWinner() {
@@ -118,10 +120,7 @@ class Match {
     }
 
     getLoser() {
-        if (this.isBye()) {
-            return undefined;
-        }
-        else if (this.winner === -1 || this.winner === undefined) {
+        if (this.winner === -1 || this.winner === undefined) {
             return 'Loser of match ' + this.id;
         }
         return this.winner === 0 ? this.competitor1Name : this.competitor0Name;
@@ -166,141 +165,224 @@ class Match {
 class Round {
 
     bracket: Bracket
-    winnerSide: Match[]
-    loserSide: Match[]
+    matches: Match[]
+    winnerRound: boolean
 
-    constructor(bracket: Bracket, winnerSide: Match[], loserSide: Match[]) {
+    constructor(bracket: Bracket, matches: Match[], winnerRound: boolean) {
         this.bracket = bracket;
-        this.winnerSide = winnerSide;
-        this.loserSide = loserSide;
+        this.matches = matches;
+        this.winnerRound = winnerRound;
     }
 
-    static generateInitialRound(bracket: Bracket, competitorNames: string[]): Round {
-        // generate the initial round
-        let winnerSide: Match[] = [];
+    // only called when competitorNames.length === 2^n
+    static createInitialWinnerRound(bracket: Bracket, competitorNames: string[]): Round {
 
+        // array of matches for the round
+        let matches: Match[] = [];
+
+        // create matches for the round
         for (let i = 0; i < competitorNames.length; i += 2) {
-
-            // if there is only one competitor left, add a bye
-            if (i + 1 >= competitorNames.length) {
-                winnerSide.push(Match.createBye(bracket.nextMatchId++, competitorNames[i]));
-                break;
-            }
-
-            const newMatch = new Match(bracket.nextMatchId++, competitorNames[i], competitorNames[i + 1], undefined);
-
-            winnerSide.push(newMatch);
+            matches.push(Match.createUnlinkedMatch(bracket.nextMatchId++, competitorNames[i], competitorNames[i + 1]));
         }
 
-        const loserSide: Match[] = [];
-        return new Round(bracket, winnerSide, loserSide);
+        return new Round(bracket, matches, true);
     }
 
-    createNextWinnerSide() {
+    // returns [winner round 0, winner round 1], or [winner round 1] if there are no byes in round 0
+    static createInitialWinnerRounds(bracket: Bracket, competitorNames: string[]): Round[] {
+
+        // find greatest power of 2 less than or equal to number of competitors
+        const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(competitorNames.length);
+        const numberOfRoundZeroMatches = competitorNames.length - greatestPowerOf2;
+
+        // we don't need a 2^n - k round 0 if there are no byes
+        if (numberOfRoundZeroMatches === 0) {
+            return [Round.createInitialWinnerRound(bracket, competitorNames)];
+        }
+
+        // split competitors into round 0 and round 1
+        const round0CompetitorNames = competitorNames.slice(0, numberOfRoundZeroMatches * 2);
+        const round1CompetitorNames = competitorNames.slice(numberOfRoundZeroMatches * 2);
+
+        let round0Matches: Match[] = [];
+
+        // create matches for round 0
+        for (let i = 0; i < numberOfRoundZeroMatches; i += 2) {
+            round0Matches.push(Match.createUnlinkedMatch(bracket.nextMatchId++, round0CompetitorNames[i], round0CompetitorNames[i + 1]));
+        }
+
+        // create round 0
+        const round0 = new Round(bracket, round0Matches, true);
+
+        // create linked matches for round 1
+        let round1Matches: Match[] = [];
+
+        // for each match in round 0, link it to a competitor in round 1 as long as there are any
+        for (let i = 0; i < round0Matches.length && round1CompetitorNames.length > 0; i++) {
+            let newMatch = Match.createHalfLinkedMatch(bracket.nextMatchId++, round0Matches[i], true, round1CompetitorNames.shift() as string);
+            round1Matches.push(newMatch);
+        }
+
+        // now, there are either some elements left in round1CompetitorNames, or there are some matches left in round0Matches
+        if (round1CompetitorNames.length === 0) {
+            for (let i = 0; i < round0Matches.length; i += 2) {
+                round1Matches.push(Match.createLinkedMatch(bracket.nextMatchId++, round0Matches[i], true, round0Matches[i + 1], true));
+            }
+        }
+
+        if (round1CompetitorNames.length > 0) {
+            for (let i = 0; i < round1CompetitorNames.length; i += 2) {
+                round1Matches.push(Match.createUnlinkedMatch(bracket.nextMatchId++, round1CompetitorNames[i], round1CompetitorNames[i + 1]));
+            }
+        }
+
+        const round1 = new Round(bracket, round1Matches, true);
+
+        return [round0, round1];
+    }
+
+    // only called when initialWinnerRound.length === 2^n
+    static createInitialLoserRound(intialWinnerRound: Round): Round {
+
+        const bracket = intialWinnerRound.bracket;
+
+        // array of matches for the round
+        let matches: Match[] = [];
+
+        // create matches for the round
+        for (let i = 0; i < intialWinnerRound.matches.length; i += 2) {
+            matches.push(Match.createLinkedMatch(bracket.nextMatchId++, intialWinnerRound.matches[i], false, intialWinnerRound.matches[i + 1], false));
+        }
+
+        return new Round(bracket, matches, false);
+    }
+
+    static createInitialLoserRounds(initialWinnerRounds: Round[]): Round[] {
+
+        const numCompetitors = initialWinnerRounds[0].matches.length * 2 + initialWinnerRounds[1].matches.length;
+        const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
+        const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
+
+        // if we don't need any round zero matches, then we just create the first loser round
+        if (numberOfRoundZeroMatches === 0) {
+            return [Round.createInitialLoserRound(initialWinnerRounds[0])];
+        }
+
+        //  // otherwise, we need to perform the same 2^n - k split as we did for the initial winner rounds
+        // conglomerate first 2 rounds for convenience
+        const allWinnerMatches = initialWinnerRounds[0].matches.concat(initialWinnerRounds[1].matches);
+
+        // get reference to bracket
+        const bracket = initialWinnerRounds[0].bracket;
+
+        // create matches for round 0. remove each winner match from the allWinnerMatches array as we use them
+        const round0Matches: Match[] = [];
+        for (let i = 0; i < numberOfRoundZeroMatches; i += 2) {
+            round0Matches.push(Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatches.shift() as Match, true, allWinnerMatches.shift() as Match, true));
+        }
+
+        // create round 0
+        const round0 = new Round(bracket, round0Matches, false);
+
+        // create linked matches for round 1
+        const round1Matches: Match[] = [];
+
+        // for each match in round 0, link it to a match from allWinnerMatches as long as there are any
+        for (let i = 0; i < round0Matches.length && allWinnerMatches.length > 0; i++) {
+            let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, round0Matches[i], true, allWinnerMatches.shift() as Match, false);
+            round1Matches.push(newMatch);
+        }
+
+        // now, there are either some elements left in allWinnerMatches, or there are some matches left in round0Matches
+
+        // if there are any matches left in round0Matches, link them up
+        if (allWinnerMatches.length === 0) {
+            for (let i = 0; i < round0Matches.length; i += 2) {
+                round1Matches.push(Match.createLinkedMatch(bracket.nextMatchId++, round0Matches[i], true, round0Matches[i + 1], true));
+            }
+        }
+
+        // if there are any matches left in allWinnerMatches, create new matches for them
+        if (allWinnerMatches.length > 0) {
+            for (let i = 0; i < allWinnerMatches.length; i += 2) {
+                round1Matches.push(Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatches[i], false, allWinnerMatches[i + 1], false));
+            }
+        }
+
+        const round1 = new Round(bracket, round1Matches, false);
+
+        return [round0, round1];
+    }
+
+    // creates a round of matches composed of the winners of the matches of the given round
+    static createMatchesFromWinners(round: Round): Match[] {
+
+        // this can only be called with a round that has an even number of matches, as all bye handling should be done on round 0, which is not created from this method
+        if (round.matches.length % 2 !== 0) {
+            throw new Error('createNextWinnerSide can only be called on a Round that has an even number of matches');
+        }
 
         // array of matches for the next round
-        let nextWinnerSide: Match[] = [];
-
-        // array of current matches we are examining from the winner side, never more than length 2
-        let currentWinnerMatches: Match[] = [];
+        let matches: Match[] = [];
 
         // loop through winner side matches, creating new matches as needed and adding child references to the current matches
-        for (let i = 0; i < this.winnerSide.length; i++) {
+        for (let i = 0; i < round.matches.length; i += 2) {
 
-            if (currentWinnerMatches.length === 2) {
-
-                // create new linked match
-                nextWinnerSide.push(Match.createLinkedMatch(this.bracket.nextMatchId++, currentWinnerMatches[0], true, currentWinnerMatches[1], true));
-
-                // reset to zero matches
-                currentWinnerMatches = [];
-                console.log('resetting current matches');
-            }
-
-            currentWinnerMatches.push(this.winnerSide[i]);
+            // create new linked match
+            matches.push(Match.createLinkedMatch(round.bracket.nextMatchId++, round.matches[i], true, round.matches[i + 1], true));
         }
 
-        // if there were an odd number of matches, the last match will be a bye
-        if (currentWinnerMatches.length === 1) {
-            nextWinnerSide.push(Match.createLinkedBye(this.bracket.nextMatchId++, currentWinnerMatches[0], true));
-        }
-
-        // otherwise, if there are 2 matches left, create a normal match
-        else if (currentWinnerMatches.length === 2) {
-            nextWinnerSide.push(Match.createLinkedMatch(this.bracket.nextMatchId++, currentWinnerMatches[0], true, currentWinnerMatches[1], true));
-        }
-
-        return nextWinnerSide;
+        return matches;
     }
 
-    createNextLoserSide() {
+    // creates a round of matches composed of the losers of the matches of the given winner round and the winners of the matches of the given loser round. 
+    static createMatchesFromWinnersAndLosers(winnerRound: Round, loserRound: Round) {
+        // this can only be called with 2 round of the exact same length, since winners of losers are pitted against losers of winners
+        if (winnerRound.matches.length !== loserRound.matches.length) {
+            throw new Error('createMatchesFromWinnersAndLosers can only be called on two Rounds of the same length');
+        }
 
         // array of matches for the next round
-        let nextLoserSide: Match[] = [];
+        let matches: Match[] = [];
 
-        // array of current matches we are examining from the loser side, never more than length 2
-        let currentWinnerMatches: Match[] = [];
+        // pair each winner of the loser round with the loser of the winner round
+        for (let i = 0; i < winnerRound.matches.length; i += 2) {
 
-        // first, losers from winner side
-        for (let i = 0; i < this.winnerSide.length; i++) {
-
-            // byes have no real losers, so we skip them
-            if (this.winnerSide[i].isBye()) {
-                continue;
-            }
-
-            if (currentWinnerMatches.length === 2) {
-
-                // create new linked match
-                nextLoserSide.push(Match.createLinkedMatch(this.bracket.nextMatchId++, currentWinnerMatches[0], false, currentWinnerMatches[1], false));
-
-                // reset to zero matches
-                currentWinnerMatches = [];
-            }
-
-            currentWinnerMatches.push(this.winnerSide[i]);
+            // create new linked match
+            matches.push(Match.createLinkedMatch(winnerRound.bracket.nextMatchId++, winnerRound.matches[i], false, loserRound.matches[i], true));
         }
 
-        // if there are 2 matches left in currentWinnerMatches, create a normal match. 1 left edge case is handled later in loop
-        if (currentWinnerMatches.length === 2) {
-            nextLoserSide.push(Match.createLinkedMatch(this.bracket.nextMatchId++, currentWinnerMatches[0], false, currentWinnerMatches[1], false));
+        return matches;
+    }
+
+    // creates a round of matches composed of the winners of the previous winner round. Can only be called on a winner round.
+    createNextWinnerRound() {
+
+        // this can only be called on a Round that is a winner round
+        if (!this.winnerRound) {
+            throw new Error('createNextWinnerRound can only be called on a Round that is a winner round');
         }
 
-        // now, winners from loser side
-        let currentLoserMatches: Match[] = [];
+        // create and return the next round
+        return new Round(this.bracket, Round.createMatchesFromWinners(this), true);
+    }
 
-        for (let i = 0; i < this.loserSide.length; i++) {
+    // creates a round of matches from the winners of the previous loser round, and also includes losers from the given winner round. Can only be called on a loser round.
+    createNextLoserRound(winnerRound: Round | undefined) {
 
-            // edge case where there were an odd amount of losers from winner side and >= 1 winner from loser side
-            if (currentWinnerMatches.length === 1 && currentLoserMatches.length === 1) {
-                nextLoserSide.push(Match.createLinkedMatch(this.bracket.nextMatchId++, currentWinnerMatches[0], false, currentLoserMatches[0], true));
-                currentWinnerMatches = [];
-                currentLoserMatches = [];
-            }
-
-            if (currentLoserMatches.length === 2) {
-
-                // create new linked match
-                nextLoserSide.push(Match.createLinkedMatch(this.bracket.nextMatchId++, currentLoserMatches[0], true, currentLoserMatches[1], true));
-
-                // reset to zero matches
-                currentLoserMatches = [];
-            }
-
-            currentLoserMatches.push(this.loserSide[i]);
+        if (this.winnerRound) {
+            throw new Error('createNextLoserRound can only be called on a Round that is a loser round');
         }
 
-        // if there is a match left in currentLoserMatches, its winner receives a bye in the next round
-        if (currentLoserMatches.length === 1) {
-            nextLoserSide.push(Match.createLinkedBye(this.bracket.nextMatchId++, currentLoserMatches[0], true));
+        // if we are given the winnerRound argument, then we need to include losers from the given winnerRound
+        if (winnerRound) {
+            return new Round(this.bracket, Round.createMatchesFromWinnersAndLosers(winnerRound, this), false);
         }
 
-        // otherwise, if there are 2 matches left, create a normal match
-        else if (currentLoserMatches.length === 2) {
-            nextLoserSide.push(Match.createLinkedMatch(this.bracket.nextMatchId++, currentLoserMatches[0], true, currentLoserMatches[1], true));
+        // otherwise, we simply generate the next round from the winners of the current loser round
+        else {
+            return new Round(this.bracket, Round.createMatchesFromWinners(this), false);
         }
-
-        return nextLoserSide;
     }
 }
 
@@ -309,9 +391,10 @@ class Bracket {
     ageGroup: AgeGroup
     hand: Hand
     weightLimit: number // in lbs, -1 for no limit
-    rounds: Round[]
+    winnersBracket: Round[]
+    losersBracket: Round[]
 
-    nextMatchId: number = 0
+    nextMatchId: number
 
     constructor(gender: Gender, ageGroup: AgeGroup, hand: Hand, weightLimit: number, competitorNames: string[]) {
 
@@ -320,52 +403,50 @@ class Bracket {
         this.ageGroup = ageGroup;
         this.hand = hand;
         this.weightLimit = weightLimit;
+        this.nextMatchId = 0;
 
         // generate rounds
-        const initialRound = Round.generateInitialRound(this, competitorNames);
-        const rounds = [initialRound];
-        let previousRound = initialRound;
+        this.winnersBracket = Round.createInitialWinnerRounds(this, competitorNames);
+        this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket);
 
-        // generate the rest of the rounds with end condition: there is only 1 match in the winner side and the loser side is empty
-        while (previousRound.winnerSide.length > 1 || previousRound.loserSide.length > 0) {
+        // TODO: need to figure what order to generate matches and then generate them using createNext functions in Round class
+        let currentWinnerRound = this.winnersBracket[0];
+        let currentLoserRound = this.losersBracket[0];
 
-            let nextRound: Round;
+        while (currentWinnerRound.matches.length > 1) {
 
-            // special case: there was only 1 bye match in the winners side and only 1 match on the losers side: this is the semifinal, which means the new round will only have 1 match in the winners side, with the winner of the bye match and the winner of the losers match
-            if (previousRound.winnerSide.length === 1 && previousRound.loserSide.length === 1) {
+            // first, process a winner round
+            currentWinnerRound = currentWinnerRound.createNextWinnerRound();
+            this.winnersBracket.push(currentWinnerRound);
 
-                const lastWinnerSide = [Match.createLinkedMatch(this.nextMatchId++, previousRound.winnerSide[0], true, previousRound.loserSide[0], true)];
-                nextRound = new Round(this, lastWinnerSide, []);
-                rounds.push(nextRound);
-
-                break;
+            // now, process loser bracket until the amount of matches in both brackets is the same
+            while (currentLoserRound.matches.length !== currentWinnerRound.matches.length) {
+                // create loser round from previous loser round
+                currentLoserRound = currentLoserRound.createNextLoserRound(undefined);
+                this.losersBracket.push(currentLoserRound);
             }
 
-            // normal case: create the next round using inbuilt round functions
-            const winnerSide = previousRound.createNextWinnerSide();
-            const loserSide = previousRound.createNextLoserSide();
-
-            nextRound = new Round(this, winnerSide, loserSide);
-            rounds.push(nextRound);
-
-            previousRound = nextRound;
+            // now, the current loser round and winner round have the same amount of matches, so we create a loser round from the loser and winner round
+            currentLoserRound = currentLoserRound.createNextLoserRound(currentWinnerRound);
+            this.losersBracket.push(currentLoserRound);
         }
-
-        // add rounds to bracket
-        this.rounds = rounds;
     }
 
     findMatchById(id: number): Match | undefined {
 
-        for (let i = 0; i < this.rounds.length; i++) {
-            for (let j = 0; j < this.rounds[i].winnerSide.length; j++) {
-                if (this.rounds[i].winnerSide[j].id === id) {
-                    return this.rounds[i].winnerSide[j];
+        // loop through all rounds and matches to find the match with the given id
+        for (let round of this.winnersBracket) {
+            for (let match of round.matches) {
+                if (match.id === id) {
+                    return match;
                 }
             }
-            for (let j = 0; j < this.rounds[i].loserSide.length; j++) {
-                if (this.rounds[i].loserSide[j].id === id) {
-                    return this.rounds[i].loserSide[j];
+        }
+
+        for (let round of this.losersBracket) {
+            for (let match of round.matches) {
+                if (match.id === id) {
+                    return match;
                 }
             }
         }
@@ -373,7 +454,7 @@ class Bracket {
         return undefined;
     }
 
-    // hacky, look to replace
+    // TODO: hacky, look to replace. currently used to update reference of Bracket to trigger useState refresh.
     markUpdated(): Bracket {
         return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
     }

@@ -23,13 +23,13 @@ export default function MatchView({ match, updateMatch }: { match: Match, update
   return (
     <div className='rounded-md bg-purple-400 p-4 flex flex-col gap-4'>
       <h3 className='text-center font-bold'>Match {match.id}</h3>
-      <div className={'flex flex-row justify-between items-center p-4 rounded-md' + (match.isBye() ? ' bg-green-950' : ' bg-blue-400')}>
+      <div className='flex flex-row justify-between items-center p-4 rounded-md bg-blue-400'>
         {match.competitor0Name || 'Bye'}
-        {<WinnerCheckbox toggleWinner={() => toggleWinner(0)} checked={winner === 0 || match.isBye()} disabled={false} />}
+        {<WinnerCheckbox toggleWinner={() => toggleWinner(0)} checked={winner === 0} />}
       </div>
-      <div className={'flex justify-between items-center p-4 rounded-md' + (match.isBye() ? ' bg-green-950' : ' bg-blue-400')}>
+      <div className={'flex justify-between items-center p-4 rounded-md bg-blue-400'}>
         {match.competitor1Name || 'Bye'}
-        {<WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={winner === 1} disabled={match.isBye()} />}
+        {<WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={winner === 1}/>}
       </div>
     </div>
   )

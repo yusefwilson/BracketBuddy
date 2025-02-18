@@ -1,4 +1,4 @@
-import { Bracket, Round, Match, Gender, Hand, AgeGroup } from '../types';
+import { Bracket, Gender, Hand, AgeGroup } from '../types';
 import BracketView from './BracketView';
 
 import { useState } from 'react';
@@ -7,23 +7,27 @@ export default function App() {
 
   const printBracket = (bracket: Bracket): void => {
     console.log(`Bracket with gender ${bracket.gender}, age group ${bracket.ageGroup}, hand ${bracket.hand}, and weight limit ${bracket.weightLimit} lbs:`);
-    console.log('Rounds:');
-    for (let i = 0; i < bracket.rounds.length; i++) {
-      console.log('Round ' + (i + 1));
-      console.log('Winner side:');
-      for (let j = 0; j < bracket.rounds[i].winnerSide.length; j++) {
-        console.log(`Match ${j + 1}: ${bracket.rounds[i].winnerSide[j].competitor0Name || 'TBD'} vs ${bracket.rounds[i].winnerSide[j].competitor1Name || 'TBD'}`);
-      }
-      if (bracket.rounds[i].loserSide) {
-        console.log('Loser side:');
-        for (let j = 0; j < (bracket.rounds[i].loserSide.length || 0); j++) {
-          console.log(`Match ${j + 1}: ${bracket.rounds[i].loserSide[j].competitor0Name || 'TBD'} vs ${bracket.rounds[i].loserSide[j].competitor1Name || 'TBD'}`);
-        }
-      }
-    }
+
+    console.log('Winners Bracket:');
+    bracket.winnersBracket.forEach((round, i) => {
+      console.log(`Round ${i + 1}:`);
+      round.matches.forEach(match => {
+        console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
+      });
+    });
+
+    console.log('Losers Bracket:');
+    bracket.losersBracket.forEach((round, i) => {
+      console.log(`Round ${i + 1}:`);
+      round.matches.forEach(match => {
+        console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
+      });
+    });
   }
 
-  const [bracket, setBracket] = useState(new Bracket(Gender.Mixed, AgeGroup.Senior, Hand.Left, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny']));
+  const [bracket, setBracket] = useState(new Bracket(Gender.Mixed, AgeGroup.Senior, Hand.Left, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny', 'Josiah', 'Juan']));
+
+  printBracket(bracket);
 
   const updateMatch = (matchId: number, winner: number): void => {
 
