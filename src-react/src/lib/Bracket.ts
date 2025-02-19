@@ -19,7 +19,7 @@ class Bracket {
         this.ageGroup = ageGroup;
         this.hand = hand;
         this.weightLimit = weightLimit;
-        this.nextMatchId = 0;
+        this.nextMatchId = 1;
 
         // generate rounds
         this.winnersBracket = Round.createInitialWinnerRounds(this, competitorNames);
@@ -34,6 +34,7 @@ class Bracket {
             // first, process a winner round
             currentWinnerRound = currentWinnerRound.createNextWinnerRound();
             this.winnersBracket.push(currentWinnerRound);
+            console.log('just added current winner round: ', currentWinnerRound);
 
             // now, process loser bracket until the amount of matches in both brackets is the same
             while (currentLoserRound.matches.length !== currentWinnerRound.matches.length) {
@@ -73,6 +74,26 @@ class Bracket {
     // TODO: hacky, look to replace. currently used to update reference of Bracket to trigger useState refresh.
     markUpdated(): Bracket {
         return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+    }
+
+    print() {
+        console.log(`Bracket with gender ${this.gender}, age group ${this.ageGroup}, hand ${this.hand}, and weight limit ${this.weightLimit} lbs:`);
+
+        console.log('Winners Bracket:');
+        this.winnersBracket.forEach((round, i) => {
+            console.log(`Round ${i + 1}:`);
+            round.matches.forEach(match => {
+                console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
+            });
+        });
+
+        console.log('Losers Bracket:');
+        this.losersBracket.forEach((round, i) => {
+            console.log(`Round ${i + 1}:`);
+            round.matches.forEach(match => {
+                console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
+            });
+        });
     }
 }
 

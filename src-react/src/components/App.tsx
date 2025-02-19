@@ -5,29 +5,9 @@ import { useState } from 'react';
 
 export default function App() {
 
-  const printBracket = (bracket: Bracket): void => {
-    console.log(`Bracket with gender ${bracket.gender}, age group ${bracket.ageGroup}, hand ${bracket.hand}, and weight limit ${bracket.weightLimit} lbs:`);
-
-    console.log('Winners Bracket:');
-    bracket.winnersBracket.forEach((round, i) => {
-      console.log(`Round ${i + 1}:`);
-      round.matches.forEach(match => {
-        console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
-      });
-    });
-
-    console.log('Losers Bracket:');
-    bracket.losersBracket.forEach((round, i) => {
-      console.log(`Round ${i + 1}:`);
-      round.matches.forEach(match => {
-        console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
-      });
-    });
-  }
-
   const [bracket, setBracket] = useState(new Bracket(Gender.Mixed, AgeGroup.Senior, Hand.Left, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny', 'Josiah', 'Juan']));
 
-  printBracket(bracket);
+  //bracket.print();
 
   const updateMatch = (matchId: number, winner: number): void => {
 
