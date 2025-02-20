@@ -25,7 +25,7 @@ class Bracket {
         this.winnersBracket = Round.createInitialWinnerRounds(this, competitorNames);
         this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket);
 
-        // TODO: need to figure what order to generate matches and then generate them using createNext functions in Round class
+        // create the rest of the bracket
         let currentWinnerRound = this.winnersBracket[this.winnersBracket.length - 1];
         let currentLoserRound = this.losersBracket[this.losersBracket.length - 1];
 
@@ -43,10 +43,20 @@ class Bracket {
                 this.losersBracket.push(currentLoserRound);
             }
 
+            console.log(' current winner round length is ' + currentWinnerRound.matches.length + ' and current loser round length is ' + currentLoserRound.matches.length);
+
             // now, the current loser round and winner round have the same amount of matches, so we create a loser round from the loser and winner round
             currentLoserRound = currentLoserRound.createNextLoserRound(currentWinnerRound);
             this.losersBracket.push(currentLoserRound);
         }
+
+        // now, create finals. this is the winner of the last match of the losers bracket vs the winner of the last match of the winners bracket.
+
+        const finalsMatch = Match.createLinkedMatch(this.nextMatchId++, currentWinnerRound.matches[0], true, currentLoserRound.matches[0], true);
+        const finalsRound = new Round(this, [finalsMatch], true);
+        this.winnersBracket.push(finalsRound);
+        // now, create grand final (finals rematch if the guy from the loser's bracket wins)
+        //const grandFinalsMatch = 
     }
 
     findMatchById(id: number): Match | undefined {

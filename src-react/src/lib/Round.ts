@@ -16,7 +16,7 @@ class Round {
 
     // only called when competitorNames.length === 2^n
     static createInitialWinnerRound(bracket: Bracket, competitorNames: string[]): Round {
-
+        console.log('in createInitialWinnerRound***********************');
         // array of matches for the round
         let matches: Match[] = [];
 
@@ -25,7 +25,9 @@ class Round {
             matches.push(Match.createUnlinkedMatch(bracket.nextMatchId++, competitorNames[i], competitorNames[i + 1]));
         }
 
-        return new Round(bracket, matches, true);
+        let newRound = new Round(bracket, matches, true);
+        console.log('*****returning round: ', newRound, ' from createInitialWinnerRound*****');
+        return newRound;
     }
 
     // returns [winner round 0, winner round 1], or [winner round 1] if there are no byes in round 0
@@ -54,42 +56,45 @@ class Round {
         const round1CompetitorNames = competitorNames.slice(numberOfRoundZeroMatches * 2);
         console.log('round1CompetitorNames: ', round1CompetitorNames);
 
-        let round0Matches: Match[] = [];
+        const round0Matches: Match[] = [];
 
         // create matches for round 0
         for (let i = 0; i < numberOfRoundZeroMatches; i++) {
             let newMatch = Match.createUnlinkedMatch(bracket.nextMatchId++, round0CompetitorNames.shift() as string, round0CompetitorNames.shift() as string)
             round0Matches.push(newMatch);
-            console.log('just added match with id: ', newMatch.id, ' and competitors: ', newMatch.competitor0Name, newMatch.competitor1Name, ' to round 0');
         }
 
         // create round 0
         const round0 = new Round(bracket, round0Matches, true);
 
+        const round0MatchesCopy = round0Matches.slice();
+        const round0MatchesCopyLength = round0MatchesCopy.length;
+
         // create linked matches for round 1
         let round1Matches: Match[] = [];
 
         // for each match in round 0, link it to a competitor in round 1 as long as there are any
-        for (let i = 0; i < round0Matches.length && round1CompetitorNames.length > 0; i++) {
-            let newMatch = Match.createHalfLinkedMatch(bracket.nextMatchId++, round0Matches[i], true, round1CompetitorNames.shift() as string);
+        for (let i = 0; i < round0MatchesCopyLength && round1CompetitorNames.length > 0; i++) {
+            let newMatch = Match.createHalfLinkedMatch(bracket.nextMatchId++, round0MatchesCopy.shift() as Match, true, round1CompetitorNames.shift() as string);
             round1Matches.push(newMatch);
-            console.log('just added match with id: ', newMatch.id, ' and competitors: ', newMatch.competitor0Name, newMatch.competitor1Name, ' to round 1');
         }
+
+        console.log('after creating half linked matches, round0MatchesCopy is ', round0MatchesCopy);
 
         // now, there are either some elements left in round1CompetitorNames, or there are some matches left in round0Matches
         if (round1CompetitorNames.length === 0) {
-            for (let i = 0; i < round0Matches.length; i += 2) {
-                let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, round0Matches[i], true, round0Matches[i + 1], true);
+            for (let i = 0; i < round0MatchesCopy.length; i += 2) {
+                let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, round0MatchesCopy[i], true, round0MatchesCopy[i + 1], true);
                 round1Matches.push(newMatch);
-                console.log('just added match with id: ', newMatch.id, ' and competitors: ', newMatch.competitor0Name, newMatch.competitor1Name, ' to round 1');
             }
         }
+
+        console.log('finished creating linked matches for round 1. round1CompetitorNames: ', round1CompetitorNames);
 
         if (round1CompetitorNames.length > 0) {
             for (let i = 0; i < round1CompetitorNames.length; i += 2) {
                 let newMatch = Match.createUnlinkedMatch(bracket.nextMatchId++, round1CompetitorNames[i], round1CompetitorNames[i + 1])
                 round1Matches.push(newMatch);
-                console.log('just added match with id: ', newMatch.id, ' and competitors: ', newMatch.competitor0Name, newMatch.competitor1Name, ' to round 1');
             }
         }
 
@@ -118,7 +123,9 @@ class Round {
 
     static createInitialLoserRounds(initialWinnerRounds: Round[]): Round[] {
 
-        const numCompetitors = initialWinnerRounds[0].matches.length + initialWinnerRounds[1].matches.length;
+        let numCompetitors = 0;
+        initialWinnerRounds.forEach(round => numCompetitors += round.matches.length);
+
         const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
         const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
 
@@ -145,7 +152,6 @@ class Round {
         for (let i = 0; i < numberOfRoundZeroMatches; i++) {
             let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatches.shift() as Match, false, allWinnerMatches.shift() as Match, false);
             round0Matches.push(newMatch);
-            console.log('just added match with id: ', newMatch.id, 'and competitors: ', newMatch.competitor0Name, newMatch.competitor1Name, ' to round 0');
         }
 
         // create round 0
@@ -158,16 +164,12 @@ class Round {
         const round0MatchesCopy = round0Matches.slice();
         // cache length because we will be modifying the array
         const round0MatchesCopyLength = round0MatchesCopy.length;
-        console.log('round0MatchesCopy: ', round0MatchesCopy);
 
         // for each match in round 0, link it to a match from allWinnerMatches as long as there are any
         for (let i = 0; i < round0MatchesCopyLength && allWinnerMatches.length > 0; i++) {
             let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, round0MatchesCopy.shift() as Match, true, allWinnerMatches.shift() as Match, false);
             round1Matches.push(newMatch);
-            console.log('just added match with id: ', newMatch.id, ' and competitors: ', newMatch.competitor0Name, newMatch.competitor1Name, ' to round 1');
         }
-
-        console.log('made it past first for loop with allWinnerMatches: ', allWinnerMatches, ' and round0MatchesCopy: ', round0MatchesCopy);
 
         // now, there are either some elements left in allWinnerMatches, or there are some matches left in round0Matches
 
@@ -176,11 +178,8 @@ class Round {
             for (let i = 0; i < round0Matches.length; i += 2) {
                 let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, round0MatchesCopy.shift() as Match, true, round0MatchesCopy.shift() as Match, true)
                 round1Matches.push(newMatch);
-                console.log('just added match with id: ', newMatch.id, ' and competitors: ', newMatch.competitor0Name, newMatch.competitor1Name, ' to round 1');
             }
         }
-
-        console.log('made it past if')
 
         // if there are any matches left in allWinnerMatches, create new matches for them
         if (allWinnerMatches.length > 0) {
@@ -188,12 +187,8 @@ class Round {
             for (let i = 0; i < allWinnerMatches.length; i += 2) {
                 let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatches[i], false, allWinnerMatches[i + 1], false)
                 round1Matches.push(newMatch);
-                console.log('just added match with id: ', newMatch.id, 'and competitors: ', newMatch.competitor0Name, newMatch.competitor1Name, ' to round 1');
             }
         }
-
-        console.log('made it past second if')
-
         const round1 = new Round(bracket, round1Matches, false);
 
         console.log('*****returning rounds: ', round0, round1, ' from createInitialLoserRounds*****');
@@ -229,12 +224,15 @@ class Round {
             throw new Error('createMatchesFromWinnersAndLosers can only be called on two Rounds of the same length');
         }
 
+        console.log('in createMatchesFromWinnersAndLosers with winnerRound: ', winnerRound, ' and loserRound: ', loserRound);
+
         // array of matches for the next round
         let matches: Match[] = [];
 
         // pair each winner of the loser round with the loser of the winner round
-        for (let i = 0; i < winnerRound.matches.length; i += 2) {
+        for (let i = 0; i < winnerRound.matches.length; i++) {
 
+            console.log('about to create linked match with parent0 ', winnerRound.matches[i], ' and parent1 ', loserRound.matches[1]);
             // create new linked match
             matches.push(Match.createLinkedMatch(winnerRound.bracket.nextMatchId++, winnerRound.matches[i], false, loserRound.matches[i], true));
         }
@@ -263,6 +261,7 @@ class Round {
 
         // if we are given the winnerRound argument, then we need to include losers from the given winnerRound
         if (winnerRound) {
+            console.log('about to create new loser round from winners of previous loser round and losers of given winner round')
             return new Round(this.bracket, Round.createMatchesFromWinnersAndLosers(winnerRound, this), false);
         }
 

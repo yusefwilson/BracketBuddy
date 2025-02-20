@@ -53,6 +53,8 @@ class Match {
         newMatch.competitor0PreviouslyWinner = parent0Winner;
         newMatch.competitor1PreviouslyWinner = parent1Winner;
 
+        console.log('creating new linked match with id ' + id + ' and competitors ' + newMatch.competitor0Name + ' and ' + newMatch.competitor1Name + ' and parent0.id ' + parent0.id + ' and parent0Winner  ' + parent0Winner + ' and parent1.id ' + parent1.id + ' and parent1Winner ' + parent1Winner);
+
         return newMatch;
     }
 
@@ -71,6 +73,9 @@ class Match {
 
         // link child to parents
         newMatch.competitor0Parent = parent0;
+        newMatch.competitor0PreviouslyWinner = parent0Winner;
+
+        console.log('creating new half linked match with id ' + id + ' and competitors ' + newMatch.competitor0Name + ' and ' + newMatch.competitor1Name + ' and parent0.id ' + parent0.id + ' and parent0Winner ' + parent0Winner);
 
         return newMatch;
     }
@@ -78,6 +83,7 @@ class Match {
     static createUnlinkedMatch(id: number, competitor0Name: string, competitor1Name: string) {
 
         // create new match
+        console.log('creating new unlinked match with id ' + id + ' and competitors ' + competitor0Name + ' and ' + competitor1Name);
         return new Match(id, competitor0Name, competitor1Name);
     }
 

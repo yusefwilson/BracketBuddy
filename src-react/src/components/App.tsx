@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 export default function App() {
 
-  const [bracket, setBracket] = useState(new Bracket(Gender.Mixed, AgeGroup.Senior, Hand.Left, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny', 'Josiah', 'Juan']));
+  const [bracket, setBracket] = useState(new Bracket(Gender.Mixed, AgeGroup.Senior, Hand.Left, 200, ['John', 'Jane', 'James', 'Jerry', 'Jack', 'Jill', 'Joe', 'Jenny', 'Josiah', 'Josephena']));
 
   //bracket.print();
 
