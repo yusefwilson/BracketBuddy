@@ -21,11 +21,11 @@ export default function RoundView({ round, updateMatch }: { round: Round, update
   const bracketName = roundToRoundName(round);
 
   return (
-    <div className='flex flex-col bg-yellow-200 w-1/5'>
+    <div className='flex flex-col bg-yellow-200 w-1/6 flex-shrink-0 justify-center'>
 
       <h2 className='text-black text-center font-bold'>{bracketName}</h2>
 
-      <div className={'flex flex-col p-4 gap-4 ' + (round.winnerRound ? 'bg-green-200' : 'bg-red-500')}>
+      <div className={'flex flex-col p-2 gap-2 ' + (round.winnerRound ? 'bg-green-200' : 'bg-red-500')}>
         {round.matches.map((match, i) => <MatchView key={i} match={match} updateMatch={updateMatch} />)}
       </div>
     </div>
