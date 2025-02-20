@@ -106,16 +106,21 @@ class Round {
     }
 
     // only called when initialWinnerRound.length === 2^n
-    static createInitialLoserRound(intialWinnerRound: Round): Round {
+    static createInitialLoserRound(intialWinnerRounds: Round[]): Round {
+        console.log('in createInitialLoserRound*********************** with initialWinnerRounds: ', intialWinnerRounds);
+        const bracket = intialWinnerRounds[0].bracket;
 
-        const bracket = intialWinnerRound.bracket;
+        // congrlomerate all matches from first 2 rounds
+        const allWinnerMatches = intialWinnerRounds.length === 1 ? intialWinnerRounds[0].matches : intialWinnerRounds[0].matches.concat(intialWinnerRounds[1].matches);
+        const allWinnerMatchesCopy = allWinnerMatches.slice();
+        const allWinnerMatchesCopyLength = allWinnerMatchesCopy.length;
 
         // array of matches for the round
         let matches: Match[] = [];
 
         // create matches for the round
-        for (let i = 0; i < intialWinnerRound.matches.length; i += 2) {
-            matches.push(Match.createLinkedMatch(bracket.nextMatchId++, intialWinnerRound.matches[i], false, intialWinnerRound.matches[i + 1], false));
+        for (let i = 0; i < allWinnerMatchesCopyLength; i+=2) {
+            matches.push(Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatchesCopy.shift() as Match, false, allWinnerMatchesCopy.shift() as Match, false));
         }
 
         return new Round(bracket, matches, false);
@@ -137,7 +142,7 @@ class Round {
         // if we don't need any round zero matches, then we just create the first loser round
         if (numberOfRoundZeroMatches === 0) {
             console.log('creating only 1 initial loser round as the number of competitors is already a power of 2');
-            return [Round.createInitialLoserRound(initialWinnerRounds[0])];
+            return [Round.createInitialLoserRound(initialWinnerRounds)];
         }
 
         //  // otherwise, we need to perform the same 2^n - k split as we did for the initial winner rounds
