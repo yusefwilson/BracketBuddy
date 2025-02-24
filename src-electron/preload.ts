@@ -1,7 +1,6 @@
-import { contextBridge } from "electron"
+import { contextBridge, ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld('versions', {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron
+contextBridge.exposeInMainWorld('electron', {
+    readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
+    writeFile: (filePath: string, data: string) => ipcRenderer.invoke('write-file', filePath, data)
 })

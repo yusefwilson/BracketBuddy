@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'node:path';
+import fs from 'fs';
 
 // so that the app reloads when the code changes in development
 app.isPackaged || require('electron-reloader')(module);
@@ -24,6 +25,15 @@ const create_window = async () => {
         await window.loadFile('../src-react/dist/index.html');
     }
 }
+
+ipcMain.handle('read-file', (_, filePath) => {
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return data;
+});
+
+ipcMain.handle('write-file', async (_, filePath, data) => {
+    await fs.promises.writeFile(filePath, data, 'utf-8');
+});
 
 const main = async () => {
     await app.whenReady();

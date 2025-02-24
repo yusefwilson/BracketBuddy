@@ -1,5 +1,5 @@
 import Bracket from '../lib/Bracket';
-import RoundView from './RoundView';
+import RoundView from '../components/RoundView';
 import { useState } from 'react';
 
 export default function BracketView({ initialBracket }: { initialBracket: Bracket }) {

@@ -1,10 +1,10 @@
 import Match from './Match';
 import Round from './Round';
-import { Gender, AgeGroup, Hand } from './types';
+import { Gender, Hand, ExperienceLevel } from './types';
 
 class Bracket {
     gender: Gender
-    ageGroup: AgeGroup
+    experienceLevel: ExperienceLevel
     hand: Hand
     weightLimit: number // in lbs, -1 for no limit
     winnersBracket: Round[]
@@ -12,11 +12,11 @@ class Bracket {
 
     nextMatchId: number
 
-    constructor(gender: Gender, ageGroup: AgeGroup, hand: Hand, weightLimit: number, competitorNames: string[]) {
+    constructor(gender: Gender, experienceLevel: ExperienceLevel, hand: Hand, weightLimit: number, competitorNames: string[]) {
 
         // assign everything except rounds
         this.gender = gender;
-        this.ageGroup = ageGroup;
+        this.experienceLevel = experienceLevel;
         this.hand = hand;
         this.weightLimit = weightLimit;
         this.nextMatchId = 1;
@@ -87,7 +87,7 @@ class Bracket {
     }
 
     print() {
-        console.log(`Bracket with gender ${this.gender}, age group ${this.ageGroup}, hand ${this.hand}, and weight limit ${this.weightLimit} lbs:`);
+        console.log(`Bracket with gender ${this.gender}, age group ${this.experienceLevel}, hand ${this.hand}, and weight limit ${this.weightLimit} lbs:`);
 
         console.log('Winners Bracket:');
         this.winnersBracket.forEach((round, i) => {

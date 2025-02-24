@@ -1,20 +1,7 @@
-enum Gender {
-    Male,
-    Female,
-    Mixed
-}
+type Gender = 'Male' | 'Female' | 'Mixed';
 
-enum AgeGroup {
-    Junior,
-    Senior,
-    Master,
-    Grandmaster,
-    SeniorGrandmaster,
-}
+type Hand = 'Left' | 'Right';
 
-enum Hand {
-    Right,
-    Left,
-}
+type ExperienceLevel = 'Youth' | 'Novice' | 'Amateur' | 'Semipro' | 'Pro' | 'Master' | 'Grandmaster' | 'Senior Grandmaster';
 
-export { Gender, AgeGroup, Hand };
+export type { Gender, Hand, ExperienceLevel };
