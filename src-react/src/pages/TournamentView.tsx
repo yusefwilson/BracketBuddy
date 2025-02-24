@@ -1,13 +1,20 @@
 import Tournament from '../lib/Tournament';
 import BracketInfoCard from '../components/BracketInfoCard';
 
-export default function TournamentView({ tournament }: { tournament: Tournament }) {
+import { CURRENT_STATE } from '../components/App';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+export default function TournamentView({ tournament }: { tournament: Tournament | null }) {
+
+  const state = useContext(CURRENT_STATE);
+  const navigate = useNavigate();
 
   return (
     <div className='bg-slate-600 p-2 rounded-md'>
-      <h1>{'Tournament name: ' + tournament.name}</h1>
-      <h1>{'Tournament date: ' + tournament.date.toDateString()}</h1>
-      {tournament.brackets.map((bracket, i) => <BracketInfoCard key={i} bracket={bracket} />)}
+      <h1>{'Tournament name: ' + tournament?.name}</h1>
+      <h1>{'Tournament date: ' + tournament?.date.toDateString()}</h1>
+      {tournament?.brackets.map((bracket, i) => <BracketInfoCard key={i} bracket={bracket} onClick={() => { state?.setBracket(bracket); navigate('/bracket'); }} />)}
     </div>
   )
 }

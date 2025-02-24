@@ -83,7 +83,7 @@ class Bracket {
 
     // TODO: hacky, look to replace. currently used to update reference of Bracket to trigger useState refresh.
     markUpdated(): Bracket {
-        return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+        return Object.assign(Object.create(Object.getPrototypeOf(this)), this) as Bracket;
     }
 
     print() {
