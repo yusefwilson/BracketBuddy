@@ -10,12 +10,12 @@ export default function MatchView({ match, updateMatch }: { match: Match, update
     if (newWinner === winner) {
       setWinner(-1);
       match.winner = undefined;
-      updateMatch(match.id, -1);
+      updateMatch(match.matchNumber, -1);
     }
     else {
       setWinner(newWinner);
       match.winner = newWinner
-      updateMatch(match.id, newWinner);
+      updateMatch(match.matchNumber, newWinner);
     }
   }
 
@@ -24,7 +24,7 @@ export default function MatchView({ match, updateMatch }: { match: Match, update
 
       {/* Match container */}
       <div className='rounded-md bg-purple-400 p-2 flex flex-col gap-2'>
-        <h3 className='text-center font-bold'>Match {match.id}</h3>
+        <h3 className='text-center font-bold'>Match {match.matchNumber}</h3>
         <div className='flex flex-row justify-between items-center p-2 rounded-md bg-blue-400'>
           {match.competitor0Name}
           {<WinnerCheckbox toggleWinner={() => toggleWinner(0)} checked={winner === 0} />}

@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { CURRENT_STATE } from "../components/App";
-import TournamentInfoCard from "../components/TournamentInfoCard";
+import { CURRENT_STATE } from '../components/App';
+import TournamentInfoCard from '../components/TournamentInfoCard';
 
-import Tournament from "../lib/Tournament";
-import Bracket from "../lib/Bracket";
+import Tournament from '../lib/Tournament';
+import Bracket from '../lib/Bracket';
 
 export default function Home() {
 

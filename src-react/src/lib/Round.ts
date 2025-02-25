@@ -1,15 +1,16 @@
 import Match from './Match';
 import Bracket from './Bracket';
 import { greatestPowerOf2LessThanOrEqualTo } from './utils';
+import DataStore from './DataStore';
 
 class Round {
 
-    bracket: Bracket
+    bracketId: number
     matches: Match[]
     winnerRound: boolean
 
-    constructor(bracket: Bracket, matches: Match[], winnerRound: boolean) {
-        this.bracket = bracket;
+    constructor(bracketId: number, matches: Match[], winnerRound: boolean) {
+        this.bracketId = bracketId;
         this.matches = matches;
         this.winnerRound = winnerRound;
     }
@@ -25,7 +26,7 @@ class Round {
             matches.push(Match.createUnlinkedMatch(bracket.nextMatchId++, competitorNames[i], competitorNames[i + 1]));
         }
 
-        let newRound = new Round(bracket, matches, true);
+        let newRound = new Round(bracket.id, matches, true);
         console.log('*****returning round: ', newRound, ' from createInitialWinnerRound*****');
         return newRound;
     }
@@ -65,7 +66,7 @@ class Round {
         }
 
         // create round 0
-        const round0 = new Round(bracket, round0Matches, true);
+        const round0 = new Round(bracket.id, round0Matches, true);
 
         const round0MatchesCopy = round0Matches.slice();
         const round0MatchesCopyLength = round0MatchesCopy.length;
@@ -98,7 +99,7 @@ class Round {
             }
         }
 
-        const round1 = new Round(bracket, round1Matches, true);
+        const round1 = new Round(bracket.id, round1Matches, true);
 
         console.log('*****returning rounds: ', round0, round1, ' from createInitialWinnerRounds*****');
 
@@ -108,7 +109,7 @@ class Round {
     // only called when initialWinnerRound.length === 2^n
     static createInitialLoserRound(intialWinnerRounds: Round[]): Round {
         console.log('in createInitialLoserRound*********************** with initialWinnerRounds: ', intialWinnerRounds);
-        const bracket = intialWinnerRounds[0].bracket;
+        const bracket = DataStore.Instance.getBracket(intialWinnerRounds[0].bracketId);
 
         // congrlomerate all matches from first 2 rounds
         const allWinnerMatches = intialWinnerRounds.length === 1 ? intialWinnerRounds[0].matches : intialWinnerRounds[0].matches.concat(intialWinnerRounds[1].matches);
@@ -119,11 +120,11 @@ class Round {
         let matches: Match[] = [];
 
         // create matches for the round
-        for (let i = 0; i < allWinnerMatchesCopyLength; i+=2) {
+        for (let i = 0; i < allWinnerMatchesCopyLength; i += 2) {
             matches.push(Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatchesCopy.shift() as Match, false, allWinnerMatchesCopy.shift() as Match, false));
         }
 
-        return new Round(bracket, matches, false);
+        return new Round(bracket?.id, matches, false);
     }
 
     static createInitialLoserRounds(initialWinnerRounds: Round[]): Round[] {
@@ -150,7 +151,7 @@ class Round {
         const allWinnerMatches = initialWinnerRounds[0].matches.concat(initialWinnerRounds[1].matches);
 
         // get reference to bracket
-        const bracket = initialWinnerRounds[0].bracket;
+        const bracket = DataStore.Instance.getBracket(initialWinnerRounds[0].bracketId);
 
         // create matches for round 0. remove each match from the allWinnerMatches array as we use them
         const round0Matches: Match[] = [];
@@ -160,7 +161,7 @@ class Round {
         }
 
         // create round 0
-        const round0 = new Round(bracket, round0Matches, false);
+        const round0 = new Round(bracket.id, round0Matches, false);
 
         // create linked matches for round 1
         const round1Matches: Match[] = [];
@@ -194,7 +195,7 @@ class Round {
                 round1Matches.push(newMatch);
             }
         }
-        const round1 = new Round(bracket, round1Matches, false);
+        const round1 = new Round(bracket.id, round1Matches, false);
 
         console.log('*****returning rounds: ', round0, round1, ' from createInitialLoserRounds*****');
 
@@ -212,11 +213,13 @@ class Round {
         // array of matches for the next round
         let matches: Match[] = [];
 
+        const bracket = DataStore.Instance.getBracket(round.bracketId);
+
         // loop through winner side matches, creating new matches as needed and adding child references to the current matches
         for (let i = 0; i < round.matches.length; i += 2) {
 
             // create new linked match
-            matches.push(Match.createLinkedMatch(round.bracket.nextMatchId++, round.matches[i], true, round.matches[i + 1], true));
+            matches.push(Match.createLinkedMatch(bracket.nextMatchId++, round.matches[i], true, round.matches[i + 1], true));
         }
 
         return matches;
@@ -234,12 +237,14 @@ class Round {
         // array of matches for the next round
         let matches: Match[] = [];
 
+        const bracket = DataStore.Instance.getBracket(winnerRound.bracketId);
+
         // pair each winner of the loser round with the loser of the winner round
         for (let i = 0; i < winnerRound.matches.length; i++) {
 
             console.log('about to create linked match with parent0 ', winnerRound.matches[i], ' and parent1 ', loserRound.matches[1]);
             // create new linked match
-            matches.push(Match.createLinkedMatch(winnerRound.bracket.nextMatchId++, winnerRound.matches[i], false, loserRound.matches[i], true));
+            matches.push(Match.createLinkedMatch(bracket.nextMatchId++, winnerRound.matches[i], false, loserRound.matches[i], true));
         }
 
         return matches;
@@ -254,7 +259,7 @@ class Round {
         }
 
         // create and return the next round
-        return new Round(this.bracket, Round.createMatchesFromWinners(this), true);
+        return new Round(this.bracketId, Round.createMatchesFromWinners(this), true);
     }
 
     // creates a round of matches from the winners of the previous loser round, and also includes losers from the given winner round. Can only be called on a loser round.
@@ -267,13 +272,13 @@ class Round {
         // if we are given the winnerRound argument, then we need to include losers from the given winnerRound
         if (winnerRound) {
             console.log('about to create new loser round from winners of previous loser round and losers of given winner round')
-            return new Round(this.bracket, Round.createMatchesFromWinnersAndLosers(winnerRound, this), false);
+            return new Round(this.bracketId, Round.createMatchesFromWinnersAndLosers(winnerRound, this), false);
         }
 
         // otherwise, we simply generate the next round from the winners of the current loser round
         else {
             console.log('about to create new loser round from winners of previous loser round')
-            return new Round(this.bracket, Round.createMatchesFromWinners(this), false);
+            return new Round(this.bracketId, Round.createMatchesFromWinners(this), false);
         }
     }
 }
