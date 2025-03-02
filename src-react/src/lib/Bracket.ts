@@ -1,3 +1,7 @@
+import { parse, stringify } from 'flatted';
+import { deepSerialize, deepDeserialize } from './utils';
+
+import Tournament from './Tournament';
 import Match from './Match';
 import Round from './Round';
 import { Gender, Hand, ExperienceLevel } from './types';
@@ -104,6 +108,14 @@ class Bracket {
                 console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
             });
         });
+    }
+
+    serialize(): string {
+        return stringify(deepSerialize(this));
+    }
+
+    static deserialize(serialized: string): Bracket {
+        return deepDeserialize(parse(serialized), { Tournament, Bracket, Round, Match, Date }) as Bracket;
     }
 }
 

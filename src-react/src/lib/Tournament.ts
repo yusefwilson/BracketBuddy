@@ -1,5 +1,8 @@
-import SuperJSON from "superjson";
-import Bracket from "./Bracket";
+import { parse, stringify } from 'flatted';
+import { deepSerialize, deepDeserialize } from './utils';
+import Bracket from './Bracket';
+import Round from './Round';
+import Match from './Match';
 
 class Tournament {
 
@@ -17,19 +20,28 @@ class Tournament {
         this.brackets.push(bracket);
     }
 
-    async save() {
-        await window.electron.writeFile(this.name + '.json', SuperJSON.stringify(this));
-        console.log('Saved tournament to ' + this.name + '.json');
+    async saveToFile(filePath: string) {
+
+        const serializedString = this.serialize();
+        await window.electron.writeFile(filePath, serializedString);
+
+        console.log('Saved tournament to ' + filePath);
     }
 
-    static async load(filePath: string): Promise<Tournament> {
+    static async loadFromFile(filePath: string): Promise<Tournament> {
+
         const data = await window.electron.readFile(filePath);
         console.log('Loaded tournament from ' + filePath);
 
-        const tournament = SuperJSON.parse(data) as Tournament;
-        console.log(tournament);
+        return this.deserialize(data);
+    }
 
-        return tournament;
+    serialize(): string {
+        return stringify(deepSerialize(this));
+    }
+
+    static deserialize(serialized: string): Tournament {
+        return deepDeserialize(parse(serialized), { Tournament, Bracket, Round, Match, Date }) as Tournament;
     }
 
 }

@@ -18,6 +18,8 @@ export default function BracketView({ initialBracket }: { initialBracket: Bracke
 
   const [bracket, setBracket] = useState(initialBracket);
 
+  console.log('about to render initialBracket', initialBracket);
+
   return (
     <div className='rounded-md bg-orange-400 p-2 flex flex-col gap-4'>
       <div className='rounded-md bg-green-700 flex flex-row p-4 gap-4 overflow-x-auto justify-between'>

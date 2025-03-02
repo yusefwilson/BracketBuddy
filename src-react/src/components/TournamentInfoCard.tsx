@@ -1,4 +1,4 @@
-import Tournament from "../lib/Tournament"
+import Tournament from '../lib/Tournament'
 
 export default function TournamentInfoCard({ tournament, onClick }: { tournament: Tournament, onClick: () => void }) {
 

@@ -10,6 +10,8 @@ export default function TournamentView({ tournament }: { tournament: Tournament 
   const state = useContext(CURRENT_STATE);
   const navigate = useNavigate();
 
+  console.log('about to render tournament', tournament);
+
   return (
     <div className='bg-slate-600 p-2 rounded-md'>
       <h1>{'Tournament name: ' + tournament?.name}</h1>

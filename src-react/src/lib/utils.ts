@@ -6,4 +6,63 @@ function greatestPowerOf2LessThanOrEqualTo(n: number): number {
     return power;
 }
 
-export { greatestPowerOf2LessThanOrEqualTo };
+function deepSerialize(obj: any, seen = new WeakMap(), idCounter = { count: 0 }): any {
+    if (obj && typeof obj === 'object') {
+        if (seen.has(obj)) {
+            return { __ref: seen.get(obj) };
+        }
+
+        const id = idCounter.count++;
+        seen.set(obj, id);
+
+        if (Array.isArray(obj)) {
+            return { __array: obj.map((item) => deepSerialize(item, seen, idCounter)) };
+        }
+
+        if (obj instanceof Date) {
+            return { __date: obj.toISOString() }; // Store dates as ISO strings
+        }
+
+        const serializedObj: any = { __class: obj.constructor.name, __id: id };
+
+        for (const key in obj) {
+            serializedObj[key] = deepSerialize(obj[key], seen, idCounter);
+        }
+        return serializedObj;
+    }
+    return obj;
+}
+
+
+
+function deepDeserialize<T>(obj: any, classMap: Record<string, new (...args: any[]) => any>, seen = new Map()): T {
+    if (obj && typeof obj === 'object') {
+        if (obj.__ref) {
+            return seen.get(obj.__ref);
+        }
+
+        if (obj.__array) {
+            return obj.__array.map((item: any) => deepDeserialize(item, classMap, seen));
+        }
+
+        if (obj.__date) {
+            return new Date(obj.__date) as T; // Restore Date object
+        }
+
+        if (obj.__class && classMap[obj.__class]) {
+            const instance = Object.create(classMap[obj.__class].prototype);
+            seen.set(obj.__id, instance);
+
+            for (const key in obj) {
+                if (key !== '__class' && key !== '__id') {
+                    instance[key] = deepDeserialize(obj[key], classMap, seen);
+                }
+            }
+            return instance;
+        }
+    }
+    return obj as T;
+}
+
+
+export { greatestPowerOf2LessThanOrEqualTo, deepSerialize, deepDeserialize };

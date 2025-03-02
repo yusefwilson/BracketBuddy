@@ -1,4 +1,4 @@
-import Bracket from "../lib/Bracket";
+import Bracket from '../lib/Bracket';
 
 export default function BracketInfoCard({ bracket, onClick }: { bracket: Bracket, onClick: () => void }) {
 
