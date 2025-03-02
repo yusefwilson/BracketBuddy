@@ -35,10 +35,6 @@ ipcMain.handle('write-file', async (_, filePath, data) => {
     await fs.promises.writeFile(filePath, data, 'utf-8');
 });
 
-ipcMain.handle('file-exists', (_, filePath) => {
-    return fs.existsSync(filePath);
-});
-
 const main = async () => {
     await app.whenReady();
     create_window();

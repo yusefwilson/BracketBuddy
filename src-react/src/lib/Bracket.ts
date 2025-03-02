@@ -1,4 +1,3 @@
-import DataStore from './DataStore';
 import Match from './Match';
 import Round from './Round';
 import { Gender, Hand, ExperienceLevel } from './types';
@@ -10,11 +9,8 @@ class Bracket {
     weightLimit: number // in lbs, -1 for no limit
     winnersBracket: Round[]
     losersBracket: Round[]
-    numCompetitors: number
 
     nextMatchId: number
-
-    id: number;
 
     constructor(gender: Gender, experienceLevel: ExperienceLevel, hand: Hand, weightLimit: number, competitorNames: string[]) {
 
@@ -24,8 +20,6 @@ class Bracket {
         this.hand = hand;
         this.weightLimit = weightLimit;
         this.nextMatchId = 1;
-        this.numCompetitors = competitorNames.length;
-        this.id = DataStore.Instance.addBracket(this);
 
         // generate rounds
         this.winnersBracket = Round.createInitialWinnerRounds(this, competitorNames);
@@ -59,7 +53,7 @@ class Bracket {
         // now, create finals. this is the winner of the last match of the losers bracket vs the winner of the last match of the winners bracket.
 
         const finalsMatch = Match.createLinkedMatch(this.nextMatchId++, currentWinnerRound.matches[0], true, currentLoserRound.matches[0], true);
-        const finalsRound = new Round(this.id, [finalsMatch], true);
+        const finalsRound = new Round(this, [finalsMatch], true);
         this.winnersBracket.push(finalsRound);
         // now, create grand final (finals rematch if the guy from the loser's bracket wins)
         //const grandFinalsMatch = 
@@ -70,7 +64,7 @@ class Bracket {
         // loop through all rounds and matches to find the match with the given id
         for (let round of this.winnersBracket) {
             for (let match of round.matches) {
-                if (match.matchNumber === id) {
+                if (match.id === id) {
                     return match;
                 }
             }
@@ -78,7 +72,7 @@ class Bracket {
 
         for (let round of this.losersBracket) {
             for (let match of round.matches) {
-                if (match.matchNumber === id) {
+                if (match.id === id) {
                     return match;
                 }
             }
@@ -99,7 +93,7 @@ class Bracket {
         this.winnersBracket.forEach((round, i) => {
             console.log(`Round ${i + 1}:`);
             round.matches.forEach(match => {
-                console.log(`Match ${match.matchNumber}: ${match.competitor0Name} vs ${match.competitor1Name}`);
+                console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
             });
         });
 
@@ -107,7 +101,7 @@ class Bracket {
         this.losersBracket.forEach((round, i) => {
             console.log(`Round ${i + 1}:`);
             round.matches.forEach(match => {
-                console.log(`Match ${match.matchNumber}: ${match.competitor0Name} vs ${match.competitor1Name}`);
+                console.log(`Match ${match.id}: ${match.competitor0Name} vs ${match.competitor1Name}`);
             });
         });
     }
