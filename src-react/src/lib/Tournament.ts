@@ -20,28 +20,28 @@ class Tournament {
         this.brackets.push(bracket);
     }
 
-    async saveToFile(filePath: string) {
-
-        const serializedString = this.serialize();
-        await window.electron.writeFile(filePath, serializedString);
-
-        console.log('Saved tournament to ' + filePath);
-    }
-
-    static async loadFromFile(filePath: string): Promise<Tournament> {
-
-        const data = await window.electron.readFile(filePath);
-        console.log('Loaded tournament from ' + filePath);
-
-        return this.deserialize(data);
-    }
-
+    // serialization and deserialization
     serialize(): string {
         return stringify(deepSerialize(this));
     }
 
     static deserialize(serialized: string): Tournament {
         return deepDeserialize(parse(serialized), { Tournament, Bracket, Round, Match, Date }) as Tournament;
+    }
+
+    // saving and loading
+    async saveToFile(filePath: string) {
+        await window.electron.saveTournament(this.name, this.serialize());
+        console.log('Saved tournament to ' + filePath);
+    }
+
+    static async loadFromFile(filePath: string): Promise<Tournament> {
+        const data = await window.electron.readFile(filePath);
+        return Tournament.deserialize(data);
+    }
+
+    static async loadAllTournaments(): Promise<Tournament[]> {
+        return (await window.electron.loadAllTournaments()).map((tournament: string) => Tournament.deserialize(tournament));
     }
 
 }

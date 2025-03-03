@@ -7,10 +7,14 @@ import Round from './Round';
 import { Gender, Hand, ExperienceLevel } from './types';
 
 class Bracket {
+
     gender: Gender
     experienceLevel: ExperienceLevel
     hand: Hand
     weightLimit: number // in lbs, -1 for no limit
+
+    competitorNames: string[]
+
     winnersBracket: Round[]
     losersBracket: Round[]
 
@@ -23,10 +27,23 @@ class Bracket {
         this.experienceLevel = experienceLevel;
         this.hand = hand;
         this.weightLimit = weightLimit;
+
+        this.competitorNames = competitorNames;
+
+        this.winnersBracket = [];
+        this.losersBracket = [];
+
         this.nextMatchId = 1;
 
+        // maybe this doesn't need to be here - in fact, it probably makes sense to only do this when the user is done inputting names
+        this.initializeBracket();
+    }
+
+    // create the initial bracket structure
+    initializeBracket() {
+
         // generate rounds
-        this.winnersBracket = Round.createInitialWinnerRounds(this, competitorNames);
+        this.winnersBracket = Round.createInitialWinnerRounds(this, this.competitorNames);
         this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket);
 
         // create the rest of the bracket
