@@ -38,7 +38,6 @@ class Bracket {
             // first, process a winner round
             currentWinnerRound = currentWinnerRound.createNextWinnerRound();
             this.winnersBracket.push(currentWinnerRound);
-            console.log('just added current winner round: ', currentWinnerRound);
 
             // now, process loser bracket until the amount of matches in both brackets is the same
             while (currentLoserRound.matches.length !== currentWinnerRound.matches.length) {
@@ -46,8 +45,6 @@ class Bracket {
                 currentLoserRound = currentLoserRound.createNextLoserRound(undefined);
                 this.losersBracket.push(currentLoserRound);
             }
-
-            console.log(' current winner round length is ' + currentWinnerRound.matches.length + ' and current loser round length is ' + currentLoserRound.matches.length);
 
             // now, the current loser round and winner round have the same amount of matches, so we create a loser round from the loser and winner round
             currentLoserRound = currentLoserRound.createNextLoserRound(currentWinnerRound);

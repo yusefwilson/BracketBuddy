@@ -1,15 +1,15 @@
-import Tournament from '../lib/Tournament';
 import BracketInfoCard from '../components/BracketInfoCard';
 
 import { CURRENT_STATE } from '../components/App';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function TournamentView({ tournament }: { tournament: Tournament | null }) {
+export default function TournamentView() {
 
   const state = useContext(CURRENT_STATE);
-  const navigate = useNavigate();
+  const tournament = state?.tournament;
 
+  const navigate = useNavigate();
   console.log('about to render tournament', tournament);
 
   return (

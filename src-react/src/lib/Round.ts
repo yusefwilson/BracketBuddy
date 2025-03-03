@@ -16,7 +16,7 @@ class Round {
 
     // only called when competitorNames.length === 2^n
     static createInitialWinnerRound(bracket: Bracket, competitorNames: string[]): Round {
-        console.log('in createInitialWinnerRound***********************');
+        //console.log('in createInitialWinnerRound***********************');
         // array of matches for the round
         let matches: Match[] = [];
 
@@ -26,7 +26,7 @@ class Round {
         }
 
         let newRound = new Round(bracket, matches, true);
-        console.log('*****returning round: ', newRound, ' from createInitialWinnerRound*****');
+        //console.log('*****returning round: ', newRound, ' from createInitialWinnerRound*****');
         return newRound;
     }
 
@@ -37,24 +37,24 @@ class Round {
         const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(competitorNames.length);
         const numberOfRoundZeroMatches = competitorNames.length - greatestPowerOf2;
 
-        console.log('in createInitialWinnerRounds***********************');
+        //console.log('in createInitialWinnerRounds***********************');
 
-        console.log('greatestPowerOf2: ', greatestPowerOf2);
-        console.log('competitorNames.length: ', competitorNames.length);
-        console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
+        //console.log('greatestPowerOf2: ', greatestPowerOf2);
+        //console.log('competitorNames.length: ', competitorNames.length);
+        //console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
 
 
         // we don't need a 2^n - k round 0 if there are no byes
         if (numberOfRoundZeroMatches === 0) {
-            console.log('creating only 1 initial winner round as the number of competitors is already a power of 2');
+            //console.log('creating only 1 initial winner round as the number of competitors is already a power of 2');
             return [Round.createInitialWinnerRound(bracket, competitorNames)];
         }
 
         // split competitors into round 0 and round 1
         const round0CompetitorNames = competitorNames.slice(0, numberOfRoundZeroMatches * 2);
-        console.log('round0CompetitorNames: ', round0CompetitorNames);
+        //console.log('round0CompetitorNames: ', round0CompetitorNames);
         const round1CompetitorNames = competitorNames.slice(numberOfRoundZeroMatches * 2);
-        console.log('round1CompetitorNames: ', round1CompetitorNames);
+        //console.log('round1CompetitorNames: ', round1CompetitorNames);
 
         const round0Matches: Match[] = [];
 
@@ -79,7 +79,7 @@ class Round {
             round1Matches.push(newMatch);
         }
 
-        console.log('after creating half linked matches, round0MatchesCopy is ', round0MatchesCopy);
+        //console.log('after creating half linked matches, round0MatchesCopy is ', round0MatchesCopy);
 
         // now, there are either some elements left in round1CompetitorNames, or there are some matches left in round0Matches
         if (round1CompetitorNames.length === 0) {
@@ -89,7 +89,7 @@ class Round {
             }
         }
 
-        console.log('finished creating linked matches for round 1. round1CompetitorNames: ', round1CompetitorNames);
+        //console.log('finished creating linked matches for round 1. round1CompetitorNames: ', round1CompetitorNames);
 
         if (round1CompetitorNames.length > 0) {
             for (let i = 0; i < round1CompetitorNames.length; i += 2) {
@@ -100,14 +100,14 @@ class Round {
 
         const round1 = new Round(bracket, round1Matches, true);
 
-        console.log('*****returning rounds: ', round0, round1, ' from createInitialWinnerRounds*****');
+        //console.log('*****returning rounds: ', round0, round1, ' from createInitialWinnerRounds*****');
 
         return [round0, round1];
     }
 
     // only called when initialWinnerRound.length === 2^n
     static createInitialLoserRound(intialWinnerRounds: Round[]): Round {
-        console.log('in createInitialLoserRound*********************** with initialWinnerRounds: ', intialWinnerRounds);
+        //console.log('in createInitialLoserRound*********************** with initialWinnerRounds: ', intialWinnerRounds);
         const bracket = intialWinnerRounds[0].bracket;
 
         // congrlomerate all matches from first 2 rounds
@@ -134,14 +134,14 @@ class Round {
         const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
         const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
 
-        console.log('in createInitialLoserRounds***********************');
-        console.log('numCompetitors: ', numCompetitors);
-        console.log('greatestPowerOf2: ', greatestPowerOf2);
-        console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
+        // console.log('in createInitialLoserRounds***********************');
+        // console.log('numCompetitors: ', numCompetitors);
+        // console.log('greatestPowerOf2: ', greatestPowerOf2);
+        // console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
 
         // if we don't need any round zero matches, then we just create the first loser round
         if (numberOfRoundZeroMatches === 0) {
-            console.log('creating only 1 initial loser round as the number of competitors is already a power of 2');
+            //console.log('creating only 1 initial loser round as the number of competitors is already a power of 2');
             return [Round.createInitialLoserRound(initialWinnerRounds)];
         }
 
@@ -196,7 +196,7 @@ class Round {
         }
         const round1 = new Round(bracket, round1Matches, false);
 
-        console.log('*****returning rounds: ', round0, round1, ' from createInitialLoserRounds*****');
+        //console.log('*****returning rounds: ', round0, round1, ' from createInitialLoserRounds*****');
 
         return [round0, round1];
     }
@@ -229,7 +229,7 @@ class Round {
             throw new Error('createMatchesFromWinnersAndLosers can only be called on two Rounds of the same length');
         }
 
-        console.log('in createMatchesFromWinnersAndLosers with winnerRound: ', winnerRound, ' and loserRound: ', loserRound);
+        //console.log('in createMatchesFromWinnersAndLosers with winnerRound: ', winnerRound, ' and loserRound: ', loserRound);
 
         // array of matches for the next round
         let matches: Match[] = [];
@@ -266,13 +266,13 @@ class Round {
 
         // if we are given the winnerRound argument, then we need to include losers from the given winnerRound
         if (winnerRound) {
-            console.log('about to create new loser round from winners of previous loser round and losers of given winner round')
+            //console.log('about to create new loser round from winners of previous loser round and losers of given winner round')
             return new Round(this.bracket, Round.createMatchesFromWinnersAndLosers(winnerRound, this), false);
         }
 
         // otherwise, we simply generate the next round from the winners of the current loser round
         else {
-            console.log('about to create new loser round from winners of previous loser round')
+            //console.log('about to create new loser round from winners of previous loser round')
             return new Round(this.bracket, Round.createMatchesFromWinners(this), false);
         }
     }

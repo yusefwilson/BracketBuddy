@@ -33,8 +33,6 @@ function deepSerialize(obj: any, seen = new WeakMap(), idCounter = { count: 0 })
     return obj;
 }
 
-
-
 function deepDeserialize<T>(obj: any, classMap: Record<string, new (...args: any[]) => any>, seen = new Map()): T {
     if (obj && typeof obj === 'object') {
         if (obj.__ref) {
@@ -63,6 +61,5 @@ function deepDeserialize<T>(obj: any, classMap: Record<string, new (...args: any
     }
     return obj as T;
 }
-
 
 export { greatestPowerOf2LessThanOrEqualTo, deepSerialize, deepDeserialize };

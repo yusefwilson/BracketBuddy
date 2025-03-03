@@ -53,7 +53,7 @@ class Match {
         newMatch.competitor0PreviouslyWinner = parent0Winner;
         newMatch.competitor1PreviouslyWinner = parent1Winner;
 
-        console.log('creating new linked match with id ' + id + ' and competitors ' + newMatch.competitor0Name + ' and ' + newMatch.competitor1Name + ' and parent0.id ' + parent0.id + ' and parent0Winner  ' + parent0Winner + ' and parent1.id ' + parent1.id + ' and parent1Winner ' + parent1Winner);
+        //console.log('creating new linked match with id ' + id + ' and competitors ' + newMatch.competitor0Name + ' and ' + newMatch.competitor1Name + ' and parent0.id ' + parent0.id + ' and parent0Winner  ' + parent0Winner + ' and parent1.id ' + parent1.id + ' and parent1Winner ' + parent1Winner);
 
         return newMatch;
     }
@@ -75,7 +75,7 @@ class Match {
         newMatch.competitor0Parent = parent0;
         newMatch.competitor0PreviouslyWinner = parent0Winner;
 
-        console.log('creating new half linked match with id ' + id + ' and competitors ' + newMatch.competitor0Name + ' and ' + newMatch.competitor1Name + ' and parent0.id ' + parent0.id + ' and parent0Winner ' + parent0Winner);
+        //console.log('creating new half linked match with id ' + id + ' and competitors ' + newMatch.competitor0Name + ' and ' + newMatch.competitor1Name + ' and parent0.id ' + parent0.id + ' and parent0Winner ' + parent0Winner);
 
         return newMatch;
     }
@@ -83,7 +83,7 @@ class Match {
     static createUnlinkedMatch(id: number, competitor0Name: string, competitor1Name: string) {
 
         // create new match
-        console.log('creating new unlinked match with id ' + id + ' and competitors ' + competitor0Name + ' and ' + competitor1Name);
+        //console.log('creating new unlinked match with id ' + id + ' and competitors ' + competitor0Name + ' and ' + competitor1Name);
         return new Match(id, competitor0Name, competitor1Name);
     }
 
@@ -108,12 +108,12 @@ class Match {
         this.winner = winner;
 
         if (this.winnerChild) {
-            console.log('updating winner child which has id ' + this.winnerChild.id);
+            //console.log('updating winner child which has id ' + this.winnerChild.id);
             this.winnerChild.updateNames();
         }
 
         if (this.loserChild) {
-            console.log('updating loser child which has id ' + this.loserChild.id);
+            //console.log('updating loser child which has id ' + this.loserChild.id);
             this.loserChild.updateNames();
         }
     }
@@ -128,7 +128,7 @@ class Match {
             this.competitor1Name = this.competitor1PreviouslyWinner ? this.competitor1Parent.getWinner() : this.competitor1Parent.getLoser();
         }
 
-        console.log('updated names for match ' + this.id + ' to ' + this.competitor0Name + ' and ' + this.competitor1Name);
+        //console.log('updated names for match ' + this.id + ' to ' + this.competitor0Name + ' and ' + this.competitor1Name);
 
         if (this.winnerChild) {
             this.winnerChild.updateNames();

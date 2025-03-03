@@ -9,6 +9,8 @@ import Bracket from '../lib/Bracket';
 import TournamentView from '../pages/TournamentView';
 import BracketView from '../pages/BracketView';
 
+// this holds the current tournament and bracket that the user is viewing. all components that need to access the current tournament and bracket will use this context
+// react automatically triggers refreshes for components that consume this context when the context value changes
 export const CURRENT_STATE = createContext<{
   tournament: Tournament | null, bracket: Bracket | null,
   setTournament: (tournament: Tournament) => void,
@@ -17,7 +19,7 @@ export const CURRENT_STATE = createContext<{
 
 export default function App() {
 
-  //localStorage.clear();
+  //localStorage.clear(); // for when some old storage is messing things up
 
   const [currentTournament, setCurrentTournament] = useState<Tournament | null>(() => {
     const saved = localStorage.getItem('tournament');
@@ -43,8 +45,8 @@ export default function App() {
         <Navbar />
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route path='/tournament' element={<TournamentView tournament={currentTournament} />} />
-          <Route path='/bracket' element={<BracketView initialBracket={currentBracket} />} />
+          <Route path='/tournament' element={<TournamentView />} />
+          <Route path='/bracket' element={<BracketView />} />
         </Routes>
       </Router>
     </CURRENT_STATE.Provider>
