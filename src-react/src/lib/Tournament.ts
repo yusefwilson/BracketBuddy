@@ -30,9 +30,9 @@ class Tournament {
     }
 
     // saving and loading
-    async saveToFile(filePath: string) {
+    async save() {
         await window.electron.saveTournament(this.name, this.serialize());
-        console.log('Saved tournament to ' + filePath);
+        console.log('Saved tournament ' + this.name);
     }
 
     static async loadFromFile(filePath: string): Promise<Tournament> {
