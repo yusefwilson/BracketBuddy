@@ -55,6 +55,14 @@ ipcMain.handle('save-tournament', async (_, tournamentName, serializedTournament
     console.log('Saved tournament ' + tournamentName + ' to file ' + filePath);
 });
 
+ipcMain.handle('delete-tournament', async (_, tournamentName) => {
+    const filePath = path.join(SAVE_DIR, tournamentName + '.json');
+    // just rename file so that it's ignored by load-all-tournaments and can be recovered if absolutely necessary
+    await fs.promises.rename(filePath, filePath + '.deleted');
+    console.log('Deleted tournament ' + tournamentName);
+}
+);
+
 const main = async () => {
     await app.whenReady();
     create_window();

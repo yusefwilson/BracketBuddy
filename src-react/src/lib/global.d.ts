@@ -7,6 +7,7 @@ declare global {
             readFile: (filePath: string) => Promise<string>;
             loadAllTournaments: () => Promise<string[]>;
             saveTournament: (tournamentName: string, serializedTournamentData: string) => Promise<void>;
+            deleteTournament: (tournamentName: string) => Promise<void>;
         };
     }
 }

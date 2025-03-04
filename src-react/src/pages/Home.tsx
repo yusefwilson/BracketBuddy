@@ -6,6 +6,7 @@ import TournamentInfoCard from '../components/TournamentInfoCard';
 
 import Tournament from '../lib/Tournament';
 import TournamentInputModal from '../components/TournamentInputModal';
+import RemoveTournamentModal from '../components/RemoveTournamentModal';
 
 export default function Home() {
 
@@ -14,6 +15,7 @@ export default function Home() {
 
   const [allTournaments, setAllTournaments] = useState<Tournament[]>();
   const [tournamentModalOpen, setTournamentModalOpen] = useState(false);
+  const [removeTournamentModalOpen, setRemoveTournamentModalOpen] = useState(false);
 
 
   // load saved tournaments
@@ -24,7 +26,7 @@ export default function Home() {
     }
 
     loadTournaments();
-  }, [tournamentModalOpen]);
+  }, [tournamentModalOpen, removeTournamentModalOpen]);
 
   return (
     <div className='bg-slate-800 flex flex-col text-white text-center items-center gap-4'>
@@ -32,7 +34,7 @@ export default function Home() {
       <p>BracketBuddy is a tournament management system that helps you organize and run your tournaments.</p>
       <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={() => { setTournamentModalOpen(true); }}>Create Tournament</button>
       <h1>My Tournaments:</h1>
-      {allTournaments?.map((tournament, index) => <TournamentInfoCard key={index} tournament={tournament} onClick={() => { state?.setTournament(tournament); navigate('/tournament') }} />)}
+      {allTournaments?.map((tournament, index) => <TournamentInfoCard key={index} tournament={tournament} onClick={() => { state?.setTournament(tournament); navigate('/tournament') }} onRemoveClick={() => setTournamentModalOpen(true)} />)}
       {tournamentModalOpen && <TournamentInputModal setTournamentModalOpen={setTournamentModalOpen} />}
     </div>
   );

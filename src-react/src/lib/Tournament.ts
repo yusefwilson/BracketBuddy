@@ -41,6 +41,11 @@ class Tournament {
         console.log('Saved tournament ' + this.name);
     }
 
+    async delete() {
+        await window.electron.deleteTournament(this.name);
+        console.log('Deleted tournament ' + this.name);
+    }
+
     static async loadFromFile(filePath: string): Promise<Tournament> {
         const data = await window.electron.readFile(filePath);
         return Tournament.deserialize(data);
