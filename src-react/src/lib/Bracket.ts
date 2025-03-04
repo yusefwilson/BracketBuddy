@@ -34,9 +34,6 @@ class Bracket {
         this.losersBracket = [];
 
         this.nextMatchId = 1;
-
-        // maybe this doesn't need to be here - in fact, it probably makes sense to only do this when the user is done inputting names
-        this.initializeBracket();
     }
 
     // create the initial bracket structure

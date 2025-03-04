@@ -34,7 +34,7 @@ export default function CompetitorInput({ competitors, setCompetitors }: { compe
                         <button
                             onClick={() => removeCompetitor(index)}
                             className="bg-red-500 text-white px-3 py-1 rounded-md"
-                            disabled={competitors.length === 1} // Prevent removing the last input
+                            disabled={competitors.length === 0} // Prevent removing when there are no inputs
                         >
                             Remove
                         </button>
@@ -42,12 +42,7 @@ export default function CompetitorInput({ competitors, setCompetitors }: { compe
                 ))}
             </div>
 
-            <button
-                onClick={addCompetitor}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2"
-            >
-                Add Competitor
-            </button>
+            <button onClick={addCompetitor} className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2">Add Competitor</button>
         </div>
     );
 };

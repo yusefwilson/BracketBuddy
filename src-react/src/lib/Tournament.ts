@@ -16,8 +16,9 @@ class Tournament {
         this.brackets = [];
     }
 
-    addBracket(bracket: Bracket) {
+    async addBracket(bracket: Bracket) {
         this.brackets.push(bracket);
+        await this.save();
     }
 
     // serialization and deserialization
@@ -42,6 +43,11 @@ class Tournament {
 
     static async loadAllTournaments(): Promise<Tournament[]> {
         return (await window.electron.loadAllTournaments()).map((tournament: string) => Tournament.deserialize(tournament));
+    }
+
+    // TODO: hacky, look to replace. currently used to update reference of Bracket to trigger useState refresh.
+    markUpdated(): Tournament {
+        return Object.assign(Object.create(Object.getPrototypeOf(this)), this) as Tournament;
     }
 
 }

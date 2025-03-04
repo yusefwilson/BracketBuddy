@@ -19,7 +19,7 @@ export default function TournamentView() {
     <div className='bg-slate-600 p-2 rounded-md'>
       <h1>{'Tournament name: ' + tournament?.name}</h1>
       <h1>{'Tournament date: ' + tournament?.date.toDateString()}</h1>
-      <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={() => { setBracketModalOpen(true); }}>Create Tournament</button>
+      <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={() => { setBracketModalOpen(true); }}>Add Bracket</button>
       {bracketModalOpen && <BracketInputModal setBracketModalOpen={setBracketModalOpen} />}
       {tournament?.brackets.map((bracket, i) => <BracketInfoCard key={i} bracket={bracket} onClick={() => { state?.setBracket(bracket); navigate('/bracket'); }} />)}
     </div>
