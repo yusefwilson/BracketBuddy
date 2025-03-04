@@ -21,6 +21,11 @@ class Tournament {
         await this.save();
     }
 
+    async removeBracket(bracket: Bracket) {
+        this.brackets = this.brackets.filter(b => b !== bracket);
+        await this.save();
+    }
+
     // serialization and deserialization
     serialize(): string {
         return stringify(deepSerialize(this));

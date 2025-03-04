@@ -8,7 +8,7 @@ import BracketInputModal from '../components/BracketInputModal';
 export default function TournamentView() {
 
   const state = useContext(CURRENT_STATE);
-  const tournament = state?.tournament;
+  const { tournament, setTournament = () => { }, setBracket = () => { } } = state || {};
 
   const navigate = useNavigate();
   console.log('about to render tournament', tournament);
@@ -21,7 +21,8 @@ export default function TournamentView() {
       <h1>{'Tournament date: ' + tournament?.date.toDateString()}</h1>
       <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={() => { setBracketModalOpen(true); }}>Add Bracket</button>
       {bracketModalOpen && <BracketInputModal setBracketModalOpen={setBracketModalOpen} />}
-      {tournament?.brackets.map((bracket, i) => <BracketInfoCard key={i} bracket={bracket} onClick={() => { state?.setBracket(bracket); navigate('/bracket'); }} />)}
+      {tournament?.brackets.map((bracket, i) => <BracketInfoCard key={i} bracket={bracket} onClick={() => { setBracket(bracket); navigate('/bracket'); }}
+        onRemoveClick={() => { tournament?.removeBracket(bracket); setTournament(tournament?.markUpdated()); }} />)}
     </div>
   )
 }

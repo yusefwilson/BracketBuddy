@@ -29,11 +29,13 @@ export default function App() {
   const [currentBracket, setCurrentBracket] = useState<Bracket | null>(() => {
     const saved = localStorage.getItem('bracket');
     return saved ? Bracket.deserialize(saved) : null;
+
   });
 
   // save the current tournament and bracket to local storage whenever they change
   useEffect(() => {
     if (currentTournament) localStorage.setItem('tournament', currentTournament.serialize());
+    console.log('saved tournament to local storage');
   }, [currentTournament]);
 
   useEffect(() => {

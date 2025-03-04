@@ -6,6 +6,7 @@ import CompetitorInput from './CompetitorInput';
 import Dropdown from './Dropdown';
 
 import { CURRENT_STATE } from './App';
+import Tournament from '../lib/Tournament';
 
 export default function BracketInputModal({ setBracketModalOpen }: { setBracketModalOpen: (open: boolean) => void }) {
 
@@ -16,8 +17,7 @@ export default function BracketInputModal({ setBracketModalOpen }: { setBracketM
     const [competitorNames, setCompetitorNames] = useState<string[]>([]);
 
     const state = useContext(CURRENT_STATE);
-    const tournament = state?.tournament;
-    const setTournament = state?.setTournament;
+    const { tournament, setTournament = () => { } } = state || {};
 
     const onSubmit = async () => {
 
@@ -26,7 +26,9 @@ export default function BracketInputModal({ setBracketModalOpen }: { setBracketM
 
         // add bracket to tournament
         await tournament?.addBracket(newBracket);
-        setTournament?(tournament?.markUpdated()):null;
+
+        // update tournament in context to trigger relevant refreshes
+        setTournament(tournament?.markUpdated() as Tournament);
 
         // close modal
         setBracketModalOpen(false);

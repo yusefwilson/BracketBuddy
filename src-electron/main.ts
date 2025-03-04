@@ -52,6 +52,7 @@ ipcMain.handle('load-all-tournaments', async (_) => {
 ipcMain.handle('save-tournament', async (_, tournamentName, serializedTournamentData) => {
     const filePath = path.join(SAVE_DIR, tournamentName + '.json');
     await fs.promises.writeFile(filePath, serializedTournamentData, 'utf-8');
+    console.log('Saved tournament ' + tournamentName + ' to file ' + filePath);
 });
 
 const main = async () => {
