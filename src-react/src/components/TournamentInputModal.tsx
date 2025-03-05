@@ -49,15 +49,15 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
             <div className='bg-purple-600 flex flex-col p-2 rounded-md gap-2 '>
                 <h1>Enter Tournament Info:</h1>
 
-                {/* Close Button (X) */}
-                <button className='absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md' onClick={() => setTournamentModalOpen(false)}>X</button>
-
                 {/* Tournament Info */}
                 <input className='bg-red-600' placeholder='Name' name='name' onChange={onChange}></input>
                 <input className='bg-orange-600' type='date' name='date' onChange={onChange}></input>
 
                 {/* Create Tournament Button */}
-                <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={onSubmit}>Create Tournament</button>
+                <button className='bg-yellow-500 px-2 py-1 rounded-md flex-shrink' onClick={onSubmit}>Create Tournament</button>
+
+                {/* Close Button (X) */}
+                <button className='bg-red-500 text-white px-2 py-1 rounded-md' onClick={() => setTournamentModalOpen(false)}>Cancel</button>
             </div>
         </div>
     );

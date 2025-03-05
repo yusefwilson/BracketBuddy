@@ -50,12 +50,9 @@ export default function BracketInputModal({ setBracketModalOpen }: { setBracketM
     return (
         <div className='fixed left-0 right-0 top-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center'>
             <div className='bg-purple-600 flex flex-col p-2 rounded-md gap-2 relative'>
-                <h1>Enter Tournament Info:</h1>
+                <h1>Enter Bracket Info:</h1>
 
-                {/* Close Button (X) */}
-                <button className='absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md' onClick={() => setBracketModalOpen(false)}>X</button>
-
-                {/* Tournament Info */}
+                {/* Bracket Info */}
                 <Dropdown options={['Male', 'Female', 'Mixed']} label='Select Gender' value={gender} onChange={setGender} />
                 <Dropdown options={['Youth', 'Novice', 'Amateur', 'Semipro', 'Pro', 'Master', 'Grandmaster', 'Senior Grandmaster']} label='Select Experience Level' value={experienceLevel} onChange={setExperienceLevel} />
                 <Dropdown options={['Right', 'Left']} label='Select Hand' value={hand} onChange={setHand} />
@@ -64,6 +61,9 @@ export default function BracketInputModal({ setBracketModalOpen }: { setBracketM
 
                 {/* Submit Button */}
                 <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={onSubmit}>Create</button>
+
+                {/* Close Button (X) */}
+                <button className='bg-red-500 text-white px-2 py-1 rounded-md' onClick={() => setBracketModalOpen(false)}>Cancel</button>
             </div>
         </div>
     );

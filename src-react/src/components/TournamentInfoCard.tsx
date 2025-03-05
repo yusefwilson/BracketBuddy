@@ -1,11 +1,6 @@
-import { useState } from 'react'
-
 import Tournament from '../lib/Tournament'
-import RemoveTournamentModal from './RemoveTournamentModal'
 
 export default function TournamentInfoCard({ tournament, onClick, onRemoveClick }: { tournament: Tournament, onClick: () => void, onRemoveClick: () => void }) {
-
-    const [removeTournamentModalOpen, setRemoveTournamentModalOpen] = useState(false);
 
     return (
         <div className='bg-slate-600 p-2 rounded-md gap-2 relative' onClick={onClick}>
@@ -21,9 +16,6 @@ export default function TournamentInfoCard({ tournament, onClick, onRemoveClick 
             <h1>{'Name: ' + tournament.name.toString()}</h1>
             <h1>{'Date: ' + tournament.date.toLocaleDateString('en-US')}</h1>
             <h1>{'Number of classes: ' + tournament.brackets.length.toString()}</h1>
-
-
-            {removeTournamentModalOpen && <RemoveTournamentModal setRemoveTournamentModalOpen={setRemoveTournamentModalOpen} tournamentToDelete={tournament} />}
         </div>
     )
 }
