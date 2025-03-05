@@ -126,6 +126,7 @@ class Bracket {
     }
 
     static deserialize(serialized: string): Bracket {
+        console.log('deserializing bracket with initial obj', parse(serialized));
         return deepDeserialize(parse(serialized), { Tournament, Bracket, Round, Match, Date }) as Bracket;
     }
 }

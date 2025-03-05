@@ -9,7 +9,7 @@ export default function TournamentInfoCard({ tournament, onClick, onRemoveClick 
             <h1>{'Date: ' + tournament.date.toLocaleDateString('en-US')}</h1>
             <h1>{'Number of classes: ' + tournament.brackets.length.toString()}</h1>
 
-            {/* Delete Button (X) */}
+            {/* Remove Button */}
             <button className='bg-red-500 text-white px-2 py-1 rounded-md' onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.stopPropagation(); // Prevents the click from reaching the parent div
                 console.log('Delete button clicked and event propagation stopped');

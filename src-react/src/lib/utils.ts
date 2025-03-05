@@ -9,11 +9,18 @@ function greatestPowerOf2LessThanOrEqualTo(n: number): number {
 function deepSerialize(obj: any, seen = new WeakMap(), idCounter = { count: 0 }): any {
     if (obj && typeof obj === 'object') {
         if (seen.has(obj)) {
+            //console.log('Returning reference for:', obj, 'as', seen.get(obj));
             return { __ref: seen.get(obj) };
+        }
+
+        if (idCounter.count === 5) {
+            //console.log('Setting reference for:', obj, 'as', idCounter.count);
         }
 
         const id = idCounter.count++;
         seen.set(obj, id);
+
+        //console.log(`Serializing ${obj.constructor.name} with id ${id}`, obj);
 
         if (Array.isArray(obj)) {
             return { __array: obj.map((item) => deepSerialize(item, seen, idCounter)) };
@@ -28,12 +35,18 @@ function deepSerialize(obj: any, seen = new WeakMap(), idCounter = { count: 0 })
         for (const key in obj) {
             serializedObj[key] = deepSerialize(obj[key], seen, idCounter);
         }
+
+        //console.log('serializedObj:', serializedObj);
         return serializedObj;
     }
+
     return obj;
 }
 
 function deepDeserialize<T>(obj: any, classMap: Record<string, new (...args: any[]) => any>, seen = new Map()): T {
+
+    console.log('deserializing with seen = ', seen);
+
     if (obj && typeof obj === 'object') {
         if (obj.__ref) {
             return seen.get(obj.__ref);

@@ -19,10 +19,10 @@ export default function CompetitorInput({ competitors, setCompetitors }: { compe
     };
 
     return (
-        <div className='p-4'>
+        <div className='flex flex-col'>
             <h2 className='text-lg font-semibold mb-2'>Enter Competitor Names</h2>
             <div className='max-h-60 overflow-y-auto border p-2 rounded-md'>
-                {competitors.map((name, index) => (
+                {competitors.length !== 0 && competitors.map((name, index) => (
                     <div key={index} className='flex items-center space-x-2 mb-2'>
                         <input
                             type='text'

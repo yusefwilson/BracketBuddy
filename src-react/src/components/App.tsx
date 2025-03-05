@@ -19,7 +19,8 @@ export const CURRENT_STATE = createContext<{
 
 export default function App() {
 
-  //localStorage.clear(); // for when some old storage is messing things up
+
+  localStorage.clear(); // for when some old storage is messing things up
 
   // create the current tournament and bracket, which are state variables here, and a context variable everywhere else
   const [currentTournament, setCurrentTournament] = useState<Tournament | null>(() => {
@@ -39,18 +40,25 @@ export default function App() {
   }, [currentTournament]);
 
   useEffect(() => {
-    if (currentBracket) localStorage.setItem('bracket', currentBracket.serialize());
+    if (currentBracket) {
+      const serializedCurrentBracket = currentBracket.serialize();
+      localStorage.setItem('bracket', serializedCurrentBracket);
+      console.log('saved bracket to local storage: ', serializedCurrentBracket);
+    }
+
   }, [currentBracket]);
 
   return (
     <CURRENT_STATE.Provider value={{ tournament: currentTournament, bracket: currentBracket, setTournament: setCurrentTournament, setBracket: setCurrentBracket }}>
       <Router>
-        <Navbar />
-        <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/tournament' element={<TournamentView />} />
-          <Route path='/bracket' element={<BracketView />} />
-        </Routes>
+        <div className='h-screen flex flex-col'>
+          <Navbar />
+          <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/tournament' element={<TournamentView />} />
+            <Route path='/bracket' element={<BracketView />} />
+          </Routes>
+        </div>
       </Router>
     </CURRENT_STATE.Provider>
   )
