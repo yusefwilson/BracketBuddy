@@ -5,7 +5,7 @@ import RemoveTournamentModal from './RemoveTournamentModal'
 
 export default function TournamentInfoCard({ tournament, onClick, onRemoveClick }: { tournament: Tournament, onClick: () => void, onRemoveClick: () => void }) {
 
-    const [removeTournamentModalOpen, setTournamentModalOpen] = useState(false);
+    const [removeTournamentModalOpen, setRemoveTournamentModalOpen] = useState(false);
 
     return (
         <div className='bg-slate-600 p-2 rounded-md gap-2 relative' onClick={onClick}>
@@ -13,6 +13,7 @@ export default function TournamentInfoCard({ tournament, onClick, onRemoveClick 
             {/* Delete Button (X) */}
             <button className='absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-md' onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.stopPropagation(); // Prevents the click from reaching the parent div
+                console.log('Delete button clicked and event propagation stopped');
                 onRemoveClick();
             }}>X</button>
 
@@ -22,7 +23,7 @@ export default function TournamentInfoCard({ tournament, onClick, onRemoveClick 
             <h1>{'Number of classes: ' + tournament.brackets.length.toString()}</h1>
 
 
-            {removeTournamentModalOpen && <RemoveTournamentModal setRemoveTournamentModalOpen={setTournamentModalOpen} tournamentToDelete={tournament} />}
+            {removeTournamentModalOpen && <RemoveTournamentModal setRemoveTournamentModalOpen={setRemoveTournamentModalOpen} tournamentToDelete={tournament} />}
         </div>
     )
 }

@@ -34,8 +34,9 @@ export default function Home() {
       <p>BracketBuddy is a tournament management system that helps you organize and run your tournaments.</p>
       <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={() => { setTournamentModalOpen(true); }}>Create Tournament</button>
       <h1>My Tournaments:</h1>
-      {allTournaments?.map((tournament, index) => <TournamentInfoCard key={index} tournament={tournament} onClick={() => { state?.setTournament(tournament); navigate('/tournament') }} onRemoveClick={() => setTournamentModalOpen(true)} />)}
+      {allTournaments?.map((tournament, index) => <TournamentInfoCard key={index} tournament={tournament} onClick={() => { state?.setTournament(tournament); navigate('/tournament') }} onRemoveClick={() => setRemoveTournamentModalOpen(true)} />)}
       {tournamentModalOpen && <TournamentInputModal setTournamentModalOpen={setTournamentModalOpen} />}
+      {removeTournamentModalOpen && <RemoveTournamentModal setRemoveTournamentModalOpen={setRemoveTournamentModalOpen} tournamentToDelete={state?.tournament as Tournament} />}
     </div>
   );
 }
