@@ -62,7 +62,7 @@ export default function BracketInputModal({ setBracketModalOpen }: { setBracketM
                 {/* Submit Button */}
                 <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={onSubmit}>Create</button>
 
-                {/* Close Button (X) */}
+                {/* Close Button */}
                 <button className='bg-red-500 text-white px-2 py-1 rounded-md' onClick={() => setBracketModalOpen(false)}>Cancel</button>
             </div>
         </div>

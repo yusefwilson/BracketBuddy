@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import Tournament from "../lib/Tournament";
+import { useEffect } from 'react';
+import Tournament from '../lib/Tournament';
 
 export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete }:
     { setRemoveTournamentModalOpen: (open: boolean) => void, tournamentToDelete: Tournament | null }) {

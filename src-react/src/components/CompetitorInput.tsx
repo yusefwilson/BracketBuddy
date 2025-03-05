@@ -19,21 +19,21 @@ export default function CompetitorInput({ competitors, setCompetitors }: { compe
     };
 
     return (
-        <div className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Enter Competitor Names</h2>
-            <div className="max-h-60 overflow-y-auto border p-2 rounded-md">
+        <div className='p-4'>
+            <h2 className='text-lg font-semibold mb-2'>Enter Competitor Names</h2>
+            <div className='max-h-60 overflow-y-auto border p-2 rounded-md'>
                 {competitors.map((name, index) => (
-                    <div key={index} className="flex items-center space-x-2 mb-2">
+                    <div key={index} className='flex items-center space-x-2 mb-2'>
                         <input
-                            type="text"
+                            type='text'
                             placeholder={`Competitor ${index + 1}`}
                             value={name}
                             onChange={(e) => handleInputChange(index, e.target.value)}
-                            className="p-2 border rounded-md w-full"
+                            className='p-2 border rounded-md w-full'
                         />
                         <button
                             onClick={() => removeCompetitor(index)}
-                            className="bg-red-500 text-white px-3 py-1 rounded-md"
+                            className='bg-red-500 text-white px-3 py-1 rounded-md'
                             disabled={competitors.length === 0} // Prevent removing when there are no inputs
                         >
                             Remove
@@ -42,7 +42,7 @@ export default function CompetitorInput({ competitors, setCompetitors }: { compe
                 ))}
             </div>
 
-            <button onClick={addCompetitor} className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2">Add Competitor</button>
+            <button onClick={addCompetitor} className='bg-blue-500 text-white px-4 py-2 rounded-md mt-2'>Add Competitor</button>
         </div>
     );
 };
