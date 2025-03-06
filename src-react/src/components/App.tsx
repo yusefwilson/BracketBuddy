@@ -19,8 +19,7 @@ export const CURRENT_STATE = createContext<{
 
 export default function App() {
 
-
-  localStorage.clear(); // for when some old storage is messing things up
+  //localStorage.clear(); // for when some old storage is messing things up
 
   // create the current tournament and bracket, which are state variables here, and a context variable everywhere else
   const [currentTournament, setCurrentTournament] = useState<Tournament | null>(() => {

@@ -6,11 +6,13 @@ import Match from './Match';
 
 class Tournament {
 
+    __class: string = 'Tournament'
+
     name: string;
     date: Date;
     brackets: Bracket[];
 
-    constructor(name: string, date: Date) {
+    constructor(name: string = '', date: Date = new Date()) {
         this.name = name;
         this.date = date;
         this.brackets = [];

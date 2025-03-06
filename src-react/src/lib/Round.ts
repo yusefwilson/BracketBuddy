@@ -4,11 +4,13 @@ import { greatestPowerOf2LessThanOrEqualTo } from './utils';
 
 class Round {
 
+    __class: string = 'Round'
+
     bracket: Bracket
     matches: Match[]
     winnerRound: boolean
 
-    constructor(bracket: Bracket, matches: Match[], winnerRound: boolean) {
+    constructor(bracket: Bracket = new Bracket(), matches: Match[] = [], winnerRound: boolean = false) {
         this.bracket = bracket;
         this.matches = matches;
         this.winnerRound = winnerRound;
@@ -119,7 +121,7 @@ class Round {
         let matches: Match[] = [];
 
         // create matches for the round
-        for (let i = 0; i < allWinnerMatchesCopyLength; i+=2) {
+        for (let i = 0; i < allWinnerMatchesCopyLength; i += 2) {
             matches.push(Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatchesCopy.shift() as Match, false, allWinnerMatchesCopy.shift() as Match, false));
         }
 

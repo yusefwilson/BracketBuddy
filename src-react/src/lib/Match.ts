@@ -1,5 +1,7 @@
 class Match {
 
+    __class: string = 'Match'
+
     id: number // in ascending numerical order, starting from 0, indicating order that matches should be played in. this ensures that matches must be created in the order they are to be played
     competitor0Name?: string
     competitor1Name?: string
@@ -12,7 +14,7 @@ class Match {
     competitor0PreviouslyWinner?: boolean
     competitor1PreviouslyWinner?: boolean
 
-    constructor(id: number, competitor0Name?: string, competitor1Name?: string, winner?: number, winnerChild?: Match, loserChild?: Match,
+    constructor(id: number = -1, competitor0Name?: string, competitor1Name?: string, winner?: number, winnerChild?: Match, loserChild?: Match,
         competitor0Parent?: Match, competitor1Parent?: Match, competitor0PreviouslyWinner?: boolean, competitor1PreviouslyWinner?: boolean
     ) {
         this.id = id;

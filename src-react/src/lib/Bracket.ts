@@ -8,6 +8,8 @@ import { Gender, Hand, ExperienceLevel } from './types';
 
 class Bracket {
 
+    __class: string = 'Bracket'
+
     gender: Gender
     experienceLevel: ExperienceLevel
     hand: Hand
@@ -20,7 +22,7 @@ class Bracket {
 
     nextMatchId: number
 
-    constructor(gender: Gender, experienceLevel: ExperienceLevel, hand: Hand, weightLimit: number, competitorNames: string[]) {
+    constructor(gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
 
         // assign everything except rounds
         this.gender = gender;
@@ -37,7 +39,7 @@ class Bracket {
     }
 
     // create the initial bracket structure
-    initializeBracket() {
+    initialize() {
 
         // generate rounds
         this.winnersBracket = Round.createInitialWinnerRounds(this, this.competitorNames);

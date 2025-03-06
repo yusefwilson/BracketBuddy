@@ -30,7 +30,7 @@ export default function BracketView() {
 
       <div className='bg-pink-500 flex flex-col p-2'>
         <CompetitorInput competitors={competitorNames} setCompetitors={setCompetitorNames} />
-        <button className='bg-blue-500 text-white px-4 py-2 rounded-md mt-2' onClick={() => { bracket?.initializeBracket(); setBracket(bracket?.markUpdated() as Bracket); }}>Initialize</button>
+        <button className='bg-blue-500 text-white px-4 py-2 rounded-md mt-2' onClick={() => { bracket?.initialize(); setBracket(bracket?.markUpdated() as Bracket); }}>Initialize</button>
       </div>
 
       <div className='bg-blue-400 p-2 rounded-md flex flex-col gap-4 h-full'>
