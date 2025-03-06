@@ -1,8 +1,4 @@
 import { parse, stringify } from "flatted";
-import Tournament from "./Tournament";
-import Bracket from "./Bracket";
-import Round from "./Round";
-import Match from "./Match";
 
 function greatestPowerOf2LessThanOrEqualTo(n: number): number {
     let power = 1;
@@ -12,9 +8,7 @@ function greatestPowerOf2LessThanOrEqualTo(n: number): number {
     return power;
 }
 
-const CLASSMAP: Record<string, any> = { 'Tournament': Tournament, 'Bracket': Bracket, 'Round': Round, 'Match': Match };
-
-function rehydrate(data: any, classMap = CLASSMAP, cache = new WeakMap()): any {
+function rehydrate(data: any, classMap: Record<string, new () => any>, cache = new WeakMap()): any {
 
     // Handle Date objects differently than the custom classes
     if (typeof data === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(data)) {
@@ -60,12 +54,12 @@ function serialize(obj: any): string {
     return stringify(obj);
 }
 
-function deserialize(serialized: string): any {
+function deserialize(serialized: string, classMap: Record<string, new () => any>): any {
 
     const deserialized = parse(serialized);
 
     // now rehydrate object by changing all __class fields to their respective classes
-    const rehydrated = rehydrate(deserialized, CLASSMAP);
+    const rehydrated = rehydrate(deserialized, classMap);
 
     return rehydrated;
 }

@@ -2,6 +2,7 @@ import { serialize, deserialize } from './utils';
 import { Gender, Hand, ExperienceLevel } from './types';
 import Match from './Match';
 import Round from './Round';
+import Tournament from './Tournament';
 
 class Bracket {
 
@@ -125,7 +126,7 @@ class Bracket {
     }
 
     static deserialize(serialized: string): Bracket {
-        return deserialize(serialized);
+        return deserialize(serialized, { Tournament, Bracket, Round, Match });
     }
 }
 

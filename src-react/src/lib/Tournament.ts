@@ -1,5 +1,7 @@
 import { serialize, deserialize } from './utils';
 import Bracket from './Bracket';
+import Round from './Round';
+import Match from './Match';
 
 class Tournament {
 
@@ -31,7 +33,7 @@ class Tournament {
     }
 
     static deserialize(serialized: string): Tournament {
-        return deserialize(serialized);
+        return deserialize(serialized, { Tournament, Bracket, Round, Match });
     }
 
     // saving and loading

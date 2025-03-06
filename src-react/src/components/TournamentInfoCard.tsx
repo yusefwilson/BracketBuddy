@@ -2,6 +2,9 @@ import Tournament from '../lib/Tournament'
 
 export default function TournamentInfoCard({ tournament, onClick, onRemoveClick }: { tournament: Tournament, onClick: () => void, onRemoveClick: () => void }) {
 
+    console.log('TournamentInfoCard about to render tournament:', tournament);
+    console.log('TournamentInfoCard about to render date: ', tournament.date);
+
     return (
         <div className='bg-slate-600 p-2 rounded-md gap-2s' onClick={onClick}>
             {/* Tournament Info */}
