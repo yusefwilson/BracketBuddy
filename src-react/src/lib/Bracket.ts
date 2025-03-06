@@ -1,10 +1,7 @@
-import { parse, stringify } from 'flatted';
-import { deepSerialize, deepDeserialize } from './utils';
-
-import Tournament from './Tournament';
+import { serialize, deserialize } from './utils';
+import { Gender, Hand, ExperienceLevel } from './types';
 import Match from './Match';
 import Round from './Round';
-import { Gender, Hand, ExperienceLevel } from './types';
 
 class Bracket {
 
@@ -124,12 +121,11 @@ class Bracket {
     }
 
     serialize(): string {
-        return stringify(deepSerialize(this));
+        return serialize(this);
     }
 
     static deserialize(serialized: string): Bracket {
-        console.log('deserializing bracket with initial obj', parse(serialized));
-        return deepDeserialize(parse(serialized), { Tournament, Bracket, Round, Match, Date }) as Bracket;
+        return deserialize(serialized);
     }
 }
 

@@ -1,8 +1,5 @@
-import { parse, stringify } from 'flatted';
-import { deepSerialize, deepDeserialize } from './utils';
+import { serialize, deserialize } from './utils';
 import Bracket from './Bracket';
-import Round from './Round';
-import Match from './Match';
 
 class Tournament {
 
@@ -30,11 +27,11 @@ class Tournament {
 
     // serialization and deserialization
     serialize(): string {
-        return stringify(deepSerialize(this));
+        return serialize(this);
     }
 
     static deserialize(serialized: string): Tournament {
-        return deepDeserialize(parse(serialized), { Tournament, Bracket, Round, Match, Date }) as Tournament;
+        return deserialize(serialized);
     }
 
     // saving and loading
