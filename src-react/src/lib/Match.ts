@@ -15,8 +15,7 @@ class Match {
     competitor1PreviouslyWinner?: boolean
 
     constructor(id: number = -1, competitor0Name?: string, competitor1Name?: string, winner?: number, winnerChild?: Match, loserChild?: Match,
-        competitor0Parent?: Match, competitor1Parent?: Match, competitor0PreviouslyWinner?: boolean, competitor1PreviouslyWinner?: boolean
-    ) {
+        competitor0Parent?: Match, competitor1Parent?: Match, competitor0PreviouslyWinner?: boolean, competitor1PreviouslyWinner?: boolean) {
         this.id = id;
         this.competitor0Name = competitor0Name;
         this.competitor1Name = competitor1Name;

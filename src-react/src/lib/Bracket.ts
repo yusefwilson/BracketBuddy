@@ -39,6 +39,8 @@ class Bracket {
     // create the initial bracket structure
     initialize() {
 
+        this.nextMatchId = 1;
+
         // generate rounds
         this.winnersBracket = Round.createInitialWinnerRounds(this, this.competitorNames);
         this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket);

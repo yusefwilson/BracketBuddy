@@ -35,14 +35,12 @@ export default function App() {
   // save the current tournament and bracket to local storage whenever they change
   useEffect(() => {
     if (currentTournament) localStorage.setItem('tournament', currentTournament.serialize());
-    console.log('saved tournament to local storage');
   }, [currentTournament]);
 
   useEffect(() => {
     if (currentBracket) {
       const serializedCurrentBracket = currentBracket.serialize();
       localStorage.setItem('bracket', serializedCurrentBracket);
-      console.log('saved bracket to local storage: ', serializedCurrentBracket);
     }
 
   }, [currentBracket]);
@@ -60,5 +58,5 @@ export default function App() {
         </div>
       </Router>
     </CURRENT_STATE.Provider>
-  )
+  );
 }

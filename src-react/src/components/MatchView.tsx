@@ -4,7 +4,12 @@ import Match from '../lib/Match';
 
 export default function MatchView({ match, updateMatch }: { match: Match, updateMatch: (matchId: number, winner: number) => void }) {
 
-  const [winner, setWinner] = useState(match.winner || -1);
+  console.log('rendering match ', match.id, ' with winner ', match.winner);
+
+  // just using match.winner as a truthy/falsy value results in logic error when winner is 0
+  const [winner, setWinner] = useState(match.winner !== undefined ? match.winner : -1);
+
+  console.log('winner is ', winner);
 
   const toggleWinner = (newWinner: number) => {
     if (newWinner === winner) {
