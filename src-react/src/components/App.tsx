@@ -40,10 +40,16 @@ export default function App() {
   useEffect(() => {
     if (currentBracket) {
       const serializedCurrentBracket = currentBracket.serialize();
+      console.log('local storage saving bracket', serializedCurrentBracket);
       localStorage.setItem('bracket', serializedCurrentBracket);
     }
 
   }, [currentBracket]);
+
+  // any time the bracket or tournament changes, save the tournament
+  useEffect(() => {
+    if (currentTournament) currentTournament.save();
+  }, [currentTournament, currentBracket]);
 
   return (
     <CURRENT_STATE.Provider value={{ tournament: currentTournament, bracket: currentBracket, setTournament: setCurrentTournament, setBracket: setCurrentBracket }}>
