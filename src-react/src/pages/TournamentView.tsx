@@ -16,7 +16,7 @@ export default function TournamentView() {
   const [bracketModalOpen, setBracketModalOpen] = useState(false);
 
   return (
-    <div className='bg-slate-600 p-2 rounded-md'>
+    <div className='bg-slate-600 p-2 rounded-md flex flex-col items-center gap-4'>
       <h1>{'Tournament name: ' + tournament?.name}</h1>
       <h1>{'Tournament date: ' + tournament?.date.toDateString()}</h1>
       <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={() => { setBracketModalOpen(true); }}>Add Bracket</button>
