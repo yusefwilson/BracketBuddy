@@ -21,8 +21,11 @@ export default function BracketInputModal({ setBracketModalOpen }: { setBracketM
 
     const onSubmit = async () => {
 
-        // create new bracket
-        const newBracket = new Bracket(gender, experienceLevel, hand, weightLimit, competitorNames);
+        if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
+
+        // create and initialize new bracket. initialization is decoupled from constructor for post creation competitor addition and to avoid rehydration problems.
+        const newBracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
+        newBracket.initialize();
 
         // add bracket to tournament
         await tournament?.addBracket(newBracket);

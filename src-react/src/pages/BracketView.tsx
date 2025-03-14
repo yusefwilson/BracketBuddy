@@ -1,7 +1,7 @@
 import Bracket from '../lib/Bracket';
 import Tournament from '../lib/Tournament';
 import RoundView from '../components/RoundView';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 
@@ -25,6 +25,14 @@ export default function BracketView() {
     setTournament(tournament?.markUpdated() as Tournament);
   }
 
+  useEffect(() => {
+    // every time the bracket members are updated, update the bracket
+    if(bracket) {
+      bracket.setCompetitorNames(competitorNames);
+      setBracket(bracket.markUpdated());
+    }
+  }, [competitorNames]);
+
   console.log('about to render bracket ', bracket);
 
   return (
@@ -32,7 +40,6 @@ export default function BracketView() {
 
       <div className='bg-pink-500 flex flex-col p-2'>
         <CompetitorInput competitors={competitorNames} setCompetitors={setCompetitorNames} />
-        <button className='bg-blue-500 text-white px-4 py-2 rounded-md mt-2' onClick={() => { bracket?.initialize(); setBracket(bracket?.markUpdated() as Bracket); }}>Initialize</button>
       </div>
 
       <div className='bg-blue-400 p-2 rounded-md flex flex-col gap-4 h-full w-full'>

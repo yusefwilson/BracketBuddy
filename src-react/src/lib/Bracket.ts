@@ -8,6 +8,8 @@ class Bracket {
 
     __class: string = 'Bracket'
 
+    tournament: Tournament | null
+
     gender: Gender
     experienceLevel: ExperienceLevel
     hand: Hand
@@ -20,9 +22,10 @@ class Bracket {
 
     nextMatchId: number
 
-    constructor(gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
+    constructor(tournament: Tournament | null = null, gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
 
         // assign everything except rounds
+        this.tournament = tournament;
         this.gender = gender;
         this.experienceLevel = experienceLevel;
         this.hand = hand;
@@ -34,6 +37,18 @@ class Bracket {
         this.losersBracket = [];
 
         this.nextMatchId = 1;
+    }
+
+    setCompetitorNames(competitorNames: string[]) {
+        console.log('setting competitor names AAAAAAAAAA');
+        this.competitorNames = competitorNames;
+
+        // now that competitor names have been updated, the winners and losers bracket must be cleared
+        this.winnersBracket = [];
+        this.losersBracket = [];
+
+        // reinitialize bracket
+        this.initialize();
     }
 
     // create the initial bracket structure

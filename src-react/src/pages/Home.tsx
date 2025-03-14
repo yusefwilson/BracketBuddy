@@ -24,6 +24,7 @@ export default function Home() {
     const loadTournaments = async () => {
       await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to allow tournament to be saved before loading. DISGUSTING. Should probably be replaced.
       const tournaments = await Tournament.loadAllTournaments();
+      console.log('about to set all tournaments', tournaments);
       setAllTournaments(tournaments);
     }
 
