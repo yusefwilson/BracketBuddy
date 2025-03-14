@@ -31,7 +31,7 @@ export default function Home() {
   }, [tournamentModalOpen, removeTournamentModalOpen]);
 
   return (
-    !allTournaments || allTournaments.length === 0 ?
+    !allTournaments ?
 
       <h1>LOADING</h1>
 

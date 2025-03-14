@@ -24,32 +24,35 @@ export default function App() {
   // create the current tournament and bracket, which are state variables here, and a context variable everywhere else
   const [currentTournament, setCurrentTournament] = useState<Tournament | null>(() => {
     const saved = localStorage.getItem('tournament');
-    return saved ? Tournament.deserialize(saved) : null;
+    const result = saved ? Tournament.deserialize(saved) : null;
+    console.log('local storage loading tournament', result);
+    return result;
   });
   const [currentBracket, setCurrentBracket] = useState<Bracket | null>(() => {
     const saved = localStorage.getItem('bracket');
-    return saved ? Bracket.deserialize(saved) : null;
-
+    const result = saved ? Bracket.deserialize(saved) : null;
+    console.log('local storage loading bracket', result);
+    return result;
   });
 
   // save the current tournament and bracket to local storage whenever they change
   useEffect(() => {
-    if (currentTournament) localStorage.setItem('tournament', currentTournament.serialize());
+    if (currentTournament) {
+      console.log('local storage saving tournament', currentTournament);
+      localStorage.setItem('tournament', currentTournament.serialize());
+      currentTournament.save();
+    }
   }, [currentTournament]);
 
   useEffect(() => {
     if (currentBracket) {
-      const serializedCurrentBracket = currentBracket.serialize();
-      console.log('local storage saving bracket', serializedCurrentBracket);
-      localStorage.setItem('bracket', serializedCurrentBracket);
+      console.log('local storage saving bracket', currentBracket);
+      localStorage.setItem('bracket', currentBracket.serialize());
+      localStorage.setItem('tournament', currentTournament?.serialize() || ''); // save tournament so localStorage is updated with new tournament. lack of this caused errors.
+      currentTournament?.save(); // moved here because two competing useEffects could cause race condition
     }
 
   }, [currentBracket]);
-
-  // any time the bracket or tournament changes, save the tournament
-  useEffect(() => {
-    if (currentTournament) currentTournament.save();
-  }, [currentTournament, currentBracket]);
 
   return (
     <CURRENT_STATE.Provider value={{ tournament: currentTournament, bracket: currentBracket, setTournament: setCurrentTournament, setBracket: setCurrentBracket }}>
