@@ -22,11 +22,17 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
         }
     }
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
 
         // check filename
         if (invalidChars.test(name)) {
             setError("Tournament name contains invalid characters: :<>:\"/\\|?*");
+            return;
+        }
+
+        const allTournaments = await Tournament.loadAllTournaments();
+        if (allTournaments.some(t => t.name === name)) {
+            setError('Tournament with name  "' + name + '" already exists.');
             return;
         }
 

@@ -13,6 +13,9 @@ class Match {
     competitor1Parent?: Match
     competitor0PreviouslyWinner?: boolean
     competitor1PreviouslyWinner?: boolean
+    inWinnersBracket?: boolean = false
+
+    finals: boolean = false
 
     constructor(id: number = -1, competitor0Name?: string, competitor1Name?: string, winner?: number, winnerChild?: Match, loserChild?: Match,
         competitor0Parent?: Match, competitor1Parent?: Match, competitor0PreviouslyWinner?: boolean, competitor1PreviouslyWinner?: boolean) {
@@ -122,11 +125,24 @@ class Match {
     // update the winner of this match and all its children recursively
     updateNames() {
 
+        // if parent was finals match and winner of that match was previously in the losers bracket, then grand finale is a rematch.
+        // if parent was finals match and winner of that match was previously in the winners bracket, then grand finale is autofilled with finals match winner as winner.
+
+        if(this.competitor0Parent?.finals)
+        {
+            let finalsMatch = this.competitor0Parent;
+            let finalsWinner = finalsMatch.getWinner();
+            let finalsWinnerParentMatch = finalsMatch.competitor0Parent?.getWinner() === finalsWinner ? finalsMatch.competitor0Parent : finalsMatch.competitor1Parent;
+            // find out whether this parent match was in the losers or winners bracket. will have to rework bracket initialization to add winner/loser data to matches.
+        }
+
         if (this.competitor0Parent) {
-            this.competitor0Name = this.competitor0PreviouslyWinner ? this.competitor0Parent.getWinner() : this.competitor0Parent.getLoser();
+            let newName = this.competitor0PreviouslyWinner ? this.competitor0Parent.getWinner() : this.competitor0Parent.getLoser();
+            this.competitor0Name = newName;
         }
         if (this.competitor1Parent) {
-            this.competitor1Name = this.competitor1PreviouslyWinner ? this.competitor1Parent.getWinner() : this.competitor1Parent.getLoser();
+            let newName = this.competitor1PreviouslyWinner ? this.competitor1Parent.getWinner() : this.competitor1Parent.getLoser();
+            this.competitor1Name = newName;
         }
 
         //console.log('updated names for match ' + this.id + ' to ' + this.competitor0Name + ' and ' + this.competitor1Name);

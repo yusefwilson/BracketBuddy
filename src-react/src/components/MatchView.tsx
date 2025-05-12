@@ -1,45 +1,45 @@
-import { useState } from 'react';
 import WinnerCheckbox from './WinnerCheckbox';
 import Match from '../lib/Match';
+import { useEffect, useRef } from 'react';
 
-export default function MatchView({ match, updateMatch }: { match: Match, updateMatch: (matchId: number, winner: number) => void }) {
+export default function MatchView({ match, updateMatch, matchRefs }: { match: Match, updateMatch: (matchId: number, winner: number) => void, matchRefs: React.MutableRefObject<Map<number, HTMLDivElement>> }) {
 
-  console.log('rendering match ', match.id, ' with winner ', match.winner);
+  const matchRef = useRef<HTMLDivElement>(null);
 
-  // just using match.winner as a truthy/falsy value results in logic error when winner is 0
-  const [winner, setWinner] = useState(match.winner !== undefined ? match.winner : -1);
+  useEffect(() => {
+    if (matchRef.current) {
+      matchRefs.current.set(match.id, matchRef.current);
+    }
 
-  console.log('winner is ', winner);
+    return () => {
+      matchRefs.current.delete(match.id); // Clean up when unmounting
+    };
+  }, []);
 
   const toggleWinner = (newWinner: number) => {
-    if (newWinner === winner) {
-      setWinner(-1);
-      match.winner = undefined;
-      updateMatch(match.id, -1);
-    }
-    else {
-      setWinner(newWinner);
-      match.winner = newWinner
-      updateMatch(match.id, newWinner);
-    }
-  }
+    const updatedWinner = match.winner === newWinner ? -1 : newWinner;
+    updateMatch(match.id, updatedWinner);
+  };
 
   return (
-    <div className='relative'>
+    <div ref={matchRef} className='relative'>
 
       {/* Match container */}
       <div className='rounded-md bg-purple-400 p-2 flex flex-col gap-2'>
-        <h3 className='text-center font-bold'>Match {match.id}</h3>
-        <div className='flex flex-row justify-between items-center p-2 rounded-md bg-blue-400'>
-          {match.competitor0Name}
-          {<WinnerCheckbox toggleWinner={() => toggleWinner(0)} checked={winner === 0} />}
+        {/*<h3 className='text-center font-bold'>Match {match.id}</h3>*/}
+        <div className='flex flex-row justify-between items-center p-2 rounded-md bg-blue-400 w-52'>
+          <div className="truncate w-0 flex-1">
+            {match.competitor0Name}
+          </div>
+          <WinnerCheckbox toggleWinner={() => toggleWinner(0)} checked={match.winner === 0} />
         </div>
-        <div className={'flex justify-between items-center p-2 rounded-md bg-blue-400'}>
-          {match.competitor1Name}
-          {<WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={winner === 1} />}
+        <div className='flex flex-row justify-between items-center p-2 rounded-md bg-blue-400 w-52'>
+          <div className="truncate w-0 flex-1">
+            {match.competitor1Name}
+          </div>
+          <WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={match.winner === 1} />
         </div>
       </div>
     </div>
-
-  )
+  );
 }
