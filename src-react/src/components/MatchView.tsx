@@ -1,20 +1,7 @@
 import WinnerCheckbox from './WinnerCheckbox';
 import Match from '../lib/Match';
-import { useEffect, useRef } from 'react';
 
-export default function MatchView({ match, updateMatch, matchRefs }: { match: Match, updateMatch: (matchId: number, winner: number) => void, matchRefs: React.MutableRefObject<Map<number, HTMLDivElement>> }) {
-
-  const matchRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (matchRef.current) {
-      matchRefs.current.set(match.id, matchRef.current);
-    }
-
-    return () => {
-      matchRefs.current.delete(match.id); // Clean up when unmounting
-    };
-  }, []);
+export default function MatchView({ match, updateMatch }: { match: Match, updateMatch: (matchId: number, winner: number) => void }) {
 
   const toggleWinner = (newWinner: number) => {
     const updatedWinner = match.winner === newWinner ? -1 : newWinner;
@@ -22,7 +9,7 @@ export default function MatchView({ match, updateMatch, matchRefs }: { match: Ma
   };
 
   return (
-    <div ref={matchRef} className='relative'>
+    <div className='relative'>
 
       {/* Match container */}
       <div className='rounded-md bg-purple-400 p-2 flex flex-col gap-2'>
