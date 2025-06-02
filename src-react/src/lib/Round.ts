@@ -136,10 +136,10 @@ class Round {
         const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
         const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
 
-        // console.log('in createInitialLoserRounds***********************');
-        // console.log('numCompetitors: ', numCompetitors);
-        // console.log('greatestPowerOf2: ', greatestPowerOf2);
-        // console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
+        console.log('in createInitialLoserRounds***********************');
+        console.log('numCompetitors: ', numCompetitors);
+        console.log('greatestPowerOf2: ', greatestPowerOf2);
+        console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
 
         // if we don't need any round zero matches, then we just create the first loser round
         if (numberOfRoundZeroMatches === 0) {
@@ -150,6 +150,7 @@ class Round {
         //  // otherwise, we need to perform the same 2^n - k split as we did for the initial winner rounds
         // conglomerate first 2 rounds for convenience
         const allWinnerMatches = initialWinnerRounds[0].matches.concat(initialWinnerRounds[1].matches);
+        console.log('allWinnerMatches: ', allWinnerMatches);
 
         // get reference to bracket
         const bracket = initialWinnerRounds[0].bracket;
@@ -157,7 +158,10 @@ class Round {
         // create matches for round 0. remove each match from the allWinnerMatches array as we use them
         const round0Matches: Match[] = [];
         for (let i = 0; i < numberOfRoundZeroMatches; i++) {
-            let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatches.shift() as Match, false, allWinnerMatches.shift() as Match, false);
+            let arg1 = allWinnerMatches.shift() as Match;
+            let arg2 = allWinnerMatches.shift() as Match;
+            console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
+            let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, false, arg2, false);
             round0Matches.push(newMatch);
         }
 
@@ -171,10 +175,16 @@ class Round {
         const round0MatchesCopy = round0Matches.slice();
         // cache length because we will be modifying the array
         const round0MatchesCopyLength = round0MatchesCopy.length;
+        console.log('round0MatchesCopy: ', round0MatchesCopy);
+        console.log('round0MatchesCopyLength: ', round0MatchesCopyLength);
 
         // for each match in round 0, link it to a match from allWinnerMatches as long as there are any
         for (let i = 0; i < round0MatchesCopyLength && allWinnerMatches.length > 0; i++) {
-            let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, round0MatchesCopy.shift() as Match, true, allWinnerMatches.shift() as Match, false);
+            console.log('i: ', i, ' round0MatchesCopyLength: ', round0MatchesCopyLength, ' allWinnerMatches.length: ', allWinnerMatches.length);
+            let arg1 = round0MatchesCopy.shift() as Match;
+            let arg2 = allWinnerMatches.shift() as Match;
+            console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
+            let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, true, arg2, false);
             round1Matches.push(newMatch);
         }
 
@@ -182,8 +192,11 @@ class Round {
 
         // if there are any matches left in round0Matches, link them up
         if (round0MatchesCopy.length > 0) {
-            for (let i = 0; i < round0Matches.length; i += 2) {
-                let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, round0MatchesCopy.shift() as Match, true, round0MatchesCopy.shift() as Match, true)
+            for (let i = 0; i < round0MatchesCopy.length; i += 2) {
+                let arg1 = round0MatchesCopy.shift() as Match;
+                let arg2 = round0MatchesCopy.shift() as Match;
+                console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
+                let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, true, arg2, true)
                 round1Matches.push(newMatch);
             }
         }

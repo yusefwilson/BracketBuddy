@@ -1,45 +1,44 @@
 import Round from '../lib/Round';
 import MatchView from './MatchView';
 
-export default function RoundView({ round, updateMatch, matchRefs, roundType }: { round: Round, updateMatch: (matchId: number, winner: number) => void, matchRefs: React.MutableRefObject<Map<number, HTMLDivElement>>, roundType: 'initialWinner' | 'initialLoser' | 'winner' | 'loserEven' | 'loserOdd' }) {
+import { useEffect, useRef } from 'react';
 
-  const roundToRoundName = (round: Round) => {
+export default function RoundView({ round, updateMatch, roundName, matchRefs, matchToRoundRefs }:
+  {
+    round: Round,
+    updateMatch: (matchId: number, winner: number) => void,
+    matchRefs: React.MutableRefObject<Map<number, HTMLDivElement>>,
+    roundName: string,
+    matchToRoundRefs: React.MutableRefObject<Map<number, HTMLDivElement>>
+  }) {
 
-    // get number of competitors
-    const numMatches = round.matches.length * 2;
+  const roundRef = useRef<HTMLDivElement>(null);
 
-    switch (numMatches) {
-      case 1:
-        return 'Finals';
-      case 2:
-        return 'Semifinals';
-      default:
-        return `Round of ${numMatches}`;
+  useEffect(() => {
+    console.log('BBBBBBBBBBBBBBB')
+    if (roundRef.current) {
+      for (const match of round.matches) {
+        matchToRoundRefs.current.set(match.id, roundRef.current);
+        console.log('setting matchToRoundRefs for match', match.id, 'to roundRef', roundRef.current);
+      }
     }
-  }
 
-  const roundName = roundToRoundName(round);
+    return () => {
+      for (const match of round.matches) {
+        matchToRoundRefs.current.delete(match.id);
+      }
+    };
+  }, [round]);
+
 
   console.log('rendering round', round);
-
-  let styleString = 'text-black text-center font-bold'
-
-  switch (roundType) {
-    case 'initialWinner':
-      styleString += ' mb-6 ';
-      break;
-    case 'initialLoser':
-      styleString += ' mb-6 ';
-      break;
-  }
-
 
   return (
     <div className='flex flex-col bg-yellow-200 z-10'>
 
-      <h2 className={styleString}>{roundName}</h2>
+      <h2 className='text-black text-center font-bold'>[FIX ROUND NAME]</h2>
 
-      <div className={'flex flex-col p-2 gap-2 ' + (round.winnerRound ? 'bg-green-200' : 'bg-red-500')}>
+      <div className={'relative p-2 ' + (round.winnerRound ? 'bg-green-200' : 'bg-red-500')}>
         {round.matches.map((match, i) => <MatchView key={i} match={match} updateMatch={updateMatch} matchRefs={matchRefs} />)}
       </div>
 

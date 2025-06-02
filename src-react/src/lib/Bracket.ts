@@ -79,6 +79,7 @@ class Bracket {
 
         // generate rounds
         this.winnersBracket = Round.createInitialWinnerRounds(this, this.competitorNames);
+        console.log('Winners bracket created:', this.winnersBracket);
         this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket);
 
         // create the rest of the bracket
