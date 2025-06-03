@@ -1,7 +1,8 @@
 import WinnerCheckbox from './WinnerCheckbox';
 import Match from '../lib/Match';
 
-export default function MatchView({ match, updateMatch }: { match: Match, updateMatch: (matchId: number, winner: number) => void }) {
+export default function MatchView({ match, updateMatch, x, y }:
+  { match: Match, updateMatch: (matchId: number, winner: number) => void, x: number, y: number }) {
 
   const toggleWinner = (newWinner: number) => {
     const updatedWinner = match.winner === newWinner ? -1 : newWinner;
@@ -9,7 +10,10 @@ export default function MatchView({ match, updateMatch }: { match: Match, update
   };
 
   return (
-    <div className='relative'>
+    <div className='absolute' style={{
+      left: `${x}px`,
+      top: `${y}px`,
+    }}>
 
       {/* Match container */}
       <div className='rounded-md bg-purple-400 p-2 flex flex-col gap-2'>
