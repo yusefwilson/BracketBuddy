@@ -1,13 +1,33 @@
 import Bracket from '../lib/Bracket';
 import Tournament from '../lib/Tournament';
-import { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 import Match from '../lib/Match';
 
-type RoundType = 'initialWinner' | 'initialLoser' | 'winner' | 'loserOdd' | 'loserEven';
+const HORIZONTAL_GAP = 200;
+const INITIAL_VERTICAL_GAP = 100;
+const EXTRA_VERTICAL_OFFSET = 25;
+
+const WINNER_HORIZONTAL_OFFSET = 25;
+const WINNER_VERTICAL_OFFSET = 25;
+
 function isPowerOfTwo(n: number) { return n > 0 && (n & (n - 1)) === 0; }
+
+// given information about a round, calculate where on the screen the match should be placed.
+const calculateMatchPosition = (roundIndex: number, matchIndex: number, staggered: boolean, horizontal_offset: number, vertical_offset: number): number[] => {
+
+  let x = roundIndex * HORIZONTAL_GAP + horizontal_offset;
+  let y = matchIndex * INITIAL_VERTICAL_GAP + vertical_offset + (staggered ? EXTRA_VERTICAL_OFFSET : 0);
+  return [x, y];
+}
+
+const calculateMatchPositionFromParentHeights = (roundIndex: number, parentMatch0Height: number, parentMatch1Height: number, horizontal_offset: number): number[] => {
+  let x = roundIndex * HORIZONTAL_GAP + horizontal_offset;
+  let y = (parentMatch0Height + parentMatch1Height) / 2;
+  return [x, y];
+}
 
 export default function BracketView() {
 
@@ -42,44 +62,23 @@ export default function BracketView() {
     }
   }, [competitorNames]);
 
-  const HORIZONTAL_GAP = 200;
-  const INITIAL_VERTICAL_GAP = 100;
-  const EXTRA_VERTICAL_OFFSET = 25;
-
-  const WINNER_HORIZONTAL_OFFSET = 25;
-  const WINNER_VERTICAL_OFFSET = 25;
-
-  // given information about a round, calculate where on the screen the match should be placed.
-  const calculateInitialWinnerPosition = (roundIndex: number, matchIndex: number, roundType: RoundType,): number[] => {
-
-    let x = roundIndex * HORIZONTAL_GAP + WINNER_HORIZONTAL_OFFSET;
-    let y = matchIndex * INITIAL_VERTICAL_GAP + WINNER_VERTICAL_OFFSET + (roundType === 'initialWinner' ? EXTRA_VERTICAL_OFFSET : 0);
-    return [x, y];
-  }
-
-  const calculateWinnerPosition = (roundIndex: number, parentMatch0Height: number, parentMatch1Height: number): number[] => {
-    let x = roundIndex * HORIZONTAL_GAP + WINNER_HORIZONTAL_OFFSET;
-    let y = (parentMatch0Height + parentMatch1Height) / 2;
-    return [x, y];
-  }
-
   // {match, x, y}[][]
   const winnerMatches = [];
 
   // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
   if (!isPowerOfTwo(competitorNames.length)) {
     winnerMatches.push(bracket?.winnersBracket[0].matches.map((match, index) => {
-      let [x, y] = calculateInitialWinnerPosition(0, index, 'initialWinner');
+      let [x, y] = calculateMatchPosition(0, index, true, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
       return { match, x, y };
     }));
     winnerMatches.push(bracket?.winnersBracket[1].matches.map((match, index) => {
-      let [x, y] = calculateInitialWinnerPosition(1, index, 'winner');
+      let [x, y] = calculateMatchPosition(1, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
       return { match, x, y };
     }));
   }
   else {
     winnerMatches.push(bracket?.winnersBracket[0].matches.map((match, index) => {
-      let [x, y] = calculateInitialWinnerPosition(0, index, 'winner');
+      let [x, y] = calculateMatchPosition(0, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
       return { match, x, y };
     }));
   }
@@ -98,7 +97,7 @@ export default function BracketView() {
       // edge case when there is one parent
       if (previousRoundMatches.length === 1) {
         const parentMatch = previousRoundMatches[0];
-        const [x, y] = calculateWinnerPosition(roundIndex, parentMatch.y, parentMatch.y);
+        const [x, y] = calculateMatchPositionFromParentHeights(roundIndex, parentMatch.y, parentMatch.y, WINNER_HORIZONTAL_OFFSET);
         return { match, x, y };
       }
 
@@ -112,7 +111,7 @@ export default function BracketView() {
         return { match, x: 0, y: 0 }; // fallback
       }
 
-      const [x, y] = calculateWinnerPosition(roundIndex, parentMatch0.y, parentMatch1.y);
+      const [x, y] = calculateMatchPositionFromParentHeights(roundIndex, parentMatch0.y, parentMatch1.y, WINNER_HORIZONTAL_OFFSET);
       return { match, x, y };
     }));
   }
@@ -120,8 +119,30 @@ export default function BracketView() {
   // flatten the winnerMatches array
   const flattenedWinnerMatches = winnerMatches.flat();
 
-  console.log('about to render bracket ', bracket);
+  // find max y value (lowest point) to use as reference point for losers bracket
+  const winnersBottom = Math.max(...flattenedWinnerMatches.map(m => m?.y || 0));
 
+  // {match, x, y}[][]
+  const loserMatches = []
+
+  // calculate losers bracket matches
+  if (!isPowerOfTwo(bracket?.losersBracket.length || -1)) {
+    winnerMatches.push(bracket?.winnersBracket[0].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(0, index, true, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+      return { match, x, y };
+    }));
+    winnerMatches.push(bracket?.winnersBracket[1].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(1, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+      return { match, x, y };
+    }));
+  }
+  else {
+    winnerMatches.push(bracket?.winnersBracket[0].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(0, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+      return { match, x, y };
+    }));
+  }
+  console.log('about to render bracket ', bracket);
   return (
     <div className='rounded-md bg-orange-400 p-2 flex flex-row gap-4 h-full max-h-[92%]'>
 
