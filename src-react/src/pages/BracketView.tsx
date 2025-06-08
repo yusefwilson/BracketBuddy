@@ -12,6 +12,8 @@ const EXTRA_VERTICAL_OFFSET = 25;
 
 const WINNER_HORIZONTAL_OFFSET = 25;
 const WINNER_VERTICAL_OFFSET = 25;
+const LOSER_HORIZONTAL_OFFSET = 25;
+const LOSER_VERTICAL_OFFSET = 25;
 
 function isPowerOfTwo(n: number) { return n > 0 && (n & (n - 1)) === 0; }
 
@@ -26,6 +28,12 @@ const calculateMatchPosition = (roundIndex: number, matchIndex: number, staggere
 const calculateMatchPositionFromParentHeights = (roundIndex: number, parentMatch0Height: number, parentMatch1Height: number, horizontal_offset: number): number[] => {
   let x = roundIndex * HORIZONTAL_GAP + horizontal_offset;
   let y = (parentMatch0Height + parentMatch1Height) / 2;
+  return [x, y];
+}
+
+const calculateMatchPositionFromSingleParentHeight = (roundIndex: number, staggered: boolean, parentMatchHeight: number, horizontal_offset: number): number[] => {
+  let x = roundIndex * HORIZONTAL_GAP + horizontal_offset;
+  let y = parentMatchHeight + (staggered ? EXTRA_VERTICAL_OFFSET : 0);
   return [x, y];
 }
 
@@ -120,28 +128,78 @@ export default function BracketView() {
   const flattenedWinnerMatches = winnerMatches.flat();
 
   // find max y value (lowest point) to use as reference point for losers bracket
-  const winnersBottom = Math.max(...flattenedWinnerMatches.map(m => m?.y || 0));
+  const WINNERS_BOTTOM = Math.max(...flattenedWinnerMatches.map(m => m?.y || 0)) + 100;
 
   // {match, x, y}[][]
   const loserMatches = []
 
   // calculate losers bracket matches
   if (!isPowerOfTwo(bracket?.losersBracket.length || -1)) {
-    winnerMatches.push(bracket?.winnersBracket[0].matches.map((match, index) => {
-      let [x, y] = calculateMatchPosition(0, index, true, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+    loserMatches.push(bracket?.losersBracket[0].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(0, index, true, LOSER_HORIZONTAL_OFFSET, WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET);
       return { match, x, y };
     }));
-    winnerMatches.push(bracket?.winnersBracket[1].matches.map((match, index) => {
-      let [x, y] = calculateMatchPosition(1, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+    loserMatches.push(bracket?.losersBracket[1].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(1, index, false, LOSER_HORIZONTAL_OFFSET, WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET);
       return { match, x, y };
     }));
   }
   else {
-    winnerMatches.push(bracket?.winnersBracket[0].matches.map((match, index) => {
-      let [x, y] = calculateMatchPosition(0, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+    loserMatches.push(bracket?.losersBracket[0].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(0, index, false, LOSER_HORIZONTAL_OFFSET, WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET);
       return { match, x, y };
     }));
   }
+
+  for (let roundIndex = isPowerOfTwo(competitorNames.length) ? 1 : 2; roundIndex < (bracket?.losersBracket.length || 0); roundIndex++) {
+    const previousRoundMatches = loserMatches[roundIndex - 1];
+
+    // if previous round somehow didn't exist or is empty
+    if (!previousRoundMatches || previousRoundMatches.length === 0) {
+      console.warn(`No matches found for round index ${roundIndex - 1}`);
+      continue;
+    }
+
+    loserMatches.push(bracket?.losersBracket[roundIndex].matches.map((match, index) => {
+
+      // edge case when there is one parent
+      if (previousRoundMatches.length === 1) {
+        const parentMatch = previousRoundMatches[0];
+        const [x, y] = calculateMatchPositionFromParentHeights(roundIndex, parentMatch?.y || 0, parentMatch?.y || 0, WINNER_HORIZONTAL_OFFSET);
+        return { match, x, y };
+      }
+
+      if (roundIndex % 2 === 0) {
+        // find parent matches using winnerMatches last round
+        const parentMatch0 = previousRoundMatches[index * 2];
+        const parentMatch1 = previousRoundMatches[index * 2 + 1];
+
+        if (!parentMatch0 || !parentMatch1) {
+          console.warn(`Parent matches not found for round index ${roundIndex} and match index ${index}`);
+          return { match, x: 0, y: 0 }; // fallback
+        }
+
+        const [x, y] = calculateMatchPositionFromParentHeights(roundIndex, parentMatch0.y, parentMatch1.y, WINNER_HORIZONTAL_OFFSET);
+        return { match, x, y };
+      }
+
+      else {
+        const correspondingMatch = previousRoundMatches[index];
+        if (!correspondingMatch) {
+          console.warn(`Corresponding match not found for round index ${roundIndex} and match index ${index}`);
+          return { match, x: 0, y: 0 }; // fallback
+        }
+
+        const [x, y] = calculateMatchPositionFromSingleParentHeight(roundIndex, true, correspondingMatch.y, LOSER_HORIZONTAL_OFFSET);
+        return { match, x, y };
+      }
+
+    }));
+
+  }
+
+  const flattenedLoserMatches = loserMatches.flat();
+
   console.log('about to render bracket ', bracket);
   return (
     <div className='rounded-md bg-orange-400 p-2 flex flex-row gap-4 h-full max-h-[92%]'>
@@ -166,7 +224,21 @@ export default function BracketView() {
 
         {flattenedWinnerMatches.map(element => {
           let { match, x, y } = element as { match: Match, x: number, y: number };
-          console.log('about to render MATCHVIEW with x: ', x, ' and y: ', y);
+          console.log('about to render WINNER MATCHVIEW with x: ', x, ' and y: ', y);
+          return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
+        })}
+
+        {/* Winner/loser line separator */}
+        <div
+          className="absolute left-0 w-full border-t border-red-400 text-xs text-white"
+          style={{ top: WINNERS_BOTTOM }}
+        />
+
+        {flattenedLoserMatches.map(element => {
+          console.log('about ot render ELEMENT: ', element)
+          if (!element) { return null; }
+          let { match, x, y } = element as { match: Match, x: number, y: number };
+          console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
           return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
         })}
 
