@@ -5,6 +5,7 @@ import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 import Match from '../lib/Match';
+import Round from '../lib/Round';
 
 const HORIZONTAL_GAP = 200;
 const INITIAL_VERTICAL_GAP = 100;
@@ -35,6 +36,41 @@ const calculateMatchPositionFromSingleParentHeight = (roundIndex: number, stagge
   let x = roundIndex * HORIZONTAL_GAP + horizontal_offset;
   let y = parentMatchHeight + (staggered ? EXTRA_VERTICAL_OFFSET : 0);
   return [x, y];
+}
+
+const calculateInitialRoundsMatchPositions = (bracket: Bracket, side: 'winner' | 'loser'): ({ match: Match, x: number, y: number }[] | undefined)[] => {
+  const matches = [];
+  let numberOfCompetitors, subBracket;
+
+  if (side === 'winner') {
+    numberOfCompetitors = bracket?.competitorNames.length || 0;
+    subBracket = bracket?.winnersBracket;
+  }
+
+  else {
+    numberOfCompetitors = ((bracket?.winnersBracket[0].matches.length || 0) + (bracket?.winnersBracket[1].matches.length || 0)) || -1;
+    subBracket = bracket?.losersBracket;
+  }
+
+  // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
+  if (!isPowerOfTwo(numberOfCompetitors)) {
+    matches.push(subBracket[0].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(0, index, true, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+      return { match, x, y };
+    }));
+    matches.push(subBracket[1].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(1, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+      return { match, x, y };
+    }));
+  }
+  else {
+    matches.push(subBracket[0].matches.map((match, index) => {
+      let [x, y] = calculateMatchPosition(0, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+      return { match, x, y };
+    }));
+  }
+
+  return matches;
 }
 
 export default function BracketView() {
@@ -71,25 +107,7 @@ export default function BracketView() {
   }, [competitorNames]);
 
   // {match, x, y}[][]
-  const winnerMatches = [];
-
-  // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
-  if (!isPowerOfTwo(competitorNames.length)) {
-    winnerMatches.push(bracket?.winnersBracket[0].matches.map((match, index) => {
-      let [x, y] = calculateMatchPosition(0, index, true, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
-      return { match, x, y };
-    }));
-    winnerMatches.push(bracket?.winnersBracket[1].matches.map((match, index) => {
-      let [x, y] = calculateMatchPosition(1, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
-      return { match, x, y };
-    }));
-  }
-  else {
-    winnerMatches.push(bracket?.winnersBracket[0].matches.map((match, index) => {
-      let [x, y] = calculateMatchPosition(0, index, false, WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
-      return { match, x, y };
-    }));
-  }
+  const winnerMatches = calculateInitialRoundsMatchPositions(bracket as Bracket, 'winner');
 
   // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
   for (let roundIndex = isPowerOfTwo(competitorNames.length) ? 1 : 2; roundIndex < (bracket?.winnersBracket.length || 0); roundIndex++) {
@@ -108,7 +126,6 @@ export default function BracketView() {
         const [x, y] = calculateMatchPositionFromParentHeights(roundIndex, parentMatch.y, parentMatch.y, WINNER_HORIZONTAL_OFFSET);
         return { match, x, y };
       }
-
 
       // find parent matches using winnerMatches last round
       const parentMatch0 = previousRoundMatches[index * 2];
@@ -133,8 +150,10 @@ export default function BracketView() {
   // {match, x, y}[][]
   const loserMatches = []
 
+  //TODO: Refactor by using helper function from above
+
   // calculate losers bracket matches
-  if (!isPowerOfTwo(bracket?.losersBracket.length || -1)) {
+  if (!isPowerOfTwo(((bracket?.winnersBracket[0].matches.length || 0) + (bracket?.winnersBracket[1].matches.length || 0)) || -1)) {
     loserMatches.push(bracket?.losersBracket[0].matches.map((match, index) => {
       let [x, y] = calculateMatchPosition(0, index, true, LOSER_HORIZONTAL_OFFSET, WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET);
       return { match, x, y };
