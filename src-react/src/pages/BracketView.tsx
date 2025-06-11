@@ -5,7 +5,6 @@ import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 import Match from '../lib/Match';
-import Round from '../lib/Round';
 
 const HORIZONTAL_GAP = 200;
 const INITIAL_VERTICAL_GAP = 100;
@@ -108,6 +107,7 @@ export default function BracketView() {
 
   // {match, x, y}[][]
   const winnerMatches = calculateInitialRoundsMatchPositions(bracket as Bracket, 'winner');
+  const initialWinnerMatches = winnerMatches.slice();
 
   // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
   for (let roundIndex = isPowerOfTwo(competitorNames.length) ? 1 : 2; roundIndex < (bracket?.winnersBracket.length || 0); roundIndex++) {
@@ -170,7 +170,29 @@ export default function BracketView() {
     }));
   }
 
-  for (let roundIndex = isPowerOfTwo(competitorNames.length) ? 1 : 2; roundIndex < (bracket?.losersBracket.length || 0); roundIndex++) {
+  const initialLoserMatches = loserMatches.slice();
+
+  console.log('loserMatches after initial rounds: ', loserMatches)
+
+  // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
+  let halving: boolean;
+
+  console.log('last element of winnerMatches: ', winnerMatches[-1]);
+  console.log('last element of loserMatches: ', loserMatches[-1]);
+
+  if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserMatches[initialLoserMatches.length - 1]?.length) {
+    halving = true; // even rounds halve, odd rounds stay constant
+  }
+  else {
+    halving = false; // even rounds stay constant, odd rounds halve
+  }
+  console.log('initialWinnerMatches: ', initialWinnerMatches);
+  console.log('initialLoserMatches: ', initialLoserMatches);
+  console.log('length of last initial winner round: ', initialWinnerMatches[initialWinnerMatches.length - 1]?.length);
+  console.log('length of last loser round: ', initialLoserMatches[initialLoserMatches.length - 1]?.length);
+  console.log('HALVING: ', halving);;
+
+  for (let roundIndex = loserMatches.length === 1 ? 1 : 2; roundIndex < (bracket?.losersBracket.length || 0); roundIndex++) {
     const previousRoundMatches = loserMatches[roundIndex - 1];
 
     // if previous round somehow didn't exist or is empty
@@ -188,7 +210,8 @@ export default function BracketView() {
         return { match, x, y };
       }
 
-      if (roundIndex % 2 === 0) {
+      // halve matches
+      if (halving) {
         // find parent matches using winnerMatches last round
         const parentMatch0 = previousRoundMatches[index * 2];
         const parentMatch1 = previousRoundMatches[index * 2 + 1];
@@ -202,10 +225,11 @@ export default function BracketView() {
         return { match, x, y };
       }
 
+      // stagger matches below corresponding previous loser round matches
       else {
         const correspondingMatch = previousRoundMatches[index];
         if (!correspondingMatch) {
-          console.warn(`Corresponding match not found for round index ${roundIndex} and match index ${index}`);
+          console.warn(`Corresponding match not found for round index ${roundIndex} and match index ${index} in previous round array ${previousRoundMatches}`);
           return { match, x: 0, y: 0 }; // fallback
         }
 
@@ -214,7 +238,7 @@ export default function BracketView() {
       }
 
     }));
-
+    halving = !halving; // toggle halving for next round
   }
 
   const flattenedLoserMatches = loserMatches.flat();
