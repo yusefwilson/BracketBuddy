@@ -7,7 +7,7 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
     const [date, setDate] = useState(new Date());
     const [error, setError] = useState('');
 
-    const invalidChars = /[:<>:"/\\|?*]/g;
+    const invalidChars = /[:<>:'/\\|?*]/g;
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         switch (event.target.name) {
@@ -26,13 +26,13 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
 
         // check filename
         if (invalidChars.test(name)) {
-            setError("Tournament name contains invalid characters: :<>:\"/\\|?*");
+            setError('Tournament name contains invalid characters: :<>:\'/\\|?*');
             return;
         }
 
         const allTournaments = await Tournament.loadAllTournaments();
         if (allTournaments.some(t => t.name === name)) {
-            setError('Tournament with name  "' + name + '" already exists.');
+            setError('Tournament with name  '' + name + '' already exists.');
             return;
         }
 
@@ -72,7 +72,7 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
                 <input className='bg-red-600' type='date' name='date' onChange={onChange}></input>
 
                 {/* Error Message */}
-                {error && <p className="bg-red-600 text-white">{error}</p>}
+                {error && <p className='bg-red-600 text-white'>{error}</p>}
 
                 {/* Create Tournament Button */}
                 <button className='bg-yellow-500 px-2 py-1 rounded-md flex-shrink' onClick={onSubmit}>Create Tournament</button>
