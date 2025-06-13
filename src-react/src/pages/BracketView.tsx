@@ -224,7 +224,7 @@ export default function BracketView() {
 
         {winnerMatches.map(element => {
           let { match, x, y } = element as MatchAndPosition;
-          console.log('about to render WINNER MATCHVIEW with x: ', x, ' and y: ', y);
+          //console.log('about to render WINNER MATCHVIEW with x: ', x, ' and y: ', y);
           return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
         })}
 
@@ -235,10 +235,10 @@ export default function BracketView() {
         />
 
         {loserMatches.map(element => {
-          console.log('about to render ELEMENT: ', element)
+          //console.log('about to render ELEMENT: ', element)
           if (!element) { return null; }
           let { match, x, y } = element as MatchAndPosition;
-          console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
+          //console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
           return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
         })}
 

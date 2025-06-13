@@ -160,7 +160,7 @@ class Round {
         for (let i = 0; i < numberOfRoundZeroMatches; i++) {
             let arg1 = allWinnerMatches.shift() as Match;
             let arg2 = allWinnerMatches.shift() as Match;
-            console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
+            //console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
             let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, false, arg2, false);
             round0Matches.push(newMatch);
         }
@@ -183,7 +183,7 @@ class Round {
             console.log('i: ', i, ' round0MatchesCopyLength: ', round0MatchesCopyLength, ' allWinnerMatches.length: ', allWinnerMatches.length);
             let arg1 = round0MatchesCopy.shift() as Match;
             let arg2 = allWinnerMatches.shift() as Match;
-            console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
+            //console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
             let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, true, arg2, false);
             round1Matches.push(newMatch);
         }
@@ -192,10 +192,13 @@ class Round {
 
         // if there are any matches left in round0Matches, link them up
         if (round0MatchesCopy.length > 0) {
-            for (let i = 0; i < round0MatchesCopy.length; i += 2) {
+            console.log(' going inside if because there are round0MatchesCopy left: ', round0MatchesCopy);
+            while(round0MatchesCopy.length >= 2) { // LATEST CHANGE
+                console.log(' round0MatchesCopy.length: ', round0MatchesCopy.length);
+                // if there is an odd number of matches, the last one will be a bye, so we can just skip it
                 let arg1 = round0MatchesCopy.shift() as Match;
                 let arg2 = round0MatchesCopy.shift() as Match;
-                console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
+                //console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
                 let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, true, arg2, true)
                 round1Matches.push(newMatch);
             }
@@ -252,7 +255,7 @@ class Round {
         // pair each winner of the loser round with the loser of the winner round
         for (let i = 0; i < winnerRound.matches.length; i++) {
 
-            console.log('about to create linked match with parent0 ', winnerRound.matches[i], ' and parent1 ', loserRound.matches[1]);
+            //console.log('about to create linked match with parent0 ', winnerRound.matches[i], ' and parent1 ', loserRound.matches[1]);
             // create new linked match
             matches.push(Match.createLinkedMatch(winnerRound.bracket.nextMatchId++, winnerRound.matches[i], false, loserRound.matches[i], true));
         }
@@ -275,6 +278,8 @@ class Round {
     // creates a round of matches from the winners of the previous loser round, and also includes losers from the given winner round. Can only be called on a loser round.
     createNextLoserRound(winnerRound: Round | undefined) {
 
+        console.log('in createNextLoserRound with winnerRound: ', winnerRound);
+
         if (this.winnerRound) {
             throw new Error('createNextLoserRound can only be called on a Round that is a loser round');
         }
@@ -287,7 +292,7 @@ class Round {
 
         // otherwise, we simply generate the next round from the winners of the current loser round
         else {
-            //console.log('about to create new loser round from winners of previous loser round')
+            console.log('about to create new loser round from winners of previous loser round with argument: ', this)
             return new Round(this.bracket, Round.createMatchesFromWinners(this), false);
         }
     }
