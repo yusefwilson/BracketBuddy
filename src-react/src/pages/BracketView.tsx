@@ -46,6 +46,7 @@ const calculateInitialRoundsMatchPositions = (bracket: Bracket, side: 'winner' |
   console.log('in calculateInitialRoundsMatchPositions with bracket: ', bracket);
   console.log('calculating initial rounds match positions for side: ', side);
   console.log('winnersBracket: ', bracket?.winnersBracket);
+  console.log('losersBracket: ', bracket?.losersBracket);
 
   subBracket = side === 'winner' ? bracket?.winnersBracket : bracket?.losersBracket;
 
@@ -183,7 +184,9 @@ export default function BracketView() {
     // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
     let halving: boolean;
 
-    if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length) {
+
+
+    if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(competitorNames.length)) {
       halving = true; // even rounds halve, odd rounds stay constant
     }
     else {
@@ -200,6 +203,9 @@ export default function BracketView() {
       }
 
       let nextRound;
+
+      console.log('about to calculate round index: ', roundIndex, ' with halving: ', halving);
+      console.log('previousRoundMatches: ', previousRoundMatches, ' and matches: ', bracket?.losersBracket[roundIndex].matches);
 
       if (halving) {
         nextRound = calculateMatchPositionsFromParentAverages(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex);

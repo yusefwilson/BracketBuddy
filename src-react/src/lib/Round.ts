@@ -130,16 +130,19 @@ class Round {
 
     static createInitialLoserRounds(initialWinnerRounds: Round[]): Round[] {
 
+        console.log('in createInitialLoserRounds***********************');
+        // console.log('initialWinnerRounds: ', initialWinnerRounds);
+        // console.log('initialWinnerRounds.length: ', initialWinnerRounds.length);
         let numCompetitors = 0;
         initialWinnerRounds.forEach(round => numCompetitors += round.matches.length);
 
         const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
         const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
 
-        console.log('in createInitialLoserRounds***********************');
-        console.log('numCompetitors: ', numCompetitors);
-        console.log('greatestPowerOf2: ', greatestPowerOf2);
-        console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
+
+        // console.log('numCompetitors: ', numCompetitors);
+        // console.log('greatestPowerOf2: ', greatestPowerOf2);
+        // console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
 
         // if we don't need any round zero matches, then we just create the first loser round
         if (numberOfRoundZeroMatches === 0) {
@@ -193,7 +196,7 @@ class Round {
         // if there are any matches left in round0Matches, link them up
         if (round0MatchesCopy.length > 0) {
             console.log(' going inside if because there are round0MatchesCopy left: ', round0MatchesCopy);
-            while(round0MatchesCopy.length >= 2) { // LATEST CHANGE
+            while (round0MatchesCopy.length >= 2) { // LATEST CHANGE
                 console.log(' round0MatchesCopy.length: ', round0MatchesCopy.length);
                 // if there is an odd number of matches, the last one will be a bye, so we can just skip it
                 let arg1 = round0MatchesCopy.shift() as Match;
