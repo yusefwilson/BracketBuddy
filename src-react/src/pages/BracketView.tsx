@@ -17,7 +17,7 @@ const LOSER_HORIZONTAL_OFFSET = 25;
 const LOSER_VERTICAL_OFFSET = 25;
 
 const isPowerOfTwo = (n: number) => { return n > 0 && (n & (n - 1)) === 0; };
-type MatchAndPosition = {match: Match, x: number, y: number};
+type MatchAndPosition = { match: Match, x: number, y: number };
 
 // given information about a round, calculate where on the screen the match should be placed.
 const calculateMatchPosition = (roundIndex: number, matchIndex: number, staggered: boolean, horizontal_offset: number, vertical_offset: number): number[] => {
@@ -43,15 +43,19 @@ const calculateInitialRoundsMatchPositions = (bracket: Bracket, side: 'winner' |
   const matches = [];
   let numberOfCompetitors, subBracket;
 
-  if (side === 'winner') {
-    numberOfCompetitors = bracket?.competitorNames.length || 0;
-    subBracket = bracket?.winnersBracket;
+  console.log('in calculateInitialRoundsMatchPositions with bracket: ', bracket);
+  console.log('calculating initial rounds match positions for side: ', side);
+  console.log('winnersBracket: ', bracket?.winnersBracket);
+
+  subBracket = side === 'winner' ? bracket?.winnersBracket : bracket?.losersBracket;
+
+  if (!subBracket || subBracket.length === 0) {
+    console.warn(`No subBracket found for side: ${side}`);
+    return [];
   }
 
-  else {
-    numberOfCompetitors = ((bracket?.winnersBracket[0].matches.length || 0) + (bracket?.winnersBracket[1].matches.length || 0)) || -1;
-    subBracket = bracket?.losersBracket;
-  }
+  numberOfCompetitors = side === 'winner' ? (bracket?.competitorNames.length || 0) : ((bracket?.winnersBracket[0].matches.length || 0) + (bracket?.winnersBracket[1].matches.length || 0));
+
 
   // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
   if (!isPowerOfTwo(numberOfCompetitors)) {
@@ -144,69 +148,74 @@ export default function BracketView() {
     }
   }, [competitorNames]);
 
-  // {match, x, y}[][]
-  const winnerRounds = calculateInitialRoundsMatchPositions(bracket as Bracket, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
-  const initialWinnerMatches = winnerRounds.slice();
 
-  // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
-  for (let roundIndex = isPowerOfTwo(competitorNames.length) ? 1 : 2; roundIndex < (bracket?.winnersBracket.length || 0); roundIndex++) {
-    const previousRound = winnerRounds[roundIndex - 1];
+  let winnerMatches, loserMatches, WINNERS_BOTTOM;
 
-    if (!previousRound || previousRound.length === 0) {
-      console.warn(`No matches found for round index ${roundIndex - 1}`);
-      continue;
+  if (competitorNames.length >= 2) {
+    // {match, x, y}[][]
+    const winnerRounds = calculateInitialRoundsMatchPositions(bracket as Bracket, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+    const initialWinnerMatches = winnerRounds.slice();
+
+    // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
+    for (let roundIndex = isPowerOfTwo(competitorNames.length) ? 1 : 2; roundIndex < (bracket?.winnersBracket.length || 0); roundIndex++) {
+      const previousRound = winnerRounds[roundIndex - 1];
+
+      if (!previousRound || previousRound.length === 0) {
+        console.warn(`No matches found for round index ${roundIndex - 1}`);
+        continue;
+      }
+
+      let nextRound = calculateMatchPositionsFromParentAverages(previousRound, bracket?.winnersBracket[roundIndex].matches || [], roundIndex);
+
+      winnerRounds.push(nextRound);
     }
 
-    let nextRound = calculateMatchPositionsFromParentAverages(previousRound, bracket?.winnersBracket[roundIndex].matches || [], roundIndex);
+    // flatten the winnerMatches array
+    winnerMatches = winnerRounds.flat();
 
-    winnerRounds.push(nextRound);
-  }
+    // find max y value (lowest point) to use as reference point for losers bracket
+    WINNERS_BOTTOM = Math.max(...winnerMatches.map(m => m?.y || 0)) + 100;
 
-  // flatten the winnerMatches array
-  const winnerMatches = winnerRounds.flat();
+    // {match, x, y}[][]
+    const loserRounds = calculateInitialRoundsMatchPositions(bracket as Bracket, 'loser', LOSER_HORIZONTAL_OFFSET, WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET);
+    const initialLoserRounds = loserRounds.slice();
 
-  // find max y value (lowest point) to use as reference point for losers bracket
-  const WINNERS_BOTTOM = Math.max(...winnerMatches.map(m => m?.y || 0)) + 100;
+    // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
+    let halving: boolean;
 
-  // {match, x, y}[][]
-  const loserRounds = calculateInitialRoundsMatchPositions(bracket as Bracket, 'loser', LOSER_HORIZONTAL_OFFSET, WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET);
-  const initialLoserRounds = loserRounds.slice();
-
-  // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
-  let halving: boolean;
-
-  if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length) {
-    halving = true; // even rounds halve, odd rounds stay constant
-  }
-  else {
-    halving = false; // even rounds stay constant, odd rounds halve
-  }
-
-  for (let roundIndex = loserRounds.length === 1 ? 1 : 2; roundIndex < (bracket?.losersBracket.length || 0); roundIndex++) {
-    const previousRoundMatches = loserRounds[roundIndex - 1];
-
-    // if previous round somehow didn't exist or is empty
-    if (!previousRoundMatches || previousRoundMatches.length === 0) {
-      console.warn(`No matches found for round index ${roundIndex - 1}`);
-      continue;
+    if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length) {
+      halving = true; // even rounds halve, odd rounds stay constant
     }
-
-    let nextRound;
-
-    if (halving) {
-      nextRound = calculateMatchPositionsFromParentAverages(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex);
-    }
-
     else {
-      nextRound = calculateMatchPositionsFromParentStaggered(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex);
+      halving = false; // even rounds stay constant, odd rounds halve
     }
 
-    loserRounds.push(nextRound);
+    for (let roundIndex = loserRounds.length === 1 ? 1 : 2; roundIndex < (bracket?.losersBracket.length || 0); roundIndex++) {
+      const previousRoundMatches = loserRounds[roundIndex - 1];
 
-    halving = !halving; // toggle halving for next round
+      // if previous round somehow didn't exist or is empty
+      if (!previousRoundMatches || previousRoundMatches.length === 0) {
+        console.warn(`No matches found for round index ${roundIndex - 1}`);
+        continue;
+      }
+
+      let nextRound;
+
+      if (halving) {
+        nextRound = calculateMatchPositionsFromParentAverages(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex);
+      }
+
+      else {
+        nextRound = calculateMatchPositionsFromParentStaggered(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex);
+      }
+
+      loserRounds.push(nextRound);
+
+      halving = !halving; // toggle halving for next round
+    }
+
+    loserMatches = loserRounds.flat();
   }
-
-  const loserMatches = loserRounds.flat();
 
   console.log('about to render bracket ', bracket);
   return (
@@ -219,28 +228,43 @@ export default function BracketView() {
       {/* <Bracket display */}
       <div className='bg-gray-400 rounded-md flex flex-col gap-4 h-full w-full relative overflow-auto'>
 
-        {/* Y-level guide lines */}
-        <YGuideLines yLevels={[50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900]} />
+        {
+          competitorNames.length < 2 ?
 
-        {winnerMatches.map(element => {
-          let { match, x, y } = element as MatchAndPosition;
-          //console.log('about to render WINNER MATCHVIEW with x: ', x, ' and y: ', y);
-          return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
-        })}
+            <div className='text-center text-white text-lg font-bold p-4'>
+              Not enough competitors added yet. Please add competitors to view the bracket.
+            </div>
 
-        {/* Winner/loser line separator */}
-        <div
-          className='absolute left-0 w-full border-t border-red-400 text-xs text-white'
-          style={{ top: WINNERS_BOTTOM }}
-        />
+            :
 
-        {loserMatches.map(element => {
-          //console.log('about to render ELEMENT: ', element)
-          if (!element) { return null; }
-          let { match, x, y } = element as MatchAndPosition;
-          //console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
-          return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
-        })}
+            <div>
+
+              {/* Y-level guide lines */}
+              <YGuideLines yLevels={[50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900]} />
+
+              {winnerMatches?.map(element => {
+                let { match, x, y } = element as MatchAndPosition;
+                //console.log('about to render WINNER MATCHVIEW with x: ', x, ' and y: ', y);
+                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
+              })}
+
+              {/* Winner/loser line separator */}
+              <div
+                className='absolute left-0 w-full border-t border-red-400 text-xs text-white'
+                style={{ top: WINNERS_BOTTOM }}
+              />
+
+              {loserMatches?.map(element => {
+                //console.log('about to render ELEMENT: ', element)
+                if (!element) { return null; }
+                let { match, x, y } = element as MatchAndPosition;
+                //console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
+                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
+              })}
+
+            </div>
+
+        }
 
       </div>
     </div>
