@@ -136,6 +136,14 @@ class Bracket {
             }
         }
 
+        // check final and final rematch
+        if (this.final && this.final.id === id) {
+            return this.final;
+        }
+        if (this.finalRematch && this.finalRematch.id === id) {
+            return this.finalRematch;
+        }
+
         return undefined;
     }
 
