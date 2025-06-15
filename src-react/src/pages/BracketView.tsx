@@ -150,7 +150,9 @@ export default function BracketView() {
   }, [competitorNames]);
 
 
-  let winnerMatches, loserMatches, WINNERS_BOTTOM;
+  // **** RENDER WINNERS BRACKET ****
+
+  let winnerMatches, loserMatches, WINNERS_BOTTOM = 0, LAST_WINNER_Y = 0, WINNERS_RIGHTMOST = 0;
 
   if (competitorNames.length >= 2) {
     // {match, x, y}[][]
@@ -177,14 +179,18 @@ export default function BracketView() {
     // find max y value (lowest point) to use as reference point for losers bracket
     WINNERS_BOTTOM = Math.max(...winnerMatches.map(m => m?.y || 0)) + 100;
 
+    // find max x value (rightmost point) to use as reference point for the finals matches
+    WINNERS_RIGHTMOST = Math.max(...winnerMatches.map(m => m?.x || 0));
+    LAST_WINNER_Y = winnerMatches[winnerMatches.length - 1]?.y || 0;
+
+    // **** RENDER LOSERS BRACKET ****
+
     // {match, x, y}[][]
     const loserRounds = calculateInitialRoundsMatchPositions(bracket as Bracket, 'loser', LOSER_HORIZONTAL_OFFSET, WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET);
     const initialLoserRounds = loserRounds.slice();
 
     // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
     let halving: boolean;
-
-
 
     if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(competitorNames.length)) {
       halving = true; // even rounds halve, odd rounds stay constant
@@ -223,6 +229,11 @@ export default function BracketView() {
     loserMatches = loserRounds.flat();
   }
 
+  // **** RENDER FINALS ****
+
+  const final = { match: bracket?.final, x: WINNERS_RIGHTMOST + HORIZONTAL_GAP, y: LAST_WINNER_Y };
+  const finalRematch = { match: bracket?.finalRematch, x: WINNERS_RIGHTMOST + 2 * HORIZONTAL_GAP, y: LAST_WINNER_Y };
+
   console.log('about to render bracket ', bracket);
   return (
     <div className='rounded-md bg-orange-400 p-2 flex flex-row gap-4 h-full max-h-[92%]'>
@@ -260,6 +271,12 @@ export default function BracketView() {
                 style={{ top: WINNERS_BOTTOM }}
               />
 
+              {/* Vertical line separator */}
+              <div
+                className="absolute top-0 h-full border-l border-red-400 text-xs text-white"
+                style={{ left: WINNERS_RIGHTMOST + 200 }}
+              />
+
               {loserMatches?.map(element => {
                 //console.log('about to render ELEMENT: ', element)
                 if (!element) { return null; }
@@ -267,6 +284,11 @@ export default function BracketView() {
                 //console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
                 return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
               })}
+
+              {/* Final match */}
+              {final.match && <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} />}
+              {/* Final rematch */}
+              {finalRematch.match && <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} />}
 
             </div>
 
