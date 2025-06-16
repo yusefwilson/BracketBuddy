@@ -7,7 +7,7 @@ import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 import YGuideLines from '../components/YGuideLines';
 
-const HORIZONTAL_GAP = 200;
+const HORIZONTAL_GAP = 225;
 const INITIAL_VERTICAL_GAP = 100;
 const EXTRA_VERTICAL_OFFSET = 25;
 
@@ -125,6 +125,8 @@ export default function BracketView() {
   // local state
   const [competitorNames, setCompetitorNames] = useState<string[]>(bracket?.competitorNames || []);
 
+  const [currentMatchId, setCurrentMatchId] = useState<number>(1);
+
   // update the winner of a match (this calls a recursive method on the Match class which updates all dependent matches)
   const updateMatch = (matchId: number, winner: number): void => {
 
@@ -133,6 +135,10 @@ export default function BracketView() {
 
     // update winner
     matchToBeUpdated?.updateWinner(winner);
+
+    if (matchId === currentMatchId) {
+      setCurrentMatchId(currentMatchId + 1);
+    }
 
     // hacky way to trigger refresh, and also to trigger tournament save in App useEffect
     setBracket(bracket?.markUpdated() as Bracket);
@@ -148,7 +154,6 @@ export default function BracketView() {
       setBracket(bracket.markUpdated());
     }
   }, [competitorNames]);
-
 
   // **** RENDER WINNERS BRACKET ****
 
@@ -262,7 +267,7 @@ export default function BracketView() {
               {winnerMatches?.map(element => {
                 let { match, x, y } = element as MatchAndPosition;
                 //console.log('about to render WINNER MATCHVIEW with x: ', x, ' and y: ', y);
-                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
+                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} highlighted={match.id === currentMatchId} />
               })}
 
               {/* Winner/loser line separator */}
@@ -282,13 +287,13 @@ export default function BracketView() {
                 if (!element) { return null; }
                 let { match, x, y } = element as MatchAndPosition;
                 //console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
-                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} />
+                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} highlighted={match.id === currentMatchId} />
               })}
 
               {/* Final match */}
-              {final.match && <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} />}
+              {final.match && <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} highlighted={final.match.id === currentMatchId} />}
               {/* Final rematch */}
-              {finalRematch.match && <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} />}
+              {finalRematch.match && <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} highlighted={finalRematch.match.id === currentMatchId} />}
 
             </div>
 
