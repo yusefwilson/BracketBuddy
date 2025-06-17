@@ -36,6 +36,10 @@ export default function BracketView() {
     // update winner
     matchToBeUpdated?.updateWinner(winner);
 
+    if (matchId === currentMatchId - 1 && winner === -1) {
+      setCurrentMatchId(currentMatchId - 1);
+    }
+
     if (matchId === currentMatchId) {
       setCurrentMatchId(currentMatchId + 1);
     }
@@ -178,7 +182,7 @@ export default function BracketView() {
 
               {/* Vertical line separator */}
               <div
-                className="absolute top-0 h-full border-l border-red-400 text-xs text-white"
+                className='absolute top-0 h-full border-l border-red-400 text-xs text-white'
                 style={{ left: WINNERS_RIGHTMOST + 200 }}
               />
 
