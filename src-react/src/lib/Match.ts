@@ -91,6 +91,11 @@ class Match {
         return new Match(id, competitor0Name, competitor1Name);
     }
 
+    setCompetitorNames(competitor0Name: string, competitor1Name: string) {
+        this.competitor0Name = competitor0Name;
+        this.competitor1Name = competitor1Name;
+    }
+
     getWinner() {
         if (this.winner === -1 || this.winner === undefined) {
             return 'Winner of match ' + this.id;
@@ -107,8 +112,12 @@ class Match {
         return this.winner === 0 ? this.competitor1Name : this.competitor0Name;
     }
 
-    // update the winner of this match and then trigger a recursive update of all children matches' competitor names
     updateWinner(winner: number) {
+        this.winner = winner;
+    }
+
+    // update the winner of this match and then trigger a recursive update of all children matches' competitor names
+    updateWinnerRecursively(winner: number) {
         this.winner = winner;
 
         if (this.winnerChild) {
@@ -124,17 +133,6 @@ class Match {
 
     // update the winner of this match and all its children recursively
     updateNames() {
-
-        // if parent was finals match and winner of that match was previously in the losers bracket, then grand finale is a rematch.
-        // if parent was finals match and winner of that match was previously in the winners bracket, then grand finale is autofilled with finals match winner as winner.
-
-        if(this.competitor0Parent?.finals)
-        {
-            let finalsMatch = this.competitor0Parent;
-            let finalsWinner = finalsMatch.getWinner();
-            let finalsWinnerParentMatch = finalsMatch.competitor0Parent?.getWinner() === finalsWinner ? finalsMatch.competitor0Parent : finalsMatch.competitor1Parent;
-            // find out whether this parent match was in the losers or winners bracket. will have to rework bracket initialization to add winner/loser data to matches.
-        }
 
         if (this.competitor0Parent) {
             let newName = this.competitor0PreviouslyWinner ? this.competitor0Parent.getWinner() : this.competitor0Parent.getLoser();

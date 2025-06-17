@@ -130,7 +130,7 @@ class Round {
 
     static createInitialLoserRounds(initialWinnerRounds: Round[]): Round[] {
 
-        console.log('in createInitialLoserRounds***********************');
+        //console.log('in createInitialLoserRounds***********************');
         // console.log('initialWinnerRounds: ', initialWinnerRounds);
         // console.log('initialWinnerRounds.length: ', initialWinnerRounds.length);
         let numCompetitors = 0;
@@ -153,7 +153,7 @@ class Round {
         //  // otherwise, we need to perform the same 2^n - k split as we did for the initial winner rounds
         // conglomerate first 2 rounds for convenience
         const allWinnerMatches = initialWinnerRounds[0].matches.concat(initialWinnerRounds[1].matches);
-        console.log('allWinnerMatches: ', allWinnerMatches);
+        //console.log('allWinnerMatches: ', allWinnerMatches);
 
         // get reference to bracket
         const bracket = initialWinnerRounds[0].bracket;
@@ -178,12 +178,12 @@ class Round {
         const round0MatchesCopy = round0Matches.slice();
         // cache length because we will be modifying the array
         const round0MatchesCopyLength = round0MatchesCopy.length;
-        console.log('round0MatchesCopy: ', round0MatchesCopy);
-        console.log('round0MatchesCopyLength: ', round0MatchesCopyLength);
+        //console.log('round0MatchesCopy: ', round0MatchesCopy);
+        //console.log('round0MatchesCopyLength: ', round0MatchesCopyLength);
 
         // for each match in round 0, link it to a match from allWinnerMatches as long as there are any
         for (let i = 0; i < round0MatchesCopyLength && allWinnerMatches.length > 0; i++) {
-            console.log('i: ', i, ' round0MatchesCopyLength: ', round0MatchesCopyLength, ' allWinnerMatches.length: ', allWinnerMatches.length);
+            //console.log('i: ', i, ' round0MatchesCopyLength: ', round0MatchesCopyLength, ' allWinnerMatches.length: ', allWinnerMatches.length);
             let arg1 = round0MatchesCopy.shift() as Match;
             let arg2 = allWinnerMatches.shift() as Match;
             //console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
@@ -197,7 +197,7 @@ class Round {
         if (round0MatchesCopy.length > 0) {
             console.log(' going inside if because there are round0MatchesCopy left: ', round0MatchesCopy);
             while (round0MatchesCopy.length >= 2) { // LATEST CHANGE
-                console.log(' round0MatchesCopy.length: ', round0MatchesCopy.length);
+                //console.log(' round0MatchesCopy.length: ', round0MatchesCopy.length);
                 // if there is an odd number of matches, the last one will be a bye, so we can just skip it
                 let arg1 = round0MatchesCopy.shift() as Match;
                 let arg2 = round0MatchesCopy.shift() as Match;
@@ -209,7 +209,7 @@ class Round {
 
         // if there are any matches left in allWinnerMatches, create new matches for them
         if (allWinnerMatches.length > 0) {
-            console.log(' going inside if because there are winnermatches left: ', allWinnerMatches);
+            //console.log(' going inside if because there are winnermatches left: ', allWinnerMatches);
             for (let i = 0; i < allWinnerMatches.length; i += 2) {
                 let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatches[i], false, allWinnerMatches[i + 1], false)
                 round1Matches.push(newMatch);

@@ -33,9 +33,7 @@ export default function BracketView() {
     // find winner
     const matchToBeUpdated = bracket?.findMatchById(matchId);
 
-    // update winner
-    matchToBeUpdated?.updateWinner(winner);
-
+    // highlight functionality
     if (matchId === currentMatchId - 1 && winner === -1) {
       setCurrentMatchId(currentMatchId - 1);
     }
@@ -44,16 +42,46 @@ export default function BracketView() {
       setCurrentMatchId(currentMatchId + 1);
     }
 
+    // manually update finals since they're weird. if the match is the finals, check the winner to see how you should populate the final rematch
+    if (matchId === bracket?.final?.id) {
+      // update winner
+      matchToBeUpdated?.updateWinner(winner);
+      console.log('updating final match with winner: ', winner);
+      const finalWinnerName = matchToBeUpdated?.getWinner();
+      console.log('final winner name: ', finalWinnerName);
+      // if the name of the winner is also the name of the winner of the last match in the winnersBracket, then the final rematch should be empty
+      if (finalWinnerName === bracket?.winnersBracket[bracket.winnersBracket.length - 1].matches[0].getWinner()) {
+        // TODO: update final rematch to be empty
+        console.log('final rematch should be empty');
+        bracket?.finalRematch?.setCompetitorNames('N/A', 'N/A');
+      }
+      else {
+        // otherwise, the final rematch should be populated with the winner and loser of the final match
+        const finalLoserName = matchToBeUpdated?.getLoser();
+        if (finalWinnerName && finalLoserName) {
+          // TODO: update final rematch to be populated with the winner and loser names
+          bracket?.finalRematch?.setCompetitorNames(finalWinnerName, finalLoserName);
+        }
+      }
+    }
+
+    // let recursive function handle normal matches
+    else {
+      // update winner
+      matchToBeUpdated?.updateWinnerRecursively(winner);
+    }
+
     // hacky way to trigger refresh, and also to trigger tournament save in App useEffect
     setBracket(bracket?.markUpdated() as Bracket);
     setTournament(tournament?.markUpdated() as Tournament);
+
   }
 
   // update the competitor names in the bracket whenever they change, which will also update the matches
   useEffect(() => {
     // every time the bracket members are updated, update the bracket
     if (bracket) {
-      console.log('updating competitornames from bracketview');
+      //console.log('updating competitornames from bracketview');
       bracket.setCompetitorNames(competitorNames);
       setBracket(bracket.markUpdated());
     }
@@ -171,7 +199,7 @@ export default function BracketView() {
               {winnerMatches?.map(element => {
                 let { match, x, y } = element as MatchAndPosition;
                 //console.log('about to render WINNER MATCHVIEW with x: ', x, ' and y: ', y);
-                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} />
+                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} key={match.id} />
               })}
 
               {/* Winner/loser line separator */}
@@ -191,13 +219,13 @@ export default function BracketView() {
                 if (!element) { return null; }
                 let { match, x, y } = element as MatchAndPosition;
                 //console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
-                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} />
+                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} key={match.id} />
               })}
 
               {/* Final match */}
-              {final.match && <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={currentMatchId} />}
+              {final.match && <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={currentMatchId} key={final.match.id} />}
               {/* Final rematch */}
-              {finalRematch.match && <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={currentMatchId} />}
+              {finalRematch.match && <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={currentMatchId} key={finalRematch.match.id} />}
 
             </div>
 

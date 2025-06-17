@@ -25,20 +25,20 @@ export default function App() {
   const [currentTournament, setCurrentTournament] = useState<Tournament | null>(() => {
     const saved = localStorage.getItem('tournament');
     const result = saved ? Tournament.deserialize(saved) : null;
-    console.log('local storage loading tournament', result);
+    //console.log('local storage loading tournament', result);
     return result;
   });
   const [currentBracket, setCurrentBracket] = useState<Bracket | null>(() => {
     const saved = localStorage.getItem('bracket');
     const result = saved ? Bracket.deserialize(saved) : null;
-    console.log('local storage loading bracket', result);
+    //console.log('local storage loading bracket', result);
     return result;
   });
 
   // save the current tournament and bracket to local storage whenever they change
   useEffect(() => {
     if (currentTournament) {
-      console.log('local storage saving tournament', currentTournament);
+      //console.log('local storage saving tournament', currentTournament);
       localStorage.setItem('tournament', currentTournament.serialize());
       currentTournament.save();
     }
@@ -46,7 +46,7 @@ export default function App() {
 
   useEffect(() => {
     if (currentBracket) {
-      console.log('local storage saving bracket', currentBracket);
+      //console.log('local storage saving bracket', currentBracket);
       localStorage.setItem('bracket', currentBracket.serialize());
       localStorage.setItem('tournament', currentTournament?.serialize() || ''); // save tournament so localStorage is updated with new tournament. lack of this caused errors.
       currentTournament?.save(); // moved here because two competing useEffects could cause race condition

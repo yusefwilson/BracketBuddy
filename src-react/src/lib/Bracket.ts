@@ -47,7 +47,7 @@ class Bracket {
 
     setCompetitorNames(competitorNames: string[]) {
 
-        console.log('setting competitor names AAAAAAAAAA');
+        //console.log('setting competitor names');
 
         this.competitorNames = competitorNames;
 
@@ -82,9 +82,9 @@ class Bracket {
 
         // generate rounds
         this.winnersBracket = Round.createInitialWinnerRounds(this, this.competitorNames);
-        console.log('Winners bracket created:', this.winnersBracket);
+        //console.log('Winners bracket created:', this.winnersBracket);
         this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket);
-        console.log('Losers bracket created:', this.losersBracket);
+        //console.log('Losers bracket created:', this.losersBracket);
 
         // create the rest of the bracket
         let currentWinnerRound = this.winnersBracket[this.winnersBracket.length - 1];

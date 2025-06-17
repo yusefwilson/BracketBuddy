@@ -106,10 +106,10 @@ const calculateInitialRoundsMatchPositions = (bracket: Bracket, side: 'winner' |
     const matches = [];
     let numberOfCompetitors, subBracket;
 
-    console.log('in calculateInitialRoundsMatchPositions with bracket: ', bracket);
-    console.log('calculating initial rounds match positions for side: ', side);
-    console.log('winnersBracket: ', bracket?.winnersBracket);
-    console.log('losersBracket: ', bracket?.losersBracket);
+    // console.log('in calculateInitialRoundsMatchPositions with bracket: ', bracket);
+    // console.log('calculating initial rounds match positions for side: ', side);
+    // console.log('winnersBracket: ', bracket?.winnersBracket);
+    // console.log('losersBracket: ', bracket?.losersBracket);
 
     subBracket = side === 'winner' ? bracket?.winnersBracket : bracket?.losersBracket;
 

@@ -39,7 +39,7 @@ class Tournament {
     // saving and loading
     async save() {
         await window.electron.saveTournament(this.name, this.serialize());
-        console.log('Saved tournament ', this.name, ' with value: ', this);
+        //console.log('Saved tournament ', this.name, ' with value: ', this);
     }
 
     async delete() {
