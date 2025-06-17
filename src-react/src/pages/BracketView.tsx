@@ -199,7 +199,7 @@ export default function BracketView() {
               {winnerMatches?.map(element => {
                 let { match, x, y } = element as MatchAndPosition;
                 //console.log('about to render WINNER MATCHVIEW with x: ', x, ' and y: ', y);
-                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} key={match.id} />
+                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId}/>
               })}
 
               {/* Winner/loser line separator */}
@@ -219,13 +219,13 @@ export default function BracketView() {
                 if (!element) { return null; }
                 let { match, x, y } = element as MatchAndPosition;
                 //console.log('about to render LOSER MATCHVIEW with x: ', x, ' and y: ', y);
-                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} key={match.id} />
+                return <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId}/>
               })}
 
               {/* Final match */}
-              {final.match && <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={currentMatchId} key={final.match.id} />}
+              {final.match && <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={currentMatchId}/>}
               {/* Final rematch */}
-              {finalRematch.match && <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={currentMatchId} key={finalRematch.match.id} />}
+              {finalRematch.match && <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={currentMatchId}/>}
 
             </div>
 
