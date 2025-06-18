@@ -1,4 +1,4 @@
-export default function CompetitorInput({ competitors, setCompetitors }: { competitors: string[], setCompetitors: (competitors: string[]) => void }) {
+export default function CompetitorInput({ competitors, setCompetitors, setCurrentMatchId }: { competitors: string[], setCompetitors: (competitors: string[]) => void, setCurrentMatchId: (id: number) => void }) {
 
     // Handle input change
     const handleInputChange = (index: number, value: string) => {
@@ -10,12 +10,14 @@ export default function CompetitorInput({ competitors, setCompetitors }: { compe
     // Add a new empty competitor
     const addCompetitor = () => {
         setCompetitors([...competitors, '']);
+        setCurrentMatchId(1); // Reset current match ID when a new competitor is added
     };
 
     // Remove a competitor by index
     const removeCompetitor = (index: number) => {
         const newCompetitors = competitors.filter((_, i) => i !== index);
         setCompetitors(newCompetitors);
+        setCurrentMatchId(1); // Reset current match ID when a competitor is removed
     };
 
     return (
