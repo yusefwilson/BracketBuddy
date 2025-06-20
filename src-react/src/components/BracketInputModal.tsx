@@ -1,5 +1,12 @@
 import { useState, useContext, useEffect } from 'react';
 
+import {
+    UserIcon,
+    AcademicCapIcon,
+    HandRaisedIcon,
+    ScaleIcon,
+} from '@heroicons/react/24/outline';
+
 import { Gender, Hand, ExperienceLevel } from '../lib/types';
 import Bracket from '../lib/Bracket';
 import CompetitorInput from './CompetitorInput';
@@ -8,8 +15,11 @@ import Dropdown from './Dropdown';
 import { CURRENT_STATE } from './App';
 import Tournament from '../lib/Tournament';
 
-export default function BracketInputModal({ setBracketModalOpen }: { setBracketModalOpen: (open: boolean) => void }) {
-
+export default function BracketInputModal({
+    setBracketModalOpen,
+}: {
+    setBracketModalOpen: (open: boolean) => void;
+}) {
     const [gender, setGender] = useState<Gender>('Male');
     const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>('Novice');
     const [hand, setHand] = useState<Hand>('Right');
@@ -20,22 +30,25 @@ export default function BracketInputModal({ setBracketModalOpen }: { setBracketM
     const { tournament, setTournament = () => { } } = state || {};
 
     const onSubmit = async () => {
-
         if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
 
-        // create and initialize new bracket. initialization is decoupled from constructor for post creation competitor addition and to avoid rehydration problems.
-        const newBracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
+        const newBracket = new Bracket(
+            tournament,
+            gender,
+            experienceLevel,
+            hand,
+            weightLimit,
+            competitorNames
+        );
         newBracket.initialize();
-
+        
         // add bracket to tournament
         await tournament?.addBracket(newBracket);
-
-        // update tournament in context to trigger relevant refreshes
+        // update tournament in context to trigger refresh
         setTournament(tournament?.markUpdated() as Tournament);
-
         // close modal
         setBracketModalOpen(false);
-    }
+    };
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -51,22 +64,95 @@ export default function BracketInputModal({ setBracketModalOpen }: { setBracketM
     }, []);
 
     return (
-        <div className='fixed left-0 right-0 top-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center'>
-            <div className='bg-purple-600 flex flex-col p-2 rounded-md gap-2 relative'>
-                <h1>Enter Bracket Info:</h1>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-slate-700 w-full max-w-lg p-6 rounded-xl shadow-lg flex flex-col gap-6">
 
-                {/* Bracket Info */}
-                <Dropdown options={['Male', 'Female', 'Mixed']} label='Select Gender' value={gender} onChange={setGender} />
-                <Dropdown options={['Youth', 'Novice', 'Amateur', 'Semipro', 'Pro', 'Master', 'Grandmaster', 'Senior Grandmaster']} label='Select Experience Level' value={experienceLevel} onChange={setExperienceLevel} />
-                <Dropdown options={['Right', 'Left']} label='Select Hand' value={hand} onChange={setHand} />
-                <CompetitorInput competitors={competitorNames} setCompetitors={setCompetitorNames} />
-                <input className='bg-red-600' placeholder='Weight Limit' name='weightLimit' type='number' onChange={(e) => setWeightLimit(parseInt(e.target.value))} />
+                <h1 className="text-xl font-semibold text-white text-center">Enter Bracket Info</h1>
 
-                {/* Submit Button */}
-                <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={onSubmit}>Create</button>
+                {/* Form Row: Gender */}
+                <div className="flex items-center gap-4">
+                    <UserIcon className="h-6 w-6 text-blue-400 flex-shrink-0" />
+                    <div className="w-64">
+                        <Dropdown
+                            options={['Male', 'Female', 'Mixed']}
+                            label=""
+                            value={gender}
+                            onChange={setGender}
+                        />
+                    </div>
+                </div>
 
-                {/* Close Button */}
-                <button className='bg-red-500 text-white px-2 py-1 rounded-md' onClick={() => setBracketModalOpen(false)}>Cancel</button>
+                {/* Form Row: Experience Level */}
+                <div className="flex items-center gap-4">
+                    <AcademicCapIcon className="h-6 w-6 text-green-400 flex-shrink-0" />
+                    <div className="w-64">
+                        <Dropdown
+                            options={[
+                                'Youth',
+                                'Novice',
+                                'Amateur',
+                                'Semipro',
+                                'Pro',
+                                'Master',
+                                'Grandmaster',
+                                'Senior Grandmaster',
+                            ]}
+                            label=""
+                            value={experienceLevel}
+                            onChange={setExperienceLevel}
+                        />
+                    </div>
+                </div>
+
+                {/* Form Row: Hand */}
+                <div className="flex items-center gap-4">
+                    <HandRaisedIcon className="h-6 w-6 text-yellow-400 flex-shrink-0" />
+                    <div className="w-64">
+                        <Dropdown
+                            options={['Right', 'Left']}
+                            label=""
+                            value={hand}
+                            onChange={setHand}
+                        />
+                    </div>
+                </div>
+
+                {/* Form Row: Weight Limit */}
+                <div className="flex items-center gap-4">
+                    <ScaleIcon className="h-6 w-6 text-purple-400 flex-shrink-0" />
+                    <input
+                        className="bg-slate-600 text-white px-4 py-2 rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="Weight Limit"
+                        name="weightLimit"
+                        type="number"
+                        onChange={(e) => setWeightLimit(parseInt(e.target.value))}
+                    />
+                </div>
+
+
+                {/* Competitor Input - full width */}
+                <CompetitorInput
+                    competitors={competitorNames}
+                    setCompetitors={setCompetitorNames}
+                    setCurrentMatchId={() => { }}
+                />
+
+                {/* Action Buttons */}
+                <div className="flex justify-center gap-4 mt-4">
+                    <button
+                        className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-md transition"
+                        onClick={() => setBracketModalOpen(false)}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-5 py-2 rounded-md transition"
+                        onClick={onSubmit}
+                    >
+                        Create Bracket
+                    </button>
+                </div>
+
             </div>
         </div>
     );

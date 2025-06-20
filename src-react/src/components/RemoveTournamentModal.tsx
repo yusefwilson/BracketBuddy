@@ -2,9 +2,13 @@ import { useEffect } from 'react';
 import Tournament from '../lib/Tournament';
 import Bracket from '../lib/Bracket';
 
-export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete }:
-    { setRemoveTournamentModalOpen: (open: boolean) => void, tournamentToDelete: Tournament | null }) {
-
+export default function RemoveTournamentModal({
+    setRemoveTournamentModalOpen,
+    tournamentToDelete,
+}: {
+    setRemoveTournamentModalOpen: (open: boolean) => void;
+    tournamentToDelete: Tournament | null;
+}) {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
@@ -19,8 +23,6 @@ export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, to
     }, []);
 
     const onDelete = () => {
-
-        // clear local storage if tournament is in local storage
         const serializedTournament = localStorage.getItem('tournament') || '';
         const tournament = Tournament.deserialize(serializedTournament);
         if (tournamentToDelete?.name === tournament.name) {
@@ -31,29 +33,37 @@ export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, to
         const bracket = Bracket.deserialize(serializedBracket);
         if (bracket.tournament?.name === tournamentToDelete?.name) {
             localStorage.removeItem('bracket');
-        }   
+        }
 
-        // delete file
         tournamentToDelete?.delete();
-
-        // close modal
         setRemoveTournamentModalOpen(false);
-    }
+    };
 
     return (
-        <div className='fixed left-0 right-0 top-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center'>
-            <div className='bg-purple-600 flex flex-col p-2 rounded-md gap-2'>
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+            <div className='bg-slate-700 w-full max-w-md p-6 rounded-xl shadow-lg flex flex-col gap-4'>
 
-                {/* Warning */}
-                <h1>Are you sure you want to delete this tournament? This action cannot be undone.</h1>
+                <h1 className='text-white text-lg font-semibold text-center'>
+                    Are you sure you want to delete{' '} <br />
+                    <span className='text-red-400'>{tournamentToDelete?.name}</span>? <br />
+                    <span className='text-sm font-normal text-gray-300'>This action cannot be undone.</span>
+                </h1>
 
-                {/* Confirm Button */}
-                <button className='bg-yellow-500 p-4 rounded-md flex-shrink' onClick={onDelete}>Confirm</button>
-
-                {/* Close Button (X) */}
-                <button className='bg-red-500 text-white px-2 py-1 rounded-md' onClick={() => setRemoveTournamentModalOpen(false)}>Cancel</button>
-
+                <div className='flex justify-center gap-4 mt-4'>
+                    <button
+                        className='bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition'
+                        onClick={() => setRemoveTournamentModalOpen(false)}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        className='bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-md transition'
+                        onClick={onDelete}
+                    >
+                        Confirm Delete
+                    </button>
+                </div>
             </div>
-        </div >
+        </div>
     );
 }

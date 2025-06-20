@@ -1,5 +1,12 @@
-export default function CompetitorInput({ competitors, setCompetitors, setCurrentMatchId }: { competitors: string[], setCompetitors: (competitors: string[]) => void, setCurrentMatchId: (id: number) => void }) {
-
+export default function CompetitorInput({
+    competitors,
+    setCompetitors,
+    setCurrentMatchId,
+}: {
+    competitors: string[];
+    setCompetitors: (competitors: string[]) => void;
+    setCurrentMatchId: (id: number) => void;
+}) {
     // Handle input change
     const handleInputChange = (index: number, value: string) => {
         const newCompetitors = [...competitors];
@@ -21,23 +28,58 @@ export default function CompetitorInput({ competitors, setCompetitors, setCurren
     };
 
     return (
-        <div className='flex flex-col justify-between h-full'>
+        <div className="flex flex-col h-full justify-between">
+            <div className="overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700">
+                <h2 className="text-lg font-semibold text-white mb-4">
+                    Enter Competitor Names ({competitors.length})
+                </h2>
 
-            <div className='h-1/2 overflow-y-scroll border p-2 rounded-md'>
-                <h2 className='text-md font-semibold mb-2'>{'Enter Competitor Names (' + competitors.length.toString() + ')'}</h2>
-                {competitors.length !== 0 && competitors.map((name, index) => (
-                    <div key={index} className='flex items-center space-x-2 mb-2'>
+                {competitors.length === 0 && (
+                    <p className="text-gray-400 italic">No competitors added yet.</p>
+                )}
+
+                {competitors.map((name, index) => (
+                    <div key={index} className="flex items-center space-x-3 mb-3">
                         <input
-                            type='text'
+                            type="text"
                             placeholder={`Competitor ${index + 1}`}
                             value={name}
                             onChange={(e) => handleInputChange(index, e.target.value)}
-                            className='p-2 border rounded-md w-full'
+                            className="
+                flex-grow
+                p-2
+                rounded-md
+                border
+                border-gray-500
+                bg-slate-600
+                text-white
+                focus:outline-none
+                focus:ring-2
+                focus:ring-blue-400
+                transition
+                duration-200
+                ease-in-out
+              "
                         />
                         <button
                             onClick={() => removeCompetitor(index)}
-                            className='bg-red-500 text-white px-3 py-1 rounded-md'
-                            disabled={competitors.length === 0} // Prevent removing when there are no inputs
+                            disabled={competitors.length === 0}
+                            className="
+                bg-red-600
+                hover:bg-red-700
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+                text-white
+                px-3
+                py-1.5
+                rounded-md
+                transition
+                duration-200
+                ease-in-out
+                select-none
+              "
+                            aria-label={`Remove competitor ${index + 1}`}
+                            type="button"
                         >
                             Remove
                         </button>
@@ -45,7 +87,26 @@ export default function CompetitorInput({ competitors, setCompetitors, setCurren
                 ))}
             </div>
 
-            <button onClick={addCompetitor} className='bg-blue-500 text-white px-4 py-2 rounded-md mt-2'>Add Competitor</button>
+            <button
+                onClick={addCompetitor}
+                className="
+          mt-4
+          bg-blue-600
+          hover:bg-blue-700
+          text-white
+          px-5
+          py-2
+          rounded-md
+          font-semibold
+          transition
+          duration-200
+          ease-in-out
+          select-none
+        "
+                type="button"
+            >
+                Add Competitor
+            </button>
         </div>
     );
-};
+}

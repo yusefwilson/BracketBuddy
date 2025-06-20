@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import Tournament from '../lib/Tournament';
 
-export default function TournamentInputModal({ setTournamentModalOpen }: { setTournamentModalOpen: (open: boolean) => void }) {
-
+export default function TournamentInputModal({
+    setTournamentModalOpen,
+}: {
+    setTournamentModalOpen: (open: boolean) => void;
+}) {
     const [name, setName] = useState('');
     const [date, setDate] = useState(new Date());
     const [error, setError] = useState('');
@@ -20,34 +23,28 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
             default:
                 break;
         }
-    }
+    };
 
     const onSubmit = async () => {
-
-        // check filename
         if (invalidChars.test(name)) {
-            setError('Tournament name contains invalid characters: :<>:\'/\\|?*');
+            setError("Tournament name contains invalid characters: :<>:'/\\|?*");
             return;
         }
 
         const allTournaments = await Tournament.loadAllTournaments();
-        if (allTournaments.some(t => t.name === name)) {
-            setError('Tournament with name  \'' + name + '\' already exists.');
+        if (allTournaments.some((t) => t.name === name)) {
+            setError(`Tournament with name '${name}' already exists.`);
             return;
         }
 
         // clear error if valid
         setError('');
-
-        // create new tournament
+        // create and save tournament
         const newTournament = new Tournament(name, date);
-
-        // save tournament
         newTournament.save();
-
         // close modal
         setTournamentModalOpen(false);
-    }
+    };
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -63,22 +60,48 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
     }, []);
 
     return (
-        <div className='fixed left-0 right-0 top-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center'>
-            <div className='bg-purple-600 flex flex-col p-2 rounded-md gap-2 '>
-                <h1>Enter Tournament Info:</h1>
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+            <div className='bg-slate-700 w-full max-w-md rounded-xl p-6 shadow-lg flex flex-col gap-4'>
 
-                {/* Tournament Info */}
-                <input className='bg-red-600' placeholder='Name' name='name' onChange={onChange}></input>
-                <input className='bg-red-600' type='date' name='date' onChange={onChange}></input>
+                <h1 className='text-xl font-semibold text-white text-center'>Enter Tournament Info</h1>
+
+                {/* Input: Name */}
+                <input
+                    className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
+                    placeholder='Tournament Name'
+                    name='name'
+                    onChange={onChange}
+                />
+
+                {/* Input: Date */}
+                <input
+                    type='date'
+                    name='date'
+                    className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
+                    value={date.toISOString().split('T')[0]}
+                    onChange={onChange}
+                />
 
                 {/* Error Message */}
-                {error && <p className='bg-red-600 text-white'>{error}</p>}
+                {error && (
+                    <p className='bg-red-500 text-white text-sm px-3 py-2 rounded-md'>{error}</p>
+                )}
 
-                {/* Create Tournament Button */}
-                <button className='bg-yellow-500 px-2 py-1 rounded-md flex-shrink' onClick={onSubmit}>Create Tournament</button>
-
-                {/* Close Button (X) */}
-                <button className='bg-red-500 text-white px-2 py-1 rounded-md' onClick={() => setTournamentModalOpen(false)}>Cancel</button>
+                {/* Action Buttons */}
+                <div className='flex justify-center gap-4 mt-2'>
+                    <button
+                        className='bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition'
+                        onClick={() => setTournamentModalOpen(false)}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        className='bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded-md transition'
+                        onClick={onSubmit}
+                    >
+                        Create Tournament
+                    </button>
+                </div>
             </div>
         </div>
     );

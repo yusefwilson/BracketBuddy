@@ -102,7 +102,7 @@ const calculateMatchPositionFromSingleParent = (roundIndex: number, staggered: b
     return [x, y];
 }
 
-const calculateInitialRoundsMatchPositions = (bracket: Bracket, side: 'winner' | 'loser', horizontal_offset: number, vertical_offset: number): (MatchAndPosition[] | undefined)[] => {
+const calculateInitialRoundsMatchPositions = (bracket: Bracket, side: 'winner' | 'loser', horizontal_offset: number, vertical_offset: number): MatchAndPosition[][] => {
     const matches = [];
     let numberOfCompetitors, subBracket;
 
