@@ -21,37 +21,29 @@ export default function App() {
 
   //localStorage.clear(); // for when some old storage is messing things up
 
-  // create the current tournament and bracket, which are state variables here, and a context variable everywhere else
-  const [currentTournament, setCurrentTournament] = useState<Tournament | null>(() => {
-    const saved = localStorage.getItem('tournament');
-    const result = saved ? Tournament.deserialize(saved) : null;
-    //console.log('local storage loading tournament', result);
-    return result;
-  });
-  const [currentBracket, setCurrentBracket] = useState<Bracket | null>(() => {
-    const saved = localStorage.getItem('bracket');
-    const result = saved ? Bracket.deserialize(saved) : null;
-    //console.log('local storage loading bracket', result);
-    return result;
-  });
+  const [currentTournament, setCurrentTournament] = useState<Tournament | null>(null);
+  const [currentBracket, setCurrentBracket] = useState<Bracket | null>(null);
+
+  // Load latest tournament on mount
+  useEffect(() => {
+    const loadLatest = async () => {
+      const tournaments = await Tournament.loadAllTournaments();
+      const latest = tournaments[tournaments.length - 1]; // or pick based on timestamp/name
+      if (latest) {
+        setCurrentTournament(latest);
+        setCurrentBracket(latest.brackets[latest.brackets.length - 1] || null);
+      }
+    };
+    loadLatest();
+  }, []);
 
   // save the current tournament and bracket to local storage whenever they change
   useEffect(() => {
-    if (currentTournament) {
-      //console.log('local storage saving tournament', currentTournament);
-      localStorage.setItem('tournament', currentTournament.serialize());
-      currentTournament.save();
-    }
+    currentTournament?.save();
   }, [currentTournament]);
 
   useEffect(() => {
-    if (currentBracket) {
-      //console.log('local storage saving bracket', currentBracket);
-      localStorage.setItem('bracket', currentBracket.serialize());
-      localStorage.setItem('tournament', currentTournament?.serialize() || ''); // save tournament so localStorage is updated with new tournament. lack of this caused errors.
-      currentTournament?.save(); // moved here because two competing useEffects could cause race condition
-    }
-
+    currentBracket?.tournament?.save(); // Save tournament when bracket updates
   }, [currentBracket]);
 
   return (
