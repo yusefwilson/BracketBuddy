@@ -78,10 +78,7 @@ export default function Home() {
         <TournamentInputModal setTournamentModalOpen={setTournamentModalOpen} />
       )}
       {removeTournamentModalOpen && (
-        <RemoveTournamentModal
-          setRemoveTournamentModalOpen={setRemoveTournamentModalOpen}
-          tournamentToDelete={tournamentToDelete}
-        />
+        <RemoveTournamentModal setRemoveTournamentModalOpen={setRemoveTournamentModalOpen} tournamentToDelete={tournamentToDelete} />
       )}
     </div>
   );

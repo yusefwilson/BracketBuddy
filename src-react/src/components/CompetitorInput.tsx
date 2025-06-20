@@ -28,24 +28,24 @@ export default function CompetitorInput({
     };
 
     return (
-        <div className="flex flex-col h-full justify-between">
-            <div className="overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700">
-                <h2 className="text-lg font-semibold text-white mb-4">
+        <div className='flex flex-col h-full justify-between'>
+            <div className='overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700'>
+                <h2 className='text-lg font-semibold text-white mb-4'>
                     Enter Competitor Names ({competitors.length})
                 </h2>
 
                 {competitors.length === 0 && (
-                    <p className="text-gray-400 italic">No competitors added yet.</p>
+                    <p className='text-gray-400 italic'>No competitors added yet.</p>
                 )}
 
                 {competitors.map((name, index) => (
-                    <div key={index} className="flex items-center space-x-3 mb-3">
+                    <div key={index} className='flex items-center space-x-3 mb-3'>
                         <input
-                            type="text"
+                            type='text'
                             placeholder={`Competitor ${index + 1}`}
                             value={name}
                             onChange={(e) => handleInputChange(index, e.target.value)}
-                            className="
+                            className='
                 flex-grow
                 p-2
                 rounded-md
@@ -59,12 +59,12 @@ export default function CompetitorInput({
                 transition
                 duration-200
                 ease-in-out
-              "
+              '
                         />
                         <button
                             onClick={() => removeCompetitor(index)}
                             disabled={competitors.length === 0}
-                            className="
+                            className='
                 bg-red-600
                 hover:bg-red-700
                 disabled:opacity-50
@@ -77,9 +77,9 @@ export default function CompetitorInput({
                 duration-200
                 ease-in-out
                 select-none
-              "
+              '
                             aria-label={`Remove competitor ${index + 1}`}
-                            type="button"
+                            type='button'
                         >
                             Remove
                         </button>
@@ -89,10 +89,10 @@ export default function CompetitorInput({
 
             <button
                 onClick={addCompetitor}
-                className="
+                className='
           mt-4
-          bg-blue-600
-          hover:bg-blue-700
+          bg-blue-400
+          hover:bg-blue-500
           text-white
           px-5
           py-2
@@ -102,8 +102,8 @@ export default function CompetitorInput({
           duration-200
           ease-in-out
           select-none
-        "
-                type="button"
+        '
+                type='button'
             >
                 Add Competitor
             </button>

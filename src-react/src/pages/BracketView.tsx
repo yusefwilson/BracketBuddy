@@ -10,15 +10,8 @@ import Tournament from '../lib/Tournament';
 
 import {
   MatchAndPosition,
-  isPowerOfTwo,
-  calculateInitialRoundsMatchPositions,
-  calculateMatchPositionsFromParentAverages,
-  calculateMatchPositionsFromParentStaggered,
-  WINNER_HORIZONTAL_OFFSET,
-  WINNER_VERTICAL_OFFSET,
-  LOSER_HORIZONTAL_OFFSET,
-  LOSER_VERTICAL_OFFSET,
-  HORIZONTAL_GAP,
+  isPowerOfTwo, calculateInitialRoundsMatchPositions, calculateMatchPositionsFromParentAverages, calculateMatchPositionsFromParentStaggered,
+  WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET, HORIZONTAL_GAP,
 } from '../lib/utils';
 
 export default function BracketView() {
@@ -32,9 +25,7 @@ export default function BracketView() {
     setTournament = () => { },
   } = state || {};
 
-  const [competitorNames, setCompetitorNames] = useState<string[]>(
-    bracket?.competitorNames || []
-  );
+  const [competitorNames, setCompetitorNames] = useState<string[]>(bracket?.competitorNames || []);
   const [currentMatchId, setCurrentMatchId] = useState<number>(1);
 
   // update the winner of a match (this calls a recursive method on the Match class which updates all dependent matches)
@@ -58,10 +49,7 @@ export default function BracketView() {
       const finalWinnerName = matchToBeUpdated?.getWinner();
       // if the name of the winner is also the name of the winner of the last match in the winnersBracket, then the final rematch should be empty
       // TODO: update final rematch to be empty
-      if (
-        finalWinnerName ===
-        bracket?.winnersBracket[bracket.winnersBracket.length - 1].matches[0].getWinner()
-      ) {
+      if (finalWinnerName === bracket?.winnersBracket[bracket.winnersBracket.length - 1].matches[0].getWinner()) {
         bracket?.finalRematch?.setCompetitorNames('N/A', 'N/A');
         // otherwise, the final rematch should be populated with the winner and loser of the final match
       } else {
@@ -95,12 +83,7 @@ export default function BracketView() {
   let winnerMatches: MatchAndPosition[] = [], loserMatches: MatchAndPosition[] = [], WINNERS_BOTTOM = 0, LAST_WINNER_Y = 0, WINNERS_RIGHTMOST = 0;
   if (competitorNames.length >= 2) {
     // {match, x, y}[][]
-    const winnerRounds = calculateInitialRoundsMatchPositions(
-      bracket as Bracket,
-      'winner',
-      WINNER_HORIZONTAL_OFFSET,
-      WINNER_VERTICAL_OFFSET
-    );
+    const winnerRounds = calculateInitialRoundsMatchPositions(bracket as Bracket, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
     const initialWinnerMatches = winnerRounds.slice();
 
     // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
@@ -115,11 +98,7 @@ export default function BracketView() {
         console.warn(`No matches found for round index ${roundIndex - 1}`);
         continue;
       }
-      const nextRound = calculateMatchPositionsFromParentAverages(
-        previousRound,
-        bracket?.winnersBracket[roundIndex].matches || [],
-        roundIndex
-      );
+      const nextRound = calculateMatchPositionsFromParentAverages(previousRound, bracket?.winnersBracket[roundIndex].matches || [], roundIndex);
 
       winnerRounds.push(nextRound);
     }
@@ -144,36 +123,20 @@ export default function BracketView() {
 
     // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
     let halving: boolean;
-    if (
-      initialWinnerMatches[initialWinnerMatches.length - 1]?.length ===
-      initialLoserRounds[initialLoserRounds.length - 1]?.length ||
-      isPowerOfTwo(competitorNames.length)
-    ) {
+    if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(competitorNames.length)) {
       halving = true;
     } else {
       halving = false;
     }
 
-    for (
-      let roundIndex = loserRounds.length === 1 ? 1 : 2;
-      roundIndex < (bracket?.losersBracket.length || 0);
-      roundIndex++
-    ) {
+    for (let roundIndex = loserRounds.length === 1 ? 1 : 2; roundIndex < (bracket?.losersBracket.length || 0); roundIndex++) {
       const previousRoundMatches = loserRounds[roundIndex - 1];
       // if previous round somehow didn't exist or is empty
       if (!previousRoundMatches || previousRoundMatches.length === 0) continue;
 
       const nextRound = halving
-        ? calculateMatchPositionsFromParentAverages(
-          previousRoundMatches,
-          bracket?.losersBracket[roundIndex].matches || [],
-          roundIndex
-        )
-        : calculateMatchPositionsFromParentStaggered(
-          previousRoundMatches,
-          bracket?.losersBracket[roundIndex].matches || [],
-          roundIndex
-        );
+        ? calculateMatchPositionsFromParentAverages(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex)
+        : calculateMatchPositionsFromParentStaggered(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex);
 
       loserRounds.push(nextRound);
       halving = !halving;
@@ -195,12 +158,12 @@ export default function BracketView() {
   };
 
   return (
-    <div className="h-full flex gap-6 p-4 bg-slate-800 rounded-lg shadow-inner">
+    <div className='h-full flex gap-6 p-4 bg-slate-800 rounded-lg shadow-inner'>
 
       {/* Controls Panel */}
-      <div className="bg-slate-700 rounded-lg p-4 shadow-md flex flex-col gap-4">
-        <h2 className="text-white text-lg font-semibold text-center">Competitors</h2>
-        <div className="h-[45%]">
+      <div className='bg-slate-700 rounded-lg p-4 shadow-md flex flex-col gap-4'>
+        <h2 className='text-white text-lg font-semibold text-center'>Competitors</h2>
+        <div className='h-[45%]'>
           <CompetitorInput
             competitors={competitorNames}
             setCompetitors={setCompetitorNames}
@@ -211,9 +174,9 @@ export default function BracketView() {
       </div>
 
       {/* Bracket Display */}
-      <div className="flex-1 bg-slate-700 rounded-lg p-4 shadow-md relative overflow-auto">
+      <div className='flex-1 bg-slate-700 rounded-lg p-4 shadow-md relative overflow-auto'>
         {competitorNames.length < 2 ? (
-          <div className="text-white text-center font-semibold text-lg py-12">
+          <div className='text-white text-center font-semibold text-lg py-12'>
             Not enough competitors yet.
             <br />
             Add at least two to begin the bracket.
@@ -229,54 +192,30 @@ export default function BracketView() {
 
             {/* Winner Matches */}
             {winnerMatches?.map(({ match, x, y }) => (
-              <MatchView
-                match={match}
-                updateMatch={updateMatch}
-                x={x}
-                y={y}
-                currentMatchId={currentMatchId}
-              />
+              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} />
             ))}
 
             {/* Separators */}
             <div
-              className="absolute left-0 w-full border-t border-red-400"
+              className='absolute left-0 w-full border-t border-red-400'
               style={{ top: WINNERS_BOTTOM }}
             />
             <div
-              className="absolute top-0 h-full border-l border-red-400"
+              className='absolute top-0 h-full border-l border-red-400'
               style={{ left: WINNERS_RIGHTMOST + 200 }}
             />
 
             {/* Loser Matches */}
             {loserMatches?.map(({ match, x, y }) => (
-              <MatchView
-                match={match}
-                updateMatch={updateMatch}
-                x={x}
-                y={y}
-                currentMatchId={currentMatchId}
-              />
+              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} />
             ))}
 
             {/* Final and Rematch */}
             {final.match && (
-              <MatchView
-                match={final.match}
-                updateMatch={updateMatch}
-                x={final.x}
-                y={final.y}
-                currentMatchId={currentMatchId}
-              />
+              <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={currentMatchId} />
             )}
             {finalRematch.match && (
-              <MatchView
-                match={finalRematch.match}
-                updateMatch={updateMatch}
-                x={finalRematch.x}
-                y={finalRematch.y}
-                currentMatchId={currentMatchId}
-              />
+              <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={currentMatchId} />
             )}
           </>
         )}

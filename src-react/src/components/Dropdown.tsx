@@ -1,29 +1,21 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
-export default function Dropdown<T extends string>({
-    options,
-    label,
-    value,
-    onChange,
-}: {
-    options: T[];
-    label?: string;
-    value: T;
-    onChange: (value: T) => void;
+export default function Dropdown<T extends string>({ options, label, value, onChange, }: { options: T[]; label?: string; value: T; onChange: (value: T) => void; 
+
 }) {
     return (
-        <div className="w-full">
+        <div className='w-full'>
             {label && (
-                <label className="block mb-1 text-sm font-semibold text-gray-200">
+                <label className='block mb-1 text-sm font-semibold text-gray-200'>
                     {label}
                 </label>
             )}
 
-            <div className="relative">
+            <div className='relative'>
                 <select
                     value={value}
                     onChange={(e) => onChange(e.target.value as T)}
-                    className="
+                    className='
             block
             w-full
             appearance-none
@@ -43,18 +35,18 @@ export default function Dropdown<T extends string>({
             transition
             duration-200
             ease-in-out
-          "
+          '
                 >
                     {options.map((option) => (
-                        <option key={option} value={option} className="bg-slate-700 text-white">
+                        <option key={option} value={option} className='bg-slate-700 text-white'>
                             {option}
                         </option>
                     ))}
                 </select>
 
                 {/* Heroicon Down Arrow */}
-                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                    <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                <div className='pointer-events-none absolute inset-y-0 right-3 flex items-center'>
+                    <ChevronDownIcon className='h-5 w-5 text-gray-400' aria-hidden='true' />
                 </div>
             </div>
         </div>

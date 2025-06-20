@@ -2,13 +2,7 @@ import { useEffect } from 'react';
 import Tournament from '../lib/Tournament';
 import Bracket from '../lib/Bracket';
 
-export default function RemoveTournamentModal({
-    setRemoveTournamentModalOpen,
-    tournamentToDelete,
-}: {
-    setRemoveTournamentModalOpen: (open: boolean) => void;
-    tournamentToDelete: Tournament | null;
-}) {
+export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete, }: { setRemoveTournamentModalOpen: (open: boolean) => void; tournamentToDelete: Tournament | null; }) {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {

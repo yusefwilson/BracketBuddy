@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import Tournament from '../lib/Tournament';
 
-export default function TournamentInputModal({
-    setTournamentModalOpen,
-}: {
-    setTournamentModalOpen: (open: boolean) => void;
-}) {
+export default function TournamentInputModal({ setTournamentModalOpen, }: { setTournamentModalOpen: (open: boolean) => void; }) {
     const [name, setName] = useState('');
     const [date, setDate] = useState(new Date());
     const [error, setError] = useState('');
@@ -27,7 +23,7 @@ export default function TournamentInputModal({
 
     const onSubmit = async () => {
         if (invalidChars.test(name)) {
-            setError("Tournament name contains invalid characters: :<>:'/\\|?*");
+            setError(`Tournament name contains invalid characters: :<>:'/\\|?*`);
             return;
         }
 
