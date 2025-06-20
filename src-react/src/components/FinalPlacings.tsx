@@ -1,4 +1,4 @@
-import { TrophyIcon, ArrowUpCircleIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { TrophyIcon } from '@heroicons/react/24/solid';
 
 export default function FinalPlacings({ first, second, third }: { first: string | undefined; second: string | undefined; third: string | undefined; }) {
     return (
@@ -24,7 +24,7 @@ export default function FinalPlacings({ first, second, third }: { first: string 
                         {second || 'TBD'}
                     </div>
                     <div className='flex items-center gap-1 mt-1 text-sm text-white bg-slate-600 px-2 py-1 rounded-b-md w-24 justify-center'>
-                        <ArrowUpCircleIcon className='w-4 h-4 text-blue-300' />
+                        🥈
                         <span>2nd</span>
                     </div>
                 </div>
@@ -35,7 +35,7 @@ export default function FinalPlacings({ first, second, third }: { first: string 
                         {third || 'TBD'}
                     </div>
                     <div className='flex items-center gap-1 mt-1 text-sm text-white bg-orange-500 px-2 py-1 rounded-b-md w-24 justify-center'>
-                        <SparklesIcon className='w-4 h-4 text-white' />
+                        🥉
                         <span>3rd</span>
                     </div>
                 </div>
