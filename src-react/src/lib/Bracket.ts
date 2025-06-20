@@ -179,6 +179,36 @@ class Bracket {
     static deserialize(serialized: string): Bracket {
         return deserialize(serialized, { Tournament, Bracket, Round, Match });
     }
+
+    getFirstPlace(): string | undefined {
+        // if the final rematch has taken place, then the first place is the winner of the final rematch
+        if (this.finalRematch?.winner !== -1 && this.finalRematch?.winner !== undefined) {
+            return this.finalRematch?.getWinnerPretty();
+        }
+        // if the final rematch has not taken place, and the final has, and the winner of the final is the winner of the last winnners bracket match
+        if (this.final?.winner !== -1 && this.final?.winner !== undefined && this.final?.getWinnerPretty() === this.winnersBracket[this.winnersBracket.length - 1].matches[0].getWinnerPretty()) {
+            return this.final?.getWinnerPretty();
+        }
+        return undefined;
+    }
+
+    getSecondPlace(): string | undefined {
+        if (this.finalRematch?.winner !== -1 && this.finalRematch?.winner !== undefined) {
+            return this.finalRematch?.getLoser();
+        }
+        if (this.final?.winner !== -1 && this.final?.winner !== undefined && this.final?.getWinnerPretty() === this.winnersBracket[this.winnersBracket.length - 1].matches[0].getWinnerPretty()) {
+            return this.final?.getLoser();
+        }
+        return undefined;
+    }
+
+    getThirdPlace(): string | undefined {
+        const lastMatchBeforeFinal = this.findMatchById(this.nextMatchId - 3);
+        if (lastMatchBeforeFinal?.winner !== -1 && lastMatchBeforeFinal?.winner !== undefined) {
+            return lastMatchBeforeFinal?.getLoser();
+        }
+        return undefined;
+    }
 }
 
 export default Bracket;

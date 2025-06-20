@@ -34,7 +34,7 @@ class Match {
     static createLinkedMatch(id: number, parent0: Match, parent0Winner: boolean, parent1: Match, parent1Winner: boolean) {
 
         // create new match
-        let newMatch = new Match(id, parent0Winner ? parent0.getWinner() : parent0.getLoser(), parent1Winner ? parent1.getWinner() : parent1.getLoser(), undefined);
+        let newMatch = new Match(id, parent0Winner ? parent0.getWinnerPretty() : parent0.getLoser(), parent1Winner ? parent1.getWinnerPretty() : parent1.getLoser(), undefined);
 
         // link parents to child
         if (parent0Winner) {
@@ -65,7 +65,7 @@ class Match {
     static createHalfLinkedMatch(id: number, parent0: Match, parent0Winner: boolean, competitor1Name: string) {
 
         // create new match
-        let newMatch = new Match(id, parent0Winner ? parent0.getWinner() : parent0.getLoser(), competitor1Name, undefined);
+        let newMatch = new Match(id, parent0Winner ? parent0.getWinnerPretty() : parent0.getLoser(), competitor1Name, undefined);
 
         // link parents to child
         if (parent0Winner) {
@@ -96,13 +96,21 @@ class Match {
         this.competitor1Name = competitor1Name;
     }
 
-    getWinner() {
+    getWinnerPretty() {
         if (this.winner === -1 || this.winner === undefined) {
             return 'Winner of match ' + this.id;
         }
 
         // if winner is set to 0 or 1, then the corresponding competitor name is definitely not undefined
         return (this.winner === 0 ? this.competitor0Name : this.competitor1Name) as string;
+    }
+
+    getWinnerReal() {
+        if (this.winner === -1 || this.winner === undefined) {
+            return undefined;
+        }
+
+        return this.winner;
     }
 
     getLoser() {
@@ -135,11 +143,11 @@ class Match {
     updateNames() {
 
         if (this.competitor0Parent) {
-            let newName = this.competitor0PreviouslyWinner ? this.competitor0Parent.getWinner() : this.competitor0Parent.getLoser();
+            let newName = this.competitor0PreviouslyWinner ? this.competitor0Parent.getWinnerPretty() : this.competitor0Parent.getLoser();
             this.competitor0Name = newName;
         }
         if (this.competitor1Parent) {
-            let newName = this.competitor1PreviouslyWinner ? this.competitor1Parent.getWinner() : this.competitor1Parent.getLoser();
+            let newName = this.competitor1PreviouslyWinner ? this.competitor1Parent.getWinnerPretty() : this.competitor1Parent.getLoser();
             this.competitor1Name = newName;
         }
 

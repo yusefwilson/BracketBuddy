@@ -13,6 +13,7 @@ import {
   isPowerOfTwo, calculateInitialRoundsMatchPositions, calculateMatchPositionsFromParentAverages, calculateMatchPositionsFromParentStaggered,
   WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET, HORIZONTAL_GAP,
 } from '../lib/utils';
+import FinalPlacings from '../components/FinalPlacings';
 
 export default function BracketView() {
   // state
@@ -27,6 +28,7 @@ export default function BracketView() {
 
   const [competitorNames, setCompetitorNames] = useState<string[]>(bracket?.competitorNames || []);
   const [currentMatchId, setCurrentMatchId] = useState<number>(1);
+  const [displayFinalRematch, setDisplayFinalRematch] = useState(false);
 
   // update the winner of a match (this calls a recursive method on the Match class which updates all dependent matches)
   const updateMatch = (matchId: number, winner: number): void => {
@@ -44,24 +46,29 @@ export default function BracketView() {
 
     // manually update finals since they're weird. if the match is the finals, check the winner to see how you should populate the final rematch
     if (matchId === bracket?.final?.id) {
+
       // update winner
       matchToBeUpdated?.updateWinner(winner);
-      const finalWinnerName = matchToBeUpdated?.getWinner();
+      const finalWinnerName = matchToBeUpdated?.getWinnerPretty();
+
       // if the name of the winner is also the name of the winner of the last match in the winnersBracket, then the final rematch should be empty
-      // TODO: update final rematch to be empty
-      if (finalWinnerName === bracket?.winnersBracket[bracket.winnersBracket.length - 1].matches[0].getWinner()) {
+      if (finalWinnerName === bracket?.winnersBracket[bracket.winnersBracket.length - 1].matches[0].getWinnerPretty() || matchToBeUpdated?.winner === -1) {
         bracket?.finalRematch?.setCompetitorNames('N/A', 'N/A');
-        // otherwise, the final rematch should be populated with the winner and loser of the final match
-      } else {
+        setDisplayFinalRematch(false);
+      }
+
+      // otherwise, the final rematch should be populated with the winner and loser of the final matchs
+      else {
         const finalLoserName = matchToBeUpdated?.getLoser();
         if (finalWinnerName && finalLoserName) {
-          // TODO: update final rematch to be populated with the winner and loser names
           bracket?.finalRematch?.setCompetitorNames(finalWinnerName, finalLoserName);
+          setDisplayFinalRematch(true);
         }
       }
-      // let recursive function handle normal matches
-      // update winner
-    } else {
+    }
+
+    // let recursive function handle normal matchess
+    else {
       matchToBeUpdated?.updateWinnerRecursively(winner);
     }
 
@@ -170,6 +177,10 @@ export default function BracketView() {
             setCurrentMatchId={setCurrentMatchId}
           />
         </div>
+        {/* Final Placings */}
+        {
+          <FinalPlacings first={bracket?.getFirstPlace()} second={bracket?.getSecondPlace()} third={bracket?.getThirdPlace()} />
+        }
 
       </div>
 
@@ -213,10 +224,13 @@ export default function BracketView() {
             {/* Final and Rematch */}
             {final.match && (
               <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={currentMatchId} />
+
             )}
-            {finalRematch.match && (
-              <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={currentMatchId} />
-            )}
+            {finalRematch.match &&
+              displayFinalRematch &&
+              (
+                <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={currentMatchId} />
+              )}
           </>
         )}
       </div>

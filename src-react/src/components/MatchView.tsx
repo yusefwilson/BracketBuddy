@@ -30,7 +30,7 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId }:
       <div className={'bg-transparent p-2 flex flex-row gap-2'}>
         {/* Match ID vertically centered */}
         <div className='flex items-center'>
-          <h3 className='text-center font-bold'>{match.id}.</h3>
+          <h3 className='text-center font-bold w-8'>{match.id}.</h3>
         </div>
         <div className='flex flex-col gap-2'>
           <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleWinner(0)}>
