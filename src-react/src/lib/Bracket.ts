@@ -147,11 +147,6 @@ class Bracket {
         return undefined;
     }
 
-    // TODO: hacky, look to replace. currently used to update reference of Bracket to trigger useState refresh.
-    markUpdated(): Bracket {
-        return Object.assign(Object.create(Object.getPrototypeOf(this)), this) as Bracket;
-    }
-
     print() {
         console.log(`Bracket with gender ${this.gender}, age group ${this.experienceLevel}, hand ${this.hand}, and weight limit ${this.weightLimit} lbs:`);
 

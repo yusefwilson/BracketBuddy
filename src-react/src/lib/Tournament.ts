@@ -33,13 +33,19 @@ class Tournament {
     }
 
     static deserialize(serialized: string): Tournament {
-        return deserialize(serialized, { Tournament, Bracket, Round, Match });
+        console.log('about to deserialize tournament data');
+        const tournament = deserialize(serialized, { Tournament, Bracket, Round, Match }) as Tournament;
+        // Rewire bracket references
+        tournament.brackets.forEach(bracket => {
+            bracket.tournament = tournament;
+        });
+
+        return tournament;
     }
 
     // saving and loading
     async save() {
         await window.electron.saveTournament(this.name, this.serialize());
-        //console.log('Saved tournament ', this.name, ' with value: ', this);
     }
 
     async delete() {
@@ -49,16 +55,17 @@ class Tournament {
 
     static async loadFromFile(filePath: string): Promise<Tournament> {
         const data = await window.electron.readFile(filePath);
+        console.log('Loaded tournament from file: ', data);
         return Tournament.deserialize(data);
     }
 
     static async loadAllTournaments(): Promise<Tournament[]> {
-        return (await window.electron.loadAllTournaments()).map((tournament: string) => Tournament.deserialize(tournament));
-    }
-
-    // TODO: hacky, look to replace. currently used to update reference of Bracket to trigger useState refresh.
-    markUpdated(): Tournament {
-        return Object.assign(Object.create(Object.getPrototypeOf(this)), this) as Tournament;
+        console.log('Loading all tournaments');
+        const tournaments = await window.electron.loadAllTournaments();
+        console.log('Loaded all tournaments: ', tournaments);
+        const deserializedTournaments = tournaments.map((tournament: string) => Tournament.deserialize(tournament));
+        console.log('Deserialized all tournaments: ', deserializedTournaments);
+        return deserializedTournaments;
     }
 
 }

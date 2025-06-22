@@ -6,7 +6,6 @@ import MatchView from '../components/MatchView';
 import YGuideLines from '../components/YGuideLines';
 
 import Bracket from '../lib/Bracket';
-import Tournament from '../lib/Tournament';
 
 import {
   MatchAndPosition,
@@ -18,20 +17,16 @@ import FinalPlacings from '../components/FinalPlacings';
 export default function BracketView() {
   // state
   const state = useContext(CURRENT_STATE);
-  // local state
-  const {
-    bracket,
-    setBracket = () => { },
-    tournament,
-    setTournament = () => { },
-  } = state || {};
+  const { bracket } = state || {};
 
+  // local state
   const [competitorNames, setCompetitorNames] = useState<string[]>(bracket?.competitorNames || []);
   const [currentMatchId, setCurrentMatchId] = useState<number>(1);
   const [displayFinalRematch, setDisplayFinalRematch] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   // update the winner of a match (this calls a recursive method on the Match class which updates all dependent matches)
-  const updateMatch = (matchId: number, winner: number): void => {
+  const updateMatch = async (matchId: number, winner: number): Promise<void> => {
     // find winner
     const matchToBeUpdated = bracket?.findMatchById(matchId);
 
@@ -72,9 +67,11 @@ export default function BracketView() {
       matchToBeUpdated?.updateWinnerRecursively(winner);
     }
 
+    // save changes to tournament
+    await bracket?.tournament?.save();
+
     // hacky way to trigger refresh, and also to trigger tournament save in App useEffect
-    setBracket(bracket?.markUpdated() as Bracket);
-    setTournament(tournament?.markUpdated() as Tournament);
+    setRefreshTick(refreshTick + 1);
   };
 
   // update the competitor names in the bracket whenever they change, which will also update the matches
@@ -83,7 +80,8 @@ export default function BracketView() {
     if (bracket) {
       //console.log('updating competitornames from bracketview');
       bracket.setCompetitorNames(competitorNames);
-      setBracket(bracket.markUpdated());
+      bracket.tournament?.save();
+      setRefreshTick(refreshTick + 1);
     }
   }, [competitorNames]);
 

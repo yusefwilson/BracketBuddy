@@ -29,11 +29,16 @@ export default function App() {
     const loadLatest = async () => {
       const tournaments = await Tournament.loadAllTournaments();
       const latest = tournaments[tournaments.length - 1]; // or pick based on timestamp/name
+      console.log('tournaments', tournaments);
       if (latest) {
-        setCurrentTournament(latest);
-        setCurrentBracket(latest.brackets[latest.brackets.length - 1] || null);
+        const currentTournament = latest;
+        const currentBracket = latest.brackets[latest.brackets.length - 1] || null;
+        console.log('checking bracket and tournament link valid: ', currentBracket?.tournament?.brackets.includes(currentBracket));
+        setCurrentTournament(currentTournament);
+        setCurrentBracket(currentBracket);
       }
     };
+    console.log('App mounted');
     loadLatest();
   }, []);
 
@@ -42,9 +47,9 @@ export default function App() {
     currentTournament?.save();
   }, [currentTournament]);
 
-  useEffect(() => {
-    currentBracket?.tournament?.save(); // Save tournament when bracket updates
-  }, [currentBracket]);
+  // useEffect(() => {
+  //   currentBracket?.tournament?.save(); // Save tournament when bracket updates
+  // }, [currentBracket]);
 
   return (
     <CURRENT_STATE.Provider value={{ tournament: currentTournament, bracket: currentBracket, setTournament: setCurrentTournament, setBracket: setCurrentBracket }}>

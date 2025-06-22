@@ -4,11 +4,11 @@ import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon, } from '@heroicon
 
 import { Gender, Hand, ExperienceLevel } from '../lib/types';
 import Bracket from '../lib/Bracket';
+
 import CompetitorInput from './CompetitorInput';
 import Dropdown from './Dropdown';
 
 import { CURRENT_STATE } from './App';
-import Tournament from '../lib/Tournament';
 
 export default function BracketInputModal({ setBracketModalOpen, }: { setBracketModalOpen: (open: boolean) => void; }) {
 
@@ -17,9 +17,10 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
     const [hand, setHand] = useState<Hand>('Right');
     const [weightLimit, setWeightLimit] = useState<number>(0);
     const [competitorNames, setCompetitorNames] = useState<string[]>([]);
+    const [refreshTick, setRefreshTick] = useState(0);
 
     const state = useContext(CURRENT_STATE);
-    const { tournament, setTournament = () => { } } = state || {};
+    const { tournament } = state || {};
 
     const onSubmit = async () => {
         if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
@@ -37,7 +38,7 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
         // add bracket to tournament
         await tournament?.addBracket(newBracket);
         // update tournament in context to trigger refresh
-        setTournament(tournament?.markUpdated() as Tournament);
+        setRefreshTick(refreshTick + 1);
         // close modal
         setBracketModalOpen(false);
     };

@@ -19,14 +19,15 @@ export default function Home() {
 
   useEffect(() => {
     const loadTournaments = async () => {
+      console.log('Loading tournaments...');
       await new Promise(resolve => setTimeout(resolve, 100)); // 💀
       const tournaments = await Tournament.loadAllTournaments();
       console.log('Loaded tournaments:', tournaments);
       setAllTournaments(tournaments);
     };
-
+    console.log('Home page mounted');
     loadTournaments();
-  }, [tournamentModalOpen, removeTournamentModalOpen]);
+  }, []);
 
   if (!allTournaments) {
     return (

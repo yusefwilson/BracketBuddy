@@ -6,12 +6,11 @@ import BracketInputModal from '../components/BracketInputModal';
 
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
-  const { tournament, setTournament = () => { }, setBracket = () => { } } = state || {};
+  const { tournament, setBracket = () => { } } = state || {};
   const navigate = useNavigate();
 
   const [bracketModalOpen, setBracketModalOpen] = useState(false);
-
-  console.log('about to render tournament', tournament);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   return (
     <div className='bg-slate-700 p-6 rounded-lg flex flex-col items-center gap-6 w-full mx-auto min-h-screen'>
@@ -40,9 +39,9 @@ export default function TournamentView() {
                 setBracket(bracket);
                 navigate('/bracket');
               }}
-              onRemoveClick={() => {
-                tournament?.removeBracket(bracket);
-                setTournament(tournament?.markUpdated());
+              onRemoveClick={async () => {
+                await tournament?.removeBracket(bracket);
+                setRefreshTick(refreshTick + 1);
               }}
             />
           ))

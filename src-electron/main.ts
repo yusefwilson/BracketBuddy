@@ -45,7 +45,7 @@ ipcMain.handle('load-all-tournaments', async (_) => {
             tournaments.push(tournament);
         }
     }
-
+    console.log('Loaded all tournaments: ');
     return tournaments;
 });
 

@@ -1,12 +1,5 @@
-export default function CompetitorInput({
-    competitors,
-    setCompetitors,
-    setCurrentMatchId,
-}: {
-    competitors: string[];
-    setCompetitors: (competitors: string[]) => void;
-    setCurrentMatchId: (id: number) => void;
-}) {
+export default function CompetitorInput({ competitors, setCompetitors, setCurrentMatchId, }: { competitors: string[]; setCompetitors: (competitors: string[]) => void; setCurrentMatchId: (id: number) => void; }) {
+
     // Handle input change
     const handleInputChange = (index: number, value: string) => {
         const newCompetitors = [...competitors];
