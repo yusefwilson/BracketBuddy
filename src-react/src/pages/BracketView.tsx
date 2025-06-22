@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { CURRENT_STATE } from '../components/App';
 
 import CompetitorInput from '../components/CompetitorInput';
@@ -19,11 +19,14 @@ export default function BracketView() {
   const state = useContext(CURRENT_STATE);
   const { bracket } = state || {};
 
+  console.log('bracket: ', bracket);
+
   // local state
-  const [competitorNames, setCompetitorNames] = useState<string[]>(bracket?.competitorNames || []);
   const [currentMatchId, setCurrentMatchId] = useState<number>(1);
   const [displayFinalRematch, setDisplayFinalRematch] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
+
+  console.log('bracket.competitorNames: ', bracket?.competitorNames);
 
   // update the winner of a match (this calls a recursive method on the Match class which updates all dependent matches)
   const updateMatch = async (matchId: number, winner: number): Promise<void> => {
@@ -67,6 +70,9 @@ export default function BracketView() {
       matchToBeUpdated?.updateWinnerRecursively(winner);
     }
 
+    console.log('updated bracket with match result should be: ', bracket);
+    console.log('bracket.tournament, which should have the updated match results, is: ', bracket?.tournament);
+
     // save changes to tournament
     await bracket?.tournament?.save();
 
@@ -74,26 +80,16 @@ export default function BracketView() {
     setRefreshTick(refreshTick + 1);
   };
 
-  // update the competitor names in the bracket whenever they change, which will also update the matches
-  useEffect(() => {
-    // every time the bracket members are updated, update the bracket
-    if (bracket) {
-      //console.log('updating competitornames from bracketview');
-      bracket.setCompetitorNames(competitorNames);
-      bracket.tournament?.save();
-      setRefreshTick(refreshTick + 1);
-    }
-  }, [competitorNames]);
-
   let winnerMatches: MatchAndPosition[] = [], loserMatches: MatchAndPosition[] = [], WINNERS_BOTTOM = 0, LAST_WINNER_Y = 0, WINNERS_RIGHTMOST = 0;
-  if (competitorNames.length >= 2) {
+
+  if (bracket?.competitorNames && bracket?.competitorNames.length >= 2) {
     // {match, x, y}[][]
     const winnerRounds = calculateInitialRoundsMatchPositions(bracket as Bracket, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
     const initialWinnerMatches = winnerRounds.slice();
 
     // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
     for (
-      let roundIndex = isPowerOfTwo(competitorNames.length) ? 1 : 2;
+      let roundIndex = isPowerOfTwo(bracket?.competitorNames.length) ? 1 : 2;
       roundIndex < (bracket?.winnersBracket.length || 0);
       roundIndex++
     ) {
@@ -128,7 +124,7 @@ export default function BracketView() {
 
     // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
     let halving: boolean;
-    if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(competitorNames.length)) {
+    if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(bracket?.competitorNames.length)) {
       halving = true;
     } else {
       halving = false;
@@ -162,6 +158,8 @@ export default function BracketView() {
     y: LAST_WINNER_Y,
   };
 
+
+
   return (
     <div className='h-full flex gap-6 p-4 bg-slate-800 rounded-lg shadow-inner'>
 
@@ -170,8 +168,12 @@ export default function BracketView() {
         <h2 className='text-white text-lg font-semibold text-center'>Competitors</h2>
         <div className='h-[45%]'>
           <CompetitorInput
-            competitors={competitorNames}
-            setCompetitors={setCompetitorNames}
+            competitors={bracket?.competitorNames ?? []}
+            setCompetitors={(names) => {
+              bracket?.setCompetitorNames(names);
+              bracket?.tournament?.save();
+              setRefreshTick((tick) => tick + 1);
+            }}
             setCurrentMatchId={setCurrentMatchId}
           />
         </div>
@@ -184,7 +186,7 @@ export default function BracketView() {
 
       {/* Bracket Display */}
       <div className='flex-1 bg-slate-700 rounded-lg p-4 shadow-md relative overflow-auto'>
-        {competitorNames.length < 2 ? (
+        {bracket?.competitorNames && bracket?.competitorNames.length < 2 ? (
           <div className='text-white text-center font-semibold text-lg py-12'>
             Not enough competitors yet.
             <br />
