@@ -2,7 +2,7 @@ import WinnerCheckbox from './WinnerCheckbox';
 import Match from '../lib/Match';
 
 export default function MatchView({ match, updateMatch, x, y, currentMatchId }:
-  { match: Match, updateMatch: (matchId: number, winner: number) => void, x: number, y: number, currentMatchId: number }) {
+  { match: Match, updateMatch: (matchId: number, winner: number) => void, x: number, y: number, currentMatchId: number | undefined }) {
 
   const toggleWinner = (newWinner: number) => {
     const updatedWinner = match.winner === newWinner ? -1 : newWinner;
@@ -11,7 +11,18 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId }:
 
   // highlight the match yellow if it is the current match, gray if it is stale
   const highlighted = match.id === currentMatchId;
-  const stale = match.id < currentMatchId && match.winner === -1;
+
+  let stale;
+  if (currentMatchId === undefined) {
+    stale = false;
+  }
+  else if (match.id < currentMatchId && match.winner === -1) {
+    stale = true;
+  }
+  else {
+    stale = false;
+  }
+
   let colorStyle = 'bg-blue-400 hover:bg-blue-500';
 
   if (highlighted) {

@@ -120,19 +120,10 @@ class Bracket {
     findMatchById(id: number): Match | undefined {
 
         // loop through all rounds and matches to find the match with the given id
-        for (let round of this.winnersBracket) {
-            for (let match of round.matches) {
-                if (match.id === id) {
-                    return match;
-                }
-            }
-        }
-
-        for (let round of this.losersBracket) {
-            for (let match of round.matches) {
-                if (match.id === id) {
-                    return match;
-                }
+        let matches = this.getMatches();
+        for (let match of matches) {
+            if (match.id === id) {
+                return match;
             }
         }
 
@@ -145,6 +136,23 @@ class Bracket {
         }
 
         return undefined;
+    }
+
+    getMatches(): Match[] {
+
+        let matches: Match[] = [];
+
+        matches = matches.concat(this.winnersBracket.map(round => round.matches).flat());
+        matches = matches.concat(this.losersBracket.map(round => round.matches).flat());
+
+        if (this.final) {
+            matches.push(this.final);
+        }
+        if (this.finalRematch) {
+            matches.push(this.finalRematch);
+        }
+
+        return matches;
     }
 
     print() {
@@ -211,6 +219,15 @@ class Bracket {
             return lastMatchBeforeFinal?.getLoser();
         }
         return undefined;
+    }
+
+    getLowestIdUnfilledMatch(): number | undefined {
+        let matches = this.getMatches().sort((a, b) => a.id - b.id);
+        for (let match of matches) {
+            if (match.winner === -1 || match.winner === undefined) {
+                return match.id;
+            }
+        }
     }
 }
 

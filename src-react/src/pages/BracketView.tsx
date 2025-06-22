@@ -22,7 +22,6 @@ export default function BracketView() {
   console.log('bracket: ', bracket);
 
   // local state
-  const [currentMatchId, setCurrentMatchId] = useState<number>(1);
   const [displayFinalRematch, setDisplayFinalRematch] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
 
@@ -32,15 +31,6 @@ export default function BracketView() {
   const updateMatch = async (matchId: number, winner: number): Promise<void> => {
     // find winner
     const matchToBeUpdated = bracket?.findMatchById(matchId);
-
-    // highlight functionality
-    if (matchId === currentMatchId - 1 && winner === -1) {
-      setCurrentMatchId(currentMatchId - 1);
-    }
-
-    if (matchId === currentMatchId) {
-      setCurrentMatchId(currentMatchId + 1);
-    }
 
     // manually update finals since they're weird. if the match is the finals, check the winner to see how you should populate the final rematch
     if (matchId === bracket?.final?.id) {
@@ -158,8 +148,7 @@ export default function BracketView() {
     y: LAST_WINNER_Y,
   };
 
-
-
+  console.log('current match id: ', bracket?.getLowestIdUnfilledMatch());
   return (
     <div className='h-full flex gap-6 p-4 bg-slate-800 rounded-lg shadow-inner'>
 
@@ -174,7 +163,6 @@ export default function BracketView() {
               bracket?.tournament?.save();
               setRefreshTick((tick) => tick + 1);
             }}
-            setCurrentMatchId={setCurrentMatchId}
           />
         </div>
         {/* Final Placings */}
@@ -203,7 +191,7 @@ export default function BracketView() {
 
             {/* Winner Matches */}
             {winnerMatches?.map(({ match, x, y }) => (
-              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} />
+              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
             ))}
 
             {/* Separators */}
@@ -218,18 +206,18 @@ export default function BracketView() {
 
             {/* Loser Matches */}
             {loserMatches?.map(({ match, x, y }) => (
-              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={currentMatchId} />
+              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
             ))}
 
             {/* Final and Rematch */}
             {final.match && (
-              <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={currentMatchId} />
+              <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
 
             )}
             {finalRematch.match &&
               displayFinalRematch &&
               (
-                <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={currentMatchId} />
+                <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
               )}
           </>
         )}
