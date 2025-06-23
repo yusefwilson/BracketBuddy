@@ -138,6 +138,8 @@ class Bracket {
         return undefined;
     }
 
+
+    // return matches sorted by id
     getMatches(): Match[] {
 
         let matches: Match[] = [];
@@ -152,7 +154,7 @@ class Bracket {
             matches.push(this.finalRematch);
         }
 
-        return matches;
+        return matches.sort((a, b) => a.id - b.id);;
     }
 
     print() {
@@ -228,6 +230,21 @@ class Bracket {
                 return match.id;
             }
         }
+    }
+
+    finalRematchNeeded(): boolean {
+        let matches = this.getMatches();
+        let highestIdMatchThatIsNotFinal = matches[matches.length - 3];
+        console.log('highestIdMatchThatIsNotFinal', highestIdMatchThatIsNotFinal);
+        console.log('highestIdMatchThatIsNotFinal.getWinnerPretty()', highestIdMatchThatIsNotFinal.getWinnerPretty());
+        console.log('this.final?.getWinnerPretty()', this.final?.getWinnerPretty());
+        if (highestIdMatchThatIsNotFinal.getWinnerPretty() === this.final?.getWinnerPretty()) {
+            return false;
+        }
+        else if (this.final?.winner === -1 || this.final?.winner === undefined) {
+            return false;
+        }
+        return true;
     }
 }
 

@@ -21,8 +21,7 @@ export default function BracketView() {
 
   console.log('bracket: ', bracket);
 
-  // local state
-  const [displayFinalRematch, setDisplayFinalRematch] = useState(false);
+  // local state. DO NOT try to load bracket info into here, since this can run before bracket is loaded from context.
   const [refreshTick, setRefreshTick] = useState(0);
 
   console.log('bracket.competitorNames: ', bracket?.competitorNames);
@@ -37,22 +36,6 @@ export default function BracketView() {
 
       // update winner
       matchToBeUpdated?.updateWinner(winner);
-      const finalWinnerName = matchToBeUpdated?.getWinnerPretty();
-
-      // if the name of the winner is also the name of the winner of the last match in the winnersBracket, then the final rematch should be empty
-      if (finalWinnerName === bracket?.winnersBracket[bracket.winnersBracket.length - 1].matches[0].getWinnerPretty() || matchToBeUpdated?.winner === -1) {
-        bracket?.finalRematch?.setCompetitorNames('N/A', 'N/A');
-        setDisplayFinalRematch(false);
-      }
-
-      // otherwise, the final rematch should be populated with the winner and loser of the final matchs
-      else {
-        const finalLoserName = matchToBeUpdated?.getLoser();
-        if (finalWinnerName && finalLoserName) {
-          bracket?.finalRematch?.setCompetitorNames(finalWinnerName, finalLoserName);
-          setDisplayFinalRematch(true);
-        }
-      }
     }
 
     // let recursive function handle normal matchess
@@ -215,7 +198,7 @@ export default function BracketView() {
 
             )}
             {finalRematch.match &&
-              displayFinalRematch &&
+              bracket?.finalRematchNeeded() &&
               (
                 <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
               )}
