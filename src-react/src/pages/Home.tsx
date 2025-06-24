@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Tournament from '../lib/Tournament';
+import { saveKeyValue } from '../lib/utils';
 
 import { CURRENT_STATE } from '../components/App';
 import TournamentInfoCard from '../components/TournamentInfoCard';
@@ -61,9 +62,11 @@ export default function Home() {
             <TournamentInfoCard
               key={index}
               tournament={tournament}
-              onClick={() => {
+              onClick={async () => {
                 state?.setTournament(tournament);
-                navigate('tournament');
+                // record this change in the save file
+                await saveKeyValue('lastTournamentIndex', index);
+                navigate('/tournament');
               }}
               onRemoveClick={() => {
                 setTournamentToDelete(tournament);

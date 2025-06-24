@@ -4,7 +4,7 @@ import Bracket from '../lib/Bracket';
 export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { bracket: Bracket; onClick: () => void; onRemoveClick: () => void; }) {
     return (
         <div
-            className='bg-slate-500 hover:bg-slate-600 transition cursor-pointer p-4 rounded-xl flex items-center justify-between gap-6 shadow-sm w-1/5'
+            className='bg-slate-500 hover:bg-slate-600 transition cursor-pointer p-4 rounded-xl flex gap-6 shadow-sm items-center'
             onClick={onClick}
         >
             {/* Bracket Info with Icons */}
@@ -29,7 +29,7 @@ export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { 
 
             {/* Remove Button */}
             <button
-                className='bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition flex items-center gap-1'
+                className='bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition flex items-center h-8'
                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
                     onRemoveClick();

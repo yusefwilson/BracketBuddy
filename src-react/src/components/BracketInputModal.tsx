@@ -127,7 +127,6 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
                 <CompetitorInput
                     competitors={competitorNames}
                     setCompetitors={setCompetitorNames}
-                    setCurrentMatchId={() => { }}
                 />
 
                 {/* Action Buttons */}

@@ -179,10 +179,20 @@ const calculateMatchPositionsFromParentStaggered = (previousRoundMatches: MatchA
     });
 }
 
+const getSaveData = async (): Promise<Record<string, any>> => {
+    const data = await window.electron.getSaveData();
+    return data;
+}
+
+const saveKeyValue = async (key: string, value: any): Promise<void> => {
+    await window.electron.saveKeyValue(key, value);
+}
+
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     serialize, deserialize,
     calculateMatchPosition, calculateMatchPositionFromParents, calculateMatchPositionFromSingleParent, calculateInitialRoundsMatchPositions, calculateMatchPositionsFromParentAverages, calculateMatchPositionsFromParentStaggered,
+    getSaveData, saveKeyValue,
     HORIZONTAL_GAP, INITIAL_VERTICAL_GAP, EXTRA_VERTICAL_OFFSET,
     WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET,
 };

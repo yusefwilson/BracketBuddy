@@ -9,6 +9,8 @@ import Bracket from '../lib/Bracket';
 import TournamentView from '../pages/TournamentView';
 import BracketView from '../pages/BracketView';
 
+import { getSaveData } from '../lib/utils';
+
 // this holds the current tournament and bracket that the user is viewing. all components that need to access the current tournament and bracket will use this context
 // react automatically triggers refreshes for components that consume this context when the context value changes
 export const CURRENT_STATE = createContext<{
@@ -26,17 +28,22 @@ export default function App() {
 
   // Load latest tournament on mount
   useEffect(() => {
+
     const loadLatest = async () => {
+
+      // load saved data from disk. Tournament class has static method to load all tournaments, and getSaveFileAsObject() is a helper function to read the save file
       const tournaments = await Tournament.loadAllTournaments();
-      const latest = tournaments[tournaments.length - 1]; // or pick based on timestamp/name
-      console.log('tournaments', tournaments);
-      if (latest) {
-        const currentTournament = latest;
-        const currentBracket = latest.brackets[latest.brackets.length - 1] || null;
-        console.log('checking bracket and tournament link valid: ', currentBracket?.tournament?.brackets.includes(currentBracket));
-        setCurrentTournament(currentTournament);
-        setCurrentBracket(currentBracket);
-      }
+      const saveData = await getSaveData();
+
+      const lastTournamentIndex = saveData.lastTournamentIndex || 0;
+      const lastBracketIndex = saveData.lastBracketIndex || 0;
+
+      const latestTournament = tournaments[lastTournamentIndex] || null;
+      const latestBracket = latestTournament?.brackets[lastBracketIndex] || null;
+
+      console.log('checking bracket and tournament link valid: ', currentBracket?.tournament?.brackets.includes(currentBracket));
+      setCurrentTournament(latestTournament);
+      setCurrentBracket(latestBracket);
     };
     console.log('App mounted');
     loadLatest();

@@ -7,6 +7,23 @@ app.isPackaged || require('electron-reloader')(module);
 
 const DEV = true;
 const SAVE_DIR = app.getPath('userData');
+const SAVE_FILE_NAME = 'BB_SAVE_FILE.json';
+const SAVE_FILE_PATH = path.join(SAVE_DIR, SAVE_FILE_NAME);
+
+const ensure_save_environment = () => {
+
+    // create save directory if it doesn't exist
+    if (!fs.existsSync(SAVE_DIR)) {
+        fs.mkdirSync(SAVE_DIR, { recursive: true });
+        console.log('Created save directory at:', SAVE_DIR);
+    }
+
+    // create save file if it doesn't exist
+    if (!fs.existsSync(SAVE_FILE_PATH)) {
+        fs.writeFileSync(SAVE_FILE_PATH, '', 'utf-8');
+        console.log('Created empty save file:', SAVE_FILE_PATH);
+    }
+};
 
 const create_window = async () => {
 
@@ -27,25 +44,15 @@ const create_window = async () => {
     }
 }
 
-ipcMain.handle('read-file', async (_, filePath) => {
-    const data = fs.promises.readFile(filePath, 'utf-8');
-    return data;
-});
-
-ipcMain.handle('write-file', async (_, filePath, data) => {
-    await fs.promises.writeFile(filePath, data, 'utf-8');
-});
-
 ipcMain.handle('load-all-tournaments', async (_) => {
     const files = await fs.promises.readdir(SAVE_DIR);
     const tournaments = [];
     for (const file of files) {
-        if (file.endsWith('.json')) {
+        if (file.endsWith('.json') && file !== SAVE_FILE_NAME) {
             const tournament = await fs.promises.readFile(path.join(SAVE_DIR, file), 'utf-8');
             tournaments.push(tournament);
         }
     }
-    console.log('Loaded all tournaments: ');
     return tournaments;
 });
 
@@ -63,8 +70,28 @@ ipcMain.handle('delete-tournament', async (_, tournamentName) => {
 }
 );
 
+ipcMain.handle('get-save-data', async () => {
+    const data = await fs.promises.readFile(SAVE_FILE_PATH, 'utf-8');
+    return JSON.parse(data);
+});
+
+ipcMain.handle('save-key-value', async (_, key, value) => {
+    const data = await fs.promises.readFile(SAVE_FILE_PATH, 'utf-8');
+    const parsedData = JSON.parse(data);
+    parsedData[key] = value;
+    await fs.promises.writeFile(SAVE_FILE_PATH, JSON.stringify(parsedData));
+    return parsedData;
+});
+
+ipcMain.handle('get-constants', async () => {
+    return {
+        SAVE_FILE_NAME
+    };
+});
+
 const main = async () => {
     await app.whenReady();
+    ensure_save_environment();
     create_window();
 }
 
