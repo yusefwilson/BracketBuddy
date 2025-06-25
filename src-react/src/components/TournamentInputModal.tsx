@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Tournament from '../lib/Tournament';
 
-export default function TournamentInputModal({ setTournamentModalOpen, }: { setTournamentModalOpen: (open: boolean) => void; }) {
+export default function TournamentInputModal({ setTournamentModalOpen }: { setTournamentModalOpen: (open: boolean) => void; }) {
     const [name, setName] = useState('');
     const [date, setDate] = useState(new Date());
     const [error, setError] = useState('');
@@ -38,6 +38,7 @@ export default function TournamentInputModal({ setTournamentModalOpen, }: { setT
         // create and save tournament
         const newTournament = new Tournament(name, date);
         newTournament.save();
+
         // close modal
         setTournamentModalOpen(false);
     };

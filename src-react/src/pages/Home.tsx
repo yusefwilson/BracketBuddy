@@ -28,7 +28,7 @@ export default function Home() {
     };
     console.log('Home page mounted');
     loadTournaments();
-  }, []);
+  }, [tournamentModalOpen, removeTournamentModalOpen]);
 
   if (!allTournaments) {
     return (

@@ -168,12 +168,12 @@ export default function BracketView() {
           </div>
         ) : (
           <>
-            <YGuideLines
+            {/* <YGuideLines
               yLevels={[
                 50, 100, 150, 200, 250, 300, 350, 400, 450,
                 500, 550, 600, 650, 700, 750, 800, 850, 900,
               ]}
-            />
+            /> */}
 
             {/* Winner Matches */}
             {winnerMatches?.map(({ match, x, y }) => (
@@ -181,14 +181,14 @@ export default function BracketView() {
             ))}
 
             {/* Separators */}
-            <div
+            {/* <div
               className='absolute left-0 w-full border-t border-red-400'
               style={{ top: WINNERS_BOTTOM }}
             />
             <div
               className='absolute top-0 h-full border-l border-red-400'
               style={{ left: WINNERS_RIGHTMOST + 200 }}
-            />
+            /> */}
 
             {/* Loser Matches */}
             {loserMatches?.map(({ match, x, y }) => (
