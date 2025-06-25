@@ -3,7 +3,6 @@ import { CURRENT_STATE } from '../components/App';
 
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
-import YGuideLines from '../components/YGuideLines';
 
 import Bracket from '../lib/Bracket';
 
@@ -131,6 +130,8 @@ export default function BracketView() {
     y: LAST_WINNER_Y,
   };
 
+  //import YGuideLines from '../components/YGuideLines';
+
   console.log('current match id: ', bracket?.getLowestIdUnfilledMatch());
   return (
     <div className='h-full flex gap-6 p-4 bg-slate-800 rounded-lg shadow-inner'>
@@ -168,6 +169,7 @@ export default function BracketView() {
           </div>
         ) : (
           <>
+
             {/* <YGuideLines
               yLevels={[
                 50, 100, 150, 200, 250, 300, 350, 400, 450,
