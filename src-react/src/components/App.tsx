@@ -15,7 +15,7 @@ import { getSaveData } from '../lib/utils';
 // react automatically triggers refreshes for components that consume this context when the context value changes
 export const CURRENT_STATE = createContext<{
   tournament: Tournament | null, bracket: Bracket | null,
-  setTournament: (tournament: Tournament) => void,
+  setTournament: (tournament: Tournament | null) => void,
   setBracket: (bracket: Bracket) => void
 } | null>(null);
 
@@ -53,10 +53,6 @@ export default function App() {
   useEffect(() => {
     currentTournament?.save();
   }, [currentTournament]);
-
-  // useEffect(() => {
-  //   currentBracket?.tournament?.save(); // Save tournament when bracket updates
-  // }, [currentBracket]);
 
   return (
     <CURRENT_STATE.Provider value={{ tournament: currentTournament, bracket: currentBracket, setTournament: setCurrentTournament, setBracket: setCurrentBracket }}>

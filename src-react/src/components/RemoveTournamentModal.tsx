@@ -1,8 +1,13 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import Tournament from '../lib/Tournament';
-import Bracket from '../lib/Bracket';
+import { CURRENT_STATE } from './App';
 
-export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete, }: { setRemoveTournamentModalOpen: (open: boolean) => void; tournamentToDelete: Tournament | null; }) {
+export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete }: { setRemoveTournamentModalOpen: (open: boolean) => void; tournamentToDelete: Tournament | null; }) {
+
+    const state = useContext(CURRENT_STATE);
+    const { tournament, setTournament = () => { } } = state || {};
+
+    // close modal when escape key is pressed
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
@@ -16,20 +21,16 @@ export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, to
         };
     }, []);
 
+    // delete tournament from disk, clear state if necessary, and close modal
     const onDelete = () => {
-        const serializedTournament = localStorage.getItem('tournament') || '';
-        const tournament = Tournament.deserialize(serializedTournament);
-        if (tournamentToDelete?.name === tournament.name) {
-            localStorage.removeItem('tournament');
-        }
-
-        const serializedBracket = localStorage.getItem('bracket') || '';
-        const bracket = Bracket.deserialize(serializedBracket);
-        if (bracket.tournament?.name === tournamentToDelete?.name) {
-            localStorage.removeItem('bracket');
-        }
 
         tournamentToDelete?.delete();
+
+        // clear state
+        if (tournament?.name === tournamentToDelete?.name) {
+            setTournament(null);
+        }
+
         setRemoveTournamentModalOpen(false);
     };
 
