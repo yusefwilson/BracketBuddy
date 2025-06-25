@@ -10,6 +10,8 @@ const SAVE_DIR = app.getPath('userData');
 const SAVE_FILE_NAME = 'BB_SAVE_FILE.json';
 const SAVE_FILE_PATH = path.join(SAVE_DIR, SAVE_FILE_NAME);
 
+console.log('SAVE_DIR: ', SAVE_DIR);
+
 const ensure_save_environment = () => {
 
     // create save directory if it doesn't exist
@@ -20,7 +22,7 @@ const ensure_save_environment = () => {
 
     // create save file if it doesn't exist
     if (!fs.existsSync(SAVE_FILE_PATH)) {
-        fs.writeFileSync(SAVE_FILE_PATH, '', 'utf-8');
+        fs.writeFileSync(SAVE_FILE_PATH, '{}', 'utf-8');
         console.log('Created empty save file:', SAVE_FILE_PATH);
     }
 };
@@ -77,6 +79,7 @@ ipcMain.handle('get-save-data', async () => {
 
 ipcMain.handle('save-key-value', async (_, key, value) => {
     const data = await fs.promises.readFile(SAVE_FILE_PATH, 'utf-8');
+    console.log('data: ', data);
     const parsedData = JSON.parse(data);
     parsedData[key] = value;
     await fs.promises.writeFile(SAVE_FILE_PATH, JSON.stringify(parsedData));
