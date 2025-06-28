@@ -30,20 +30,7 @@ export default function BracketView() {
     // find winner
     const matchToBeUpdated = bracket?.findMatchById(matchId);
 
-    // manually update finals since they're weird. if the match is the finals, check the winner to see how you should populate the final rematch
-    if (matchId === bracket?.final?.id) {
-
-      // update winner
-      matchToBeUpdated?.updateWinner(winner);
-    }
-
-    // let recursive function handle normal matchess
-    else {
-      matchToBeUpdated?.updateWinnerRecursively(winner);
-    }
-
-    console.log('updated bracket with match result should be: ', bracket);
-    console.log('bracket.tournament, which should have the updated match results, is: ', bracket?.tournament);
+    matchToBeUpdated?.updateWinnerRecursively(winner);
 
     // save changes to tournament
     await bracket?.tournament?.save();
