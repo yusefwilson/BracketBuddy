@@ -120,10 +120,6 @@ class Match {
         return this.winner === 0 ? this.competitor1Name : this.competitor0Name;
     }
 
-    updateWinner(winner: number) {
-        this.winner = winner;
-    }
-
     // update the winner of this match and then trigger a recursive update of all children matches' competitor names
     updateWinnerRecursively(winner: number) {
         this.winner = winner;
