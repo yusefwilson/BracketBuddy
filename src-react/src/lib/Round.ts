@@ -130,30 +130,32 @@ class Round {
 
     static createInitialLoserRounds(initialWinnerRounds: Round[]): Round[] {
 
-        //console.log('in createInitialLoserRounds***********************');
-        // console.log('initialWinnerRounds: ', initialWinnerRounds);
-        // console.log('initialWinnerRounds.length: ', initialWinnerRounds.length);
+        // this is the number of competitors in the initial loser rounds
         let numCompetitors = 0;
         initialWinnerRounds.forEach(round => numCompetitors += round.matches.length);
 
         const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
         const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
 
-
-        // console.log('numCompetitors: ', numCompetitors);
-        // console.log('greatestPowerOf2: ', greatestPowerOf2);
-        // console.log('numberOfRoundZeroMatches: ', numberOfRoundZeroMatches);
-
+        // TODO: check if this can create any prohibited matches (premature rematches)
         // if we don't need any round zero matches, then we just create the first loser round
         if (numberOfRoundZeroMatches === 0) {
             //console.log('creating only 1 initial loser round as the number of competitors is already a power of 2');
             return [Round.createInitialLoserRound(initialWinnerRounds)];
         }
 
-        //  // otherwise, we need to perform the same 2^n - k split as we did for the initial winner rounds
-        // conglomerate first 2 rounds for convenience
+        // construct map of prohibited rematches from initialWinnerRounds
         const allWinnerMatches = initialWinnerRounds[0].matches.concat(initialWinnerRounds[1].matches);
-        //console.log('allWinnerMatches: ', allWinnerMatches);
+        const prohibitedRematches: Record<string, boolean> = {};
+        for (let i = 0; i < allWinnerMatches.length; i++) {
+            const prohibitedMatchKey = `${allWinnerMatches[i].competitor0Name}-${allWinnerMatches[i].competitor1Name}`;
+            prohibitedRematches[prohibitedMatchKey] = true;
+        }
+
+        // construct first loser round from first winner round, either from doubles or single parents. mind prohibited rematches
+
+        // construct second loser round from first loser round and remaining second winner round objects. mind prohibited rematches
+        // TODO: mathematically prove that first loser round uses same number of matches as w0 single parents or w0 doubles or something like that
 
         // get reference to bracket
         const bracket = initialWinnerRounds[0].bracket;
@@ -163,7 +165,6 @@ class Round {
         for (let i = 0; i < numberOfRoundZeroMatches; i++) {
             let arg1 = allWinnerMatches.shift() as Match;
             let arg2 = allWinnerMatches.shift() as Match;
-            //console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
             let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, false, arg2, false);
             round0Matches.push(newMatch);
         }
@@ -178,15 +179,11 @@ class Round {
         const round0MatchesCopy = round0Matches.slice();
         // cache length because we will be modifying the array
         const round0MatchesCopyLength = round0MatchesCopy.length;
-        //console.log('round0MatchesCopy: ', round0MatchesCopy);
-        //console.log('round0MatchesCopyLength: ', round0MatchesCopyLength);
 
         // for each match in round 0, link it to a match from allWinnerMatches as long as there are any
         for (let i = 0; i < round0MatchesCopyLength && allWinnerMatches.length > 0; i++) {
-            //console.log('i: ', i, ' round0MatchesCopyLength: ', round0MatchesCopyLength, ' allWinnerMatches.length: ', allWinnerMatches.length);
             let arg1 = round0MatchesCopy.shift() as Match;
             let arg2 = allWinnerMatches.shift() as Match;
-            //console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
             let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, true, arg2, false);
             round1Matches.push(newMatch);
         }
@@ -197,7 +194,6 @@ class Round {
         if (round0MatchesCopy.length > 0) {
             console.log(' going inside if because there are round0MatchesCopy left: ', round0MatchesCopy);
             while (round0MatchesCopy.length >= 2) { // LATEST CHANGE
-                //console.log(' round0MatchesCopy.length: ', round0MatchesCopy.length);
                 // if there is an odd number of matches, the last one will be a bye, so we can just skip it
                 let arg1 = round0MatchesCopy.shift() as Match;
                 let arg2 = round0MatchesCopy.shift() as Match;
@@ -209,15 +205,12 @@ class Round {
 
         // if there are any matches left in allWinnerMatches, create new matches for them
         if (allWinnerMatches.length > 0) {
-            //console.log(' going inside if because there are winnermatches left: ', allWinnerMatches);
             for (let i = 0; i < allWinnerMatches.length; i += 2) {
                 let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatches[i], false, allWinnerMatches[i + 1], false)
                 round1Matches.push(newMatch);
             }
         }
         const round1 = new Round(bracket, round1Matches, false);
-
-        //console.log('*****returning rounds: ', round0, round1, ' from createInitialLoserRounds*****');
 
         return [round0, round1];
     }
