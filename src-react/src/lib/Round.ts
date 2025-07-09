@@ -237,23 +237,38 @@ class Round {
     }
 
     // creates a round of matches composed of the losers of the matches of the given winner round and the winners of the matches of the given loser round. 
-    static createMatchesFromWinnersAndLosers(winnerRound: Round, loserRound: Round) {
+    static createMatchesFromWinnersAndLosers(winnerRound: Round, loserRound: Round, linkFunction: (winnerRound: Round) => number[]): Match[] {
         // this can only be called with 2 round of the exact same length, since winners of losers are pitted against losers of winners
         if (winnerRound.matches.length !== loserRound.matches.length) {
             throw new Error('createMatchesFromWinnersAndLosers can only be called on two Rounds of the same length');
         }
 
-        //console.log('in createMatchesFromWinnersAndLosers with winnerRound: ', winnerRound, ' and loserRound: ', loserRound);
+
+        console.log('in createMatchesFromWinnersAndLosers with winnerRound: ', winnerRound, ' and loserRound: ', loserRound);
+        let linkFunctionMapping = linkFunction(winnerRound);
+        console.log('linkFunctionMapping: ', linkFunctionMapping);
+
+        if (winnerRound.matches.length !== linkFunctionMapping.length) {
+            throw new Error('link function returned an array of length ' + linkFunctionMapping.length + ' but the winner round has ' + winnerRound.matches.length + ' matches');
+        }
+
+        // use link function results to map matches to loser rounds
 
         // array of matches for the next round
-        let matches: Match[] = [];
+        let matches: Match[] = Array.from({ length: winnerRound.matches.length }, () => ({} as Match));
+
+        console.log('winnerRound.matches: ', winnerRound.matches);
+        console.log('loserRound.matches: ', loserRound.matches);
 
         // pair each winner of the loser round with the loser of the winner round
-        for (let i = 0; i < winnerRound.matches.length; i++) {
+        for (let i = 0; i < loserRound.matches.length; i++) {
 
-            //console.log('about to create linked match with parent0 ', winnerRound.matches[i], ' and parent1 ', loserRound.matches[1]);
+            // find index of loser match which loser from winnersBracket needs to be mapped to. this is also the index of the loser match from the previous loser round that is also a parent
+            let loserMatchDestinationIndex = linkFunctionMapping[i];
+
+            console.log('about to create linked match with index: ', loserMatchDestinationIndex, ' with parent0 ', winnerRound.matches[loserMatchDestinationIndex], ' and parent1 ', loserRound.matches[i]);
             // create new linked match
-            matches.push(Match.createLinkedMatch(winnerRound.bracket.nextMatchId++, winnerRound.matches[i], false, loserRound.matches[i], true));
+            matches[loserMatchDestinationIndex] = Match.createLinkedMatch(winnerRound.bracket.nextMatchId++, winnerRound.matches[i], false, loserRound.matches[loserMatchDestinationIndex], true);
         }
 
         return matches;
@@ -272,7 +287,7 @@ class Round {
     }
 
     // creates a round of matches from the winners of the previous loser round, and also includes losers from the given winner round. Can only be called on a loser round.
-    createNextLoserRound(winnerRound: Round | undefined) {
+    createNextLoserRound(winnerRound: Round | undefined, linkFunction: (winnerRound: Round) => number[]): Round {
 
         console.log('in createNextLoserRound with winnerRound: ', winnerRound);
 
@@ -283,7 +298,7 @@ class Round {
         // if we are given the winnerRound argument, then we need to include losers from the given winnerRound
         if (winnerRound) {
             //console.log('about to create new loser round from winners of previous loser round and losers of given winner round')
-            return new Round(this.bracket, Round.createMatchesFromWinnersAndLosers(winnerRound, this), false);
+            return new Round(this.bracket, Round.createMatchesFromWinnersAndLosers(winnerRound, this, linkFunction), false);
         }
 
         // otherwise, we simply generate the next round from the winners of the current loser round

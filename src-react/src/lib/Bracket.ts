@@ -62,10 +62,12 @@ class Bracket {
         this.winnersBracket = [];
         this.losersBracket = [];
 
+        // if there is only one competitor, there is no need to create a bracket
         if (this.competitorNames.length <= 1) {
             return;
         }
 
+        // if there are two competitors, then create a bracket with a single winner round, final, and final rematch
         if (this.competitorNames.length === 2) {
             const match1 = Match.createUnlinkedMatch(this.nextMatchId++, this.competitorNames[0], this.competitorNames[1]);
             const round1 = new Round(this, [match1], true);
@@ -90,6 +92,11 @@ class Bracket {
         let currentWinnerRound = this.winnersBracket[this.winnersBracket.length - 1];
         let currentLoserRound = this.losersBracket[this.losersBracket.length - 1];
 
+        // temporary boring link function that returns ascending order
+        const linkFunction = (round: Round) => Array.from({ length: round.matches.length }, (_, i) => i);
+        // another link function that returns descending order
+        const linkFunction2 = (round: Round) => Array.from({ length: round.matches.length }, (_, i) => round.matches.length - i - 1);
+
         while (currentWinnerRound.matches.length > 1) {
 
             // first, process a winner round
@@ -99,12 +106,12 @@ class Bracket {
             // now, process loser bracket until the amount of matches in both brackets is the same
             while (currentLoserRound.matches.length !== currentWinnerRound.matches.length) {
                 // create loser round from previous loser round
-                currentLoserRound = currentLoserRound.createNextLoserRound(undefined);
+                currentLoserRound = currentLoserRound.createNextLoserRound(undefined, linkFunction);
                 this.losersBracket.push(currentLoserRound);
             }
 
             // now, the current loser round and winner round have the same amount of matches, so we create a loser round from the loser and winner round
-            currentLoserRound = currentLoserRound.createNextLoserRound(currentWinnerRound);
+            currentLoserRound = currentLoserRound.createNextLoserRound(currentWinnerRound, linkFunction);
             this.losersBracket.push(currentLoserRound);
         }
 
