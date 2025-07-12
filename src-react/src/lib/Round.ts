@@ -128,7 +128,16 @@ class Round {
         return new Round(bracket, matches, false);
     }
 
-    static createInitialLoserRounds(initialWinnerRounds: Round[]): Round[] {
+    // construct map of prohibited rematches from initialWinnerRounds
+    // const allWinnerMatches = initialWinnerRounds[0].matches.concat(initialWinnerRounds[1].matches);
+    // const prohibitedRematches: Record<string, boolean> = {};
+    // for (let i = 0; i < allWinnerMatches.length; i++) {
+    //     const prohibitedMatchKey = `${allWinnerMatches[i].competitor0Name}-${allWinnerMatches[i].competitor1Name}`;
+    //     prohibitedRematches[prohibitedMatchKey] = true;
+    // }
+
+    //TODO: add link function and maybe capability to prevent premature rematches independent of the link function
+    static createInitialLoserRounds(initialWinnerRounds: Round[], linkFunction: (initialWinnerRounds: Round[]) => number[][]): Round[] {
 
         // this is the number of competitors in the initial loser rounds
         let numCompetitors = 0;
@@ -137,36 +146,46 @@ class Round {
         const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
         const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
 
-        // TODO: check if this can create any prohibited matches (premature rematches)
         // if we don't need any round zero matches, then we just create the first loser round
         if (numberOfRoundZeroMatches === 0) {
             //console.log('creating only 1 initial loser round as the number of competitors is already a power of 2');
             return [Round.createInitialLoserRound(initialWinnerRounds)];
         }
 
-        // construct map of prohibited rematches from initialWinnerRounds
-        const allWinnerMatches = initialWinnerRounds[0].matches.concat(initialWinnerRounds[1].matches);
-        const prohibitedRematches: Record<string, boolean> = {};
-        for (let i = 0; i < allWinnerMatches.length; i++) {
-            const prohibitedMatchKey = `${allWinnerMatches[i].competitor0Name}-${allWinnerMatches[i].competitor1Name}`;
-            prohibitedRematches[prohibitedMatchKey] = true;
-        }
-
-        // construct first loser round from first winner round, either from doubles or single parents. mind prohibited rematches
-
-        // construct second loser round from first loser round and remaining second winner round objects. mind prohibited rematches
-        // TODO: mathematically prove that first loser round uses same number of matches as w0 single parents or w0 doubles or something like that
-
         // get reference to bracket
         const bracket = initialWinnerRounds[0].bracket;
 
-        // create matches for round 0. remove each match from the allWinnerMatches array as we use them
-        const round0Matches: Match[] = [];
-        for (let i = 0; i < numberOfRoundZeroMatches; i++) {
-            let arg1 = allWinnerMatches.shift() as Match;
-            let arg2 = allWinnerMatches.shift() as Match;
-            let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, false, arg2, false);
-            round0Matches.push(newMatch);
+        // calculate link function mapping. perform length check.
+        const linkFunctionMapping = linkFunction(initialWinnerRounds);
+        if (linkFunctionMapping.length !== 2) {
+            throw new Error('link function returned an array of length ' + linkFunctionMapping.length + ' but expected length was 2');
+        }
+
+        // calculate number of slots in the first loser round. perform length checks
+        const numberOfRoundZeroSlots = numberOfRoundZeroMatches * 2;
+        if (linkFunctionMapping[0].length !== numberOfRoundZeroSlots) {
+            throw new Error('link function returned an array of length ' + linkFunctionMapping.length + ' but the number of round zero matches is ' + numberOfRoundZeroMatches);
+        }
+
+        // calculate number of slots in the second loser round. perform length check
+        const numberOfRoundOneSlots = greatestPowerOf2 * 2 - numberOfRoundZeroMatches;
+        if (linkFunctionMapping[1].length !== numberOfRoundOneSlots) {
+            throw new Error('link function returned an array of length ' + linkFunctionMapping[1].length + ' but the number of round one matches is ' + numberOfRoundOneSlots);
+        }
+
+        // apply link function mapping
+
+        // apply link function mapping to first loser round
+        const round0Matches: Match[] = Array.from({ length: numberOfRoundZeroMatches }, () => ({} as Match));;
+
+        // numberOfRoundZeroSlots is guaranteed to be an even number so we won't lose matches here
+        for (let i = 0; i < numberOfRoundZeroSlots; i += 2) {
+
+            const loserMatchDestinationIndex0 = linkFunctionMapping[0][i];
+            const loserMatchDestinationIndex1 = linkFunctionMapping[0][i + 1];
+            
+            // create new linked match
+            round0Matches[loserMatchDestinationIndex0] = Match.createLinkedMatch(bracket.nextMatchId++, initialWinnerRounds[0].matches[i], false, loserRound.matches[loserMatchDestinationIndex0], true);
         }
 
         // create round 0

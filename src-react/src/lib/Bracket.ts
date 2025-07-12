@@ -145,7 +145,6 @@ class Bracket {
         return undefined;
     }
 
-
     // return matches sorted by id
     getMatches(): Match[] {
 
