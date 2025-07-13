@@ -2,6 +2,14 @@ import Match from './Match';
 import Bracket from './Bracket';
 import { greatestPowerOf2LessThanOrEqualTo } from './utils';
 
+// the key is the index of the match in the round it is being mapped to, and the value is [winnerRound][winnerMatchIndex]
+type InitialRoundMapping = Record<number, number[][]>
+// [winnerMatchIndex][loserDestinationMatchIndex]
+type RoundMapping = number[][]
+
+let a = [[0]]
+let i: InitialRoundMapping = {1: a}
+3
 class Round {
 
     __class: string = 'Round'
@@ -137,7 +145,7 @@ class Round {
     // }
 
     //TODO: add link function and maybe capability to prevent premature rematches independent of the link function
-    static createInitialLoserRounds(initialWinnerRounds: Round[], linkFunction: (initialWinnerRounds: Round[]) => number[][]): Round[] {
+    static createInitialLoserRounds(initialWinnerRounds: Round[], linkFunction: (initialWinnerRounds: Round[]) => InitialRoundMapping[]): Round[] {
 
         // this is the number of competitors in the initial loser rounds
         let numCompetitors = 0;
@@ -145,6 +153,7 @@ class Round {
 
         const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
         const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
+        const numberOfRoundOneMatches = greatestPowerOf2 * 2;
 
         // if we don't need any round zero matches, then we just create the first loser round
         if (numberOfRoundZeroMatches === 0) {
@@ -155,7 +164,12 @@ class Round {
         // get reference to bracket
         const bracket = initialWinnerRounds[0].bracket;
 
-        // calculate link function mapping. perform length check.
+        // calculate link function mapping. mapping is 2 inputs to 2 outputs, hence a 4-dimensional array is required.
+        // input: [winnerRound][winnerMatchIndex], output: [loserRound][loserMatchIndex]
+        // where winnerRound, loserRound are both elements of [0,1], and match indexes are < length of the loserRound they're in.
+        // also keep in mind that right now, the parent-child relationships of the initial lsoer rounds are fixed and link function agnostic.
+
+        // perform length check.
         const linkFunctionMapping = linkFunction(initialWinnerRounds);
         if (linkFunctionMapping.length !== 2) {
             throw new Error('link function returned an array of length ' + linkFunctionMapping.length + ' but expected length was 2');
@@ -164,13 +178,15 @@ class Round {
         // calculate number of slots in the first loser round. perform length checks
         const numberOfRoundZeroSlots = numberOfRoundZeroMatches * 2;
         if (linkFunctionMapping[0].length !== numberOfRoundZeroSlots) {
-            throw new Error('link function returned an array of length ' + linkFunctionMapping.length + ' but the number of round zero matches is ' + numberOfRoundZeroMatches);
+            throw new Error('link function returned an array of length ' + linkFunctionMapping[0].length + ' but the number of round zero slots is ' + numberOfRoundZeroSlots);
         }
 
-        // calculate number of slots in the second loser round. perform length check
-        const numberOfRoundOneSlots = greatestPowerOf2 * 2 - numberOfRoundZeroMatches;
+        //TODO: more mapping validation to make sure the link function is not supplying a mapping that will fuck shit up (mapping two matches to the same slot or something)
+
+        // calculate number of slots in the second loser round. this is because one slot is taken for each each match of loser round zero. perform length check
+        const numberOfRoundOneSlots = numberOfRoundOneMatches - numberOfRoundZeroMatches;
         if (linkFunctionMapping[1].length !== numberOfRoundOneSlots) {
-            throw new Error('link function returned an array of length ' + linkFunctionMapping[1].length + ' but the number of round one matches is ' + numberOfRoundOneSlots);
+            throw new Error('link function returned an array of length ' + linkFunctionMapping[1].length + ' but the number of round one slots is ' + numberOfRoundOneSlots);
         }
 
         // apply link function mapping
