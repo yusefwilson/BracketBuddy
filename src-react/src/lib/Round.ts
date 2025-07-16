@@ -5,7 +5,7 @@ import { greatestPowerOf2LessThanOrEqualTo } from './utils';
 // [winnerRound][winnerMatchIndex]
 type InitialWinnerMatchCoordinates = [number, number]
 type RoundZeroInitialWinnerMatchCoordinatesSet = [InitialWinnerMatchCoordinates, InitialWinnerMatchCoordinates]
-type RoundOneInitialWinnerMatchCoordinatesSet = [InitialWinnerMatchCoordinates, InitialWinnerMatchCoordinates?]
+type RoundOneInitialWinnerMatchCoordinatesSet = [InitialWinnerMatchCoordinates?, InitialWinnerMatchCoordinates?]
 // the key is the index of the match in the round the winner match(es) are being mapped to. the first Map is for loser round 0, and the second for loser round 1.
 type InitialRoundMapping = [Map<number, RoundZeroInitialWinnerMatchCoordinatesSet>, Map<number, RoundOneInitialWinnerMatchCoordinatesSet>]
 
@@ -184,7 +184,7 @@ class Round {
         //TODO: more mapping validation to make sure the link function is not supplying a mapping that will fuck shit up (mapping two matches to the same slot or something)
 
         // apply link function mapping to first loser round
-        const roundZeroMatches: Match[] = Array.from({ length: numberOfRoundZeroMatches }, () => ({} as Match));;
+        const roundZeroMatches: Match[] = Array.from({ length: numberOfRoundZeroMatches }, () => ({} as Match));
         const roundZeroMapping = linkFunctionMapping[0];
 
         // numberOfRoundZeroSlots is guaranteed to be an even number so we won't lose matches here
@@ -208,44 +208,59 @@ class Round {
         // create round 0
         const roundZero = new Round(bracket, roundZeroMatches, false);
 
-        // create linked matches for round 1
-        const roundOneMatches: Match[] = [];
+        // start creating round 1
+        const roundOneMatches: Match[] = Array.from({ length: numberOfRoundOneMatches }, () => ({} as Match));;
 
-        // create copy of round zero matches so you don't mess with the original ones
+        // get link function mapping
+        const roundOneMapping = linkFunctionMapping[1];
+
+        // make a copy of roundOneMatches
         const roundZeroMatchesCopy = roundZeroMatches.slice();
-        // cache length because we will be modifying the array
-        const roundZeroMatchesCopyLength = roundZeroMatchesCopy.length;
 
-        // for each match in round 0, link it to a match from allWinnerMatches as long as there are any
-        for (let i = 0; i < roundZeroMatchesCopyLength && allWinnerMatches.length > 0; i++) {
-            let arg1 = roundZeroMatchesCopy.shift() as Match;
-            let arg2 = allWinnerMatches.shift() as Match;
-            let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, true, arg2, false);
-            roundOneMatches.push(newMatch);
-        }
+        // need to think about when a match in round one contains 0, 1 or  2 winners from the previous loser round.
+        // it's important that link function mapping contains this data. should we in fact trust the link function mapping to just
+        // encode this? that is, a match key maps to a set with 0, 1 or 2 winners?
+        // upsides: localize that functionality in one place instead of worrying about it in two.
+        // downsides: now this code can break if someone ever creates a fucked up link function.
+        // conclusion: there should be a function that validates a link function mapping given an initial number of competitors,
+        // and this function should be called before the link function is applied
 
-        // now, there are either some elements left in allWinnerMatches, or there are some matches left in roundZeroMatches
+        // assume link function input has been validated
 
-        // if there are any matches left in roundZeroMatches, link them up
-        if (roundZeroMatchesCopy.length > 0) {
-            console.log(' going inside if because there are roundZeroMatchesCopy left: ', roundZeroMatchesCopy);
-            while (roundZeroMatchesCopy.length >= 2) { // LATEST CHANGE
-                // if there is an odd number of matches, the last one will be a bye, so we can just skip it
-                let arg1 = roundZeroMatchesCopy.shift() as Match;
-                let arg2 = roundZeroMatchesCopy.shift() as Match;
-                //console.log('about to create linked match with arg1: ', arg1, ' and arg2: ', arg2);
-                let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, arg1, true, arg2, true)
-                roundOneMatches.push(newMatch);
+        // TODO: go in ascending order
+        for (let [roundOneMatchIndex, initialWinnerMatchCoordinatesSet] of roundOneMapping) {
+
+            let firstMatch: Match, secondMatch: Match;
+
+            if (initialWinnerMatchCoordinatesSet.length === 0) {
+                if (roundZeroMatchesCopy.length < 2) {
+                    throw new Error('round zero matches has fewer than 2 matches remaining, but trying to shift 2.');
+                }
+                firstMatch = roundZeroMatchesCopy.shift() as Match;
+                secondMatch = roundZeroMatchesCopy.shift() as Match;
+                roundOneMatches[roundOneMatchIndex] = Match.createLinkedMatch(bracket.nextMatchId++, firstMatch, true, secondMatch, true);
+            }
+
+            else if (initialWinnerMatchCoordinatesSet.length === 1) {
+                if (roundZeroMatchesCopy.length < 1) {
+                    throw new Error('round zero matches has fewer than 1 match remaining, but trying to shift 1.');
+                }
+                firstMatch = roundZeroMatchesCopy.shift() as Match;
+                const coordinates = initialWinnerMatchCoordinatesSet[0] as InitialWinnerMatchCoordinates;
+                secondMatch = initialWinnerRounds[coordinates[0]].matches[coordinates[1]];
+                roundOneMatches[roundOneMatchIndex] = Match.createLinkedMatch(bracket.nextMatchId++, firstMatch, true, secondMatch, false);
+            }
+
+            else if (initialWinnerMatchCoordinatesSet.length === 2) {
+                const firstMatchCoordinates = initialWinnerMatchCoordinatesSet[0] as InitialWinnerMatchCoordinates;
+                const secondMatchCoordinates = initialWinnerMatchCoordinatesSet[1] as InitialWinnerMatchCoordinates;
+
+                firstMatch = initialWinnerRounds[firstMatchCoordinates[0]].matches[firstMatchCoordinates[1]];
+                secondMatch = initialWinnerRounds[secondMatchCoordinates[0]].matches[secondMatchCoordinates[1]];
+                roundOneMatches[roundOneMatchIndex] = Match.createLinkedMatch(bracket.nextMatchId++, firstMatch, false, secondMatch, false);
             }
         }
 
-        // if there are any matches left in allWinnerMatches, create new matches for them
-        if (allWinnerMatches.length > 0) {
-            for (let i = 0; i < allWinnerMatches.length; i += 2) {
-                let newMatch = Match.createLinkedMatch(bracket.nextMatchId++, allWinnerMatches[i], false, allWinnerMatches[i + 1], false)
-                roundOneMatches.push(newMatch);
-            }
-        }
         const roundOne = new Round(bracket, roundOneMatches, false);
 
         return [roundZero, roundOne];
