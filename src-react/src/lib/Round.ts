@@ -1,13 +1,7 @@
 import Match from './Match';
 import Bracket from './Bracket';
 import { greatestPowerOf2LessThanOrEqualTo } from './utils';
-
-// [winnerRound][winnerMatchIndex]
-type InitialWinnerMatchCoordinates = [number, number]
-type RoundZeroInitialWinnerMatchCoordinatesSet = [InitialWinnerMatchCoordinates, InitialWinnerMatchCoordinates]
-type RoundOneInitialWinnerMatchCoordinatesSet = [InitialWinnerMatchCoordinates?, InitialWinnerMatchCoordinates?]
-// the key is the index of the match in the round the winner match(es) are being mapped to. the first Map is for loser round 0, and the second for loser round 1.
-type InitialRoundMapping = [Map<number, RoundZeroInitialWinnerMatchCoordinatesSet>, Map<number, RoundOneInitialWinnerMatchCoordinatesSet>]
+import { validateLinkFunctionMapping, InitialRoundMapping, InitialWinnerMatchCoordinates } from './utils';
 
 class Round {
 
@@ -167,19 +161,8 @@ class Round {
 
         // perform length check.
         const linkFunctionMapping = linkFunction(initialWinnerRounds);
-        if (linkFunctionMapping.length !== 2) {
-            throw new Error('link function returned an array of length ' + linkFunctionMapping.length + ' but expected length was 2');
-        }
 
-        // perform length check
-        if (linkFunctionMapping[0].size !== numberOfRoundZeroMatches) {
-            throw new Error('link function returned a map of size ' + linkFunctionMapping[0].size + ' but the number of round one slots is ' + numberOfRoundZeroMatches);
-        }
-
-        // calculate number of slots in the second loser round. this is because one slot is taken for each each match of loser round zero. perform length check
-        if (linkFunctionMapping[1].size !== numberOfRoundOneMatches) {
-            throw new Error('link function returned a map of size ' + linkFunctionMapping[1].size + ' but the number of round one slots is ' + numberOfRoundOneMatches);
-        }
+        validateLinkFunctionMapping(initialWinnerRounds, linkFunctionMapping);
 
         //TODO: more mapping validation to make sure the link function is not supplying a mapping that will fuck shit up (mapping two matches to the same slot or something)
 

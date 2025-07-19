@@ -1,4 +1,4 @@
-import { serialize, deserialize } from './utils';
+import { serialize, deserialize, linkFunction, linkFunction2, exampleLinkFunction } from './utils';
 import { Gender, Hand, ExperienceLevel } from './types';
 import Match from './Match';
 import Round from './Round';
@@ -85,17 +85,14 @@ class Bracket {
         // generate rounds
         this.winnersBracket = Round.createInitialWinnerRounds(this, this.competitorNames);
         //console.log('Winners bracket created:', this.winnersBracket);
-        this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket);
+        this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket, exampleLinkFunction);
         //console.log('Losers bracket created:', this.losersBracket);
 
         // create the rest of the bracket
         let currentWinnerRound = this.winnersBracket[this.winnersBracket.length - 1];
         let currentLoserRound = this.losersBracket[this.losersBracket.length - 1];
 
-        // temporary boring link function that returns ascending order
-        const linkFunction = (round: Round) => Array.from({ length: round.matches.length }, (_, i) => i);
-        // another link function that returns descending order
-        const linkFunction2 = (round: Round) => Array.from({ length: round.matches.length }, (_, i) => round.matches.length - i - 1);
+        
 
         while (currentWinnerRound.matches.length > 1) {
 

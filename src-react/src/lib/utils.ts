@@ -1,6 +1,7 @@
 import { parse, stringify } from 'flatted';
 import Match from '../lib/Match';
 import Bracket from '../lib/Bracket';
+import Round from '../lib/Round';
 
 /* MATH */
 function greatestPowerOf2LessThanOrEqualTo(n: number): number {
@@ -188,6 +189,76 @@ const saveKeyValue = async (key: string, value: any): Promise<void> => {
     await window.electron.saveKeyValue(key, value);
 }
 
+// link function stuff
+// [winnerRound][winnerMatchIndex]
+type InitialWinnerMatchCoordinates = [number, number]
+type RoundZeroInitialWinnerMatchCoordinatesSet = [InitialWinnerMatchCoordinates, InitialWinnerMatchCoordinates]
+type RoundOneInitialWinnerMatchCoordinatesSet = [InitialWinnerMatchCoordinates?, InitialWinnerMatchCoordinates?]
+// the key is the index of the match in the round the winner match(es) are being mapped to. the first Map is for loser round 0, and the second for loser round 1.
+type InitialRoundMapping = [Map<number, RoundZeroInitialWinnerMatchCoordinatesSet>, Map<number, RoundOneInitialWinnerMatchCoordinatesSet>]
+
+const validateLinkFunctionMapping = (initialWinnerRounds: Round[], linkFunctionMapping: InitialRoundMapping) => {
+
+    let numCompetitors = 0;
+    initialWinnerRounds.forEach(round => numCompetitors += round.matches.length);
+
+    const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
+    const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
+    const numberOfRoundOneMatches = greatestPowerOf2 * 2;
+
+    if (linkFunctionMapping.length !== 2) {
+        throw new Error('link function returned an array of length ' + linkFunctionMapping.length + ' but expected length was 2');
+    }
+
+    // perform length check
+    if (linkFunctionMapping[0].size !== numberOfRoundZeroMatches) {
+        throw new Error('link function returned a map of size ' + linkFunctionMapping[0].size + ' but the number of round one matches is ' + numberOfRoundZeroMatches);
+    }
+
+    // calculate number of matches in the second loser round. this is because one slot is taken for each each match of loser round zero. perform length check
+    if (linkFunctionMapping[1].size !== numberOfRoundOneMatches) {
+        throw new Error('link function returned a map of size ' + linkFunctionMapping[1].size + ' but the number of round one matches is ' + numberOfRoundOneMatches);
+    }
+
+    // need to perform more sophisticated checks, such as
+
+    // 1, roundzero mapping sets are all of length 2
+    for (let [roundZeroMatchIndex, initialWinnerMatchCoordinatesSet] of linkFunctionMapping[0]) {
+        if (initialWinnerMatchCoordinatesSet.length !== 2) {
+            throw new Error('round zero mapping set for round zero match index ' + roundZeroMatchIndex + ' has length ' + initialWinnerMatchCoordinatesSet.length + ' but expected length was 2');
+        }
+    }
+
+    // 2, roundone mapping has same amount of SLOTS as round one actually has
+    const numberOfRoundOneSlots = numberOfRoundOneMatches * 2 - numberOfRoundZeroMatches;
+    let mappingNumberOfSlots = 0;
+    for (let [_, initialWinnerMatchCoordinatesSet] of linkFunctionMapping[1]) {
+        mappingNumberOfSlots += initialWinnerMatchCoordinatesSet.length;
+    }
+    if (mappingNumberOfSlots !== numberOfRoundOneSlots) {
+        throw new Error('round one mapping has ' + mappingNumberOfSlots + ' slots but expected ' + numberOfRoundOneSlots);
+    }
+
+}
+
+//TODO
+const exampleLinkFunction = (initialWinnerRounds: Round[]): InitialRoundMapping => {
+    // does w0 have double parents?
+
+    //if so, l0 is composed of those doubles parents' loser children facing off
+
+    // otherwise, l0 is composed of single parent loser children vs non-child w1 loser children'
+
+    // in w1, just don't link l0 matches to loser children who were children of the l0 parents
+
+    return [new Map(), new Map()];
+}
+
+// temporary boring link function that returns ascending order
+const linkFunction = (round: Round) => Array.from({ length: round.matches.length }, (_, i) => i);
+// another link function that returns descending order
+const linkFunction2 = (round: Round) => Array.from({ length: round.matches.length }, (_, i) => round.matches.length - i - 1);
+
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     serialize, deserialize,
@@ -195,6 +266,7 @@ export {
     getSaveData, saveKeyValue,
     HORIZONTAL_GAP, INITIAL_VERTICAL_GAP, EXTRA_VERTICAL_OFFSET,
     WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET,
+    validateLinkFunctionMapping, linkFunction, linkFunction2, exampleLinkFunction
 };
 
-export type { MatchAndPosition };
+export type { MatchAndPosition, InitialWinnerMatchCoordinates, RoundZeroInitialWinnerMatchCoordinatesSet, RoundOneInitialWinnerMatchCoordinatesSet, InitialRoundMapping };
