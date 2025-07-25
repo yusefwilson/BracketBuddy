@@ -1,4 +1,4 @@
-import { serialize, deserialize, linkFunction, linkFunction2, exampleLinkFunction } from './utils';
+import { serialize, deserialize, linkFunction, linkFunction2, initialLinkFunction } from './utils';
 import { Gender, Hand, ExperienceLevel } from './types';
 import Match from './Match';
 import Round from './Round';
@@ -85,7 +85,7 @@ class Bracket {
         // generate rounds
         this.winnersBracket = Round.createInitialWinnerRounds(this, this.competitorNames);
         //console.log('Winners bracket created:', this.winnersBracket);
-        this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket, exampleLinkFunction);
+        this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket, initialLinkFunction);
         //console.log('Losers bracket created:', this.losersBracket);
 
         // create the rest of the bracket
@@ -103,12 +103,12 @@ class Bracket {
             // now, process loser bracket until the amount of matches in both brackets is the same
             while (currentLoserRound.matches.length !== currentWinnerRound.matches.length) {
                 // create loser round from previous loser round
-                currentLoserRound = currentLoserRound.createNextLoserRound(undefined, linkFunction);
+                currentLoserRound = currentLoserRound.createNextLoserRound(undefined, linkFunction2);
                 this.losersBracket.push(currentLoserRound);
             }
 
             // now, the current loser round and winner round have the same amount of matches, so we create a loser round from the loser and winner round
-            currentLoserRound = currentLoserRound.createNextLoserRound(currentWinnerRound, linkFunction);
+            currentLoserRound = currentLoserRound.createNextLoserRound(currentWinnerRound, linkFunction2);
             this.losersBracket.push(currentLoserRound);
         }
 

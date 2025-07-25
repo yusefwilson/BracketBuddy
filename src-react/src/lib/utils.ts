@@ -242,16 +242,59 @@ const validateLinkFunctionMapping = (initialWinnerRounds: Round[], linkFunctionM
 }
 
 //TODO
-const exampleLinkFunction = (initialWinnerRounds: Round[]): InitialRoundMapping => {
+const initialLinkFunction = (initialWinnerRounds: Round[]): InitialRoundMapping => {
+
+    let numCompetitors = 0;
+    initialWinnerRounds.forEach(round => numCompetitors += round.matches.length);
+
+    const greatestPowerOf2 = greatestPowerOf2LessThanOrEqualTo(numCompetitors);
+    const numberOfRoundZeroMatches = numCompetitors - greatestPowerOf2;
+    const numberOfRoundOneMatches = greatestPowerOf2 * 2;
+
+    const round0Mapping = new Map<number, RoundZeroInitialWinnerMatchCoordinatesSet>();
+
     // does w0 have double parents?
+    const doubleParents = initialWinnerRounds[0].matches.length > initialWinnerRounds[1].matches.length;
 
     //if so, l0 is composed of those doubles parents' loser children facing off
+    if (doubleParents) {
+        // pair double parent children
+        for (let i = 0; i < numberOfRoundZeroMatches; i++) {
+            round0Mapping.set(i, [[0, 2 * i], [0, 2 * i + 1]] as RoundZeroInitialWinnerMatchCoordinatesSet);
+        }
+    }
 
-    // otherwise, l0 is composed of single parent loser children vs non-child w1 loser children'
+    //otherwise, roundZero is composed of single parent loser children vs non-child w1 loser children
+    else {
+        for (let i = 0; i < numberOfRoundZeroMatches; i++) {
+
+            const match0Index = i;
+            let match1Index = -1;
+
+            // to find match1, make sure you find a match that is not a parent of match0, and that hasn't already been used
+            // if it's a match in the last index, link it to the first match of w1 
+            if (i === initialWinnerRounds[0].matches.length - 1) {
+                match1Index = 0;
+            }
+
+            // otherwise, link it to the incremented index of w1
+            else {
+                match1Index = i + 1;
+            }
+            round0Mapping.set(i, [[0, match0Index], [1, match1Index]] as RoundZeroInitialWinnerMatchCoordinatesSet);
+        }
+    }
 
     // in w1, just don't link l0 matches to loser children who were children of the l0 parents
+    const round1Mapping = new Map<number, RoundOneInitialWinnerMatchCoordinatesSet>();
 
-    return [new Map(), new Map()];
+    // do we need double parents in l1?
+    const numOfDoubleParentsRequired = numberOfRoundZeroMatches > numberOfRoundOneMatches ? numberOfRoundZeroMatches - numberOfRoundOneMatches : 0;
+    
+    // pair required amount of double parents, and then pair single parents with w1 non-child loser chhildren
+    //TODO: please fill this in ChatGPT!
+    
+    return [round0Mapping, round1Mapping];
 }
 
 // temporary boring link function that returns ascending order
@@ -266,7 +309,7 @@ export {
     getSaveData, saveKeyValue,
     HORIZONTAL_GAP, INITIAL_VERTICAL_GAP, EXTRA_VERTICAL_OFFSET,
     WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET,
-    validateLinkFunctionMapping, linkFunction, linkFunction2, exampleLinkFunction
+    validateLinkFunctionMapping, linkFunction, linkFunction2, initialLinkFunction
 };
 
 export type { MatchAndPosition, InitialWinnerMatchCoordinates, RoundZeroInitialWinnerMatchCoordinatesSet, RoundOneInitialWinnerMatchCoordinatesSet, InitialRoundMapping };
