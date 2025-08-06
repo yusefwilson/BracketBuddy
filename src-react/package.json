@@ -10,11 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@g-loot/react-tournament-brackets": "^1.0.31-rc",
     "flatted": "^3.3.3",
     "fs": "^0.0.1-security",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.2.0"
+    "react-router-dom": "^7.2.0",
+    "tournament-organizer": "^3.9.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

@@ -31,7 +31,7 @@ export default function App() {
 
     const loadLatest = async () => {
 
-      // load saved data from disk. Tournament class has static method to load all tournaments, and getSaveFileAsObject() is a helper function to read the save file
+      // load saved data from disk. Tournament class has static method to load all tournaments, and getSaveData() is a helper function to read the save file
       const tournaments = await Tournament.loadAllTournaments();
       const saveData = await getSaveData();
 
