@@ -1,8 +1,10 @@
-import { serialize, deserialize, linkFunction, linkFunction2, initialLinkFunction } from './utils';
+import { serialize, deserialize } from './utils';
 import { Gender, Hand, ExperienceLevel } from './types';
 import Match from './Match';
 import Round from './Round';
 import Tournament from './Tournament';
+
+import { Tournament as ExternalBracket } from 'tournament-organizer/components';
 
 class Bracket {
 
@@ -17,8 +19,7 @@ class Bracket {
 
     competitorNames: string[]
 
-    winnersBracket: Round[]
-    losersBracket: Round[]
+    externalBracket: ExternalBracket
 
     final: Match | null
     finalRematch: Match | null
@@ -36,8 +37,9 @@ class Bracket {
 
         this.competitorNames = competitorNames;
 
-        this.winnersBracket = [];
-        this.losersBracket = [];
+        const id = gender + experienceLevel + hand + weightLimit;
+        const name = gender + ' ' + experienceLevel + ' ' + hand + ' ' + weightLimit;
+        this.externalBracket = new ExternalBracket(id, name);
 
         this.final = null;
         this.finalRematch = null;
@@ -57,68 +59,7 @@ class Bracket {
 
     // create the initial bracket structure
     initialize() {
-
-        this.nextMatchId = 1;
-        this.winnersBracket = [];
-        this.losersBracket = [];
-
-        // if there is only one competitor, there is no need to create a bracket
-        if (this.competitorNames.length <= 1) {
-            return;
-        }
-
-        // if there are two competitors, then create a bracket with a single winner round, final, and final rematch
-        if (this.competitorNames.length === 2) {
-            const match1 = Match.createUnlinkedMatch(this.nextMatchId++, this.competitorNames[0], this.competitorNames[1]);
-            const round1 = new Round(this, [match1], true);
-            this.winnersBracket.push(round1);
-
-            const match2 = Match.createLinkedMatch(this.nextMatchId++, match1, true, match1, false);
-            this.final = match2;
-
-            const match3 = Match.createLinkedMatch(this.nextMatchId++, match2, true, match2, false);
-            this.finalRematch = match3;
-
-            return;
-        }
-
-        // generate rounds
-        this.winnersBracket = Round.createInitialWinnerRounds(this, this.competitorNames);
-        //console.log('Winners bracket created:', this.winnersBracket);
-        this.losersBracket = Round.createInitialLoserRounds(this.winnersBracket, initialLinkFunction);
-        //console.log('Losers bracket created:', this.losersBracket);
-
-        // create the rest of the bracket
-        let currentWinnerRound = this.winnersBracket[this.winnersBracket.length - 1];
-        let currentLoserRound = this.losersBracket[this.losersBracket.length - 1];
-
-        
-
-        while (currentWinnerRound.matches.length > 1) {
-
-            // first, process a winner round
-            currentWinnerRound = currentWinnerRound.createNextWinnerRound();
-            this.winnersBracket.push(currentWinnerRound);
-
-            // now, process loser bracket until the amount of matches in both brackets is the same
-            while (currentLoserRound.matches.length !== currentWinnerRound.matches.length) {
-                // create loser round from previous loser round
-                currentLoserRound = currentLoserRound.createNextLoserRound(undefined, linkFunction2);
-                this.losersBracket.push(currentLoserRound);
-            }
-
-            // now, the current loser round and winner round have the same amount of matches, so we create a loser round from the loser and winner round
-            currentLoserRound = currentLoserRound.createNextLoserRound(currentWinnerRound, linkFunction2);
-            this.losersBracket.push(currentLoserRound);
-        }
-
-        // now, create finals. this is the winner of the last match of the losers bracket vs the winner of the last match of the winners bracket.
-        const finalsMatch = Match.createLinkedMatch(this.nextMatchId++, currentWinnerRound.matches[0], true, currentLoserRound.matches[0], true);
-        this.final = finalsMatch;
-
-        // now, create grand final (finals rematch if the guy from the loser's bracket wins)
-        const finalsRematchMatch = Match.createLinkedMatch(this.nextMatchId++, finalsMatch, true, finalsMatch, false);
-        this.finalRematch = finalsRematchMatch;
+        this.externalBracket.start();
     }
 
     findMatchById(id: number): Match | undefined {
