@@ -77,21 +77,29 @@ const saveKeyValue = async (key: string, value: any): Promise<void> => {
     await window.electron.saveKeyValue(key, value);
 }
 
-interface TO_Match {
-    id: number | string;
-    name: string;
-    nextMatchId?: number | string | null;
-    nextLooserMatchId?: number | string | null;
-    tournamentRoundText?: string;
-    startTime: string;
-    state: string; // or more specific if known
-    players: {
+export interface TO_Match {
+    id: string;
+    round: number;
+    match: number;
+    active: boolean;
+    bye: boolean;
+    player1: {
         id: string;
-        resultText: string | null;
-        isWinner: boolean;
-        status: string | null;
-        name: string;
-    }[];
+        win: number;
+        loss: number;
+        draw: number;
+    };
+    player2: {
+        id: string;
+        win: number;
+        loss: number;
+        draw: number;
+    };
+    path: {
+        win: string | null;
+        loss: string | null;
+    };
+    meta: Record<string, any>;
 }
 
 import { Match as G_Loot_Match } from '@g-loot/react-tournament-brackets';
@@ -99,19 +107,27 @@ import { Match as G_Loot_Match } from '@g-loot/react-tournament-brackets';
 function convertToGlootMatch(toMatch: TO_Match): G_Loot_Match {
     return {
         id: toMatch.id,
-        name: toMatch.name,
-        nextMatchId: toMatch.nextMatchId ?? null,
-        nextLooserMatchId: toMatch.nextLooserMatchId ?? null,
-        tournamentRoundText: toMatch.tournamentRoundText,
-        startTime: toMatch.startTime,
+        name: 'Match ' + toMatch.id,
+        nextMatchId: toMatch.path.win,
+        nextLooserMatchId: toMatch.path.loss,
+        tournamentRoundText: 'what is this?',
+        startTime: Date.now().toString(),
         state: 'DONE',
-        participants: toMatch.players.map(player => ({
-            id: player.id,
-            resultText: player.resultText,
-            isWinner: player.isWinner,
+        participants: [{
+            id: toMatch.player1.id,
+            resultText: 'example result text',
+            isWinner: toMatch.player1.win > toMatch.player2.win,
             status: null,
-            name: player.name,
-        })),
+            name: 'Name of ' + toMatch.player1.id,
+        },
+        {
+            id: toMatch.player2.id,
+            resultText: 'example result text',
+            isWinner: toMatch.player2.win >= toMatch.player1.win, // TECHNICALLY THE POINTS SHOULD NEVER BE EQUAL IF THE MATCH IS DONE
+            status: null,
+            name: 'Name of ' + toMatch.player1.id,
+        }
+        ],
     };
 }
 

@@ -1,6 +1,8 @@
 import { DoubleEliminationBracket, Match as MatchView, SVGViewer, BracketData } from '@g-loot/react-tournament-brackets';
 import { ReactNode } from 'react';
 
+import Manager from 'tournament-organizer';
+
 export default function BracketView({ matches }: { matches: BracketData }) {
 
   return (
