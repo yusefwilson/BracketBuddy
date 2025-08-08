@@ -1,7 +1,5 @@
-import { serialize, deserialize } from './utils';
 import Bracket from './Bracket';
-import Round from './Round';
-import Match from './Match';
+import Manager from 'tournament-organizer';
 
 class Tournament {
 
@@ -9,12 +7,16 @@ class Tournament {
 
     name: string;
     date: Date;
+
+    manager: Manager
+
     brackets: Bracket[];
 
     constructor(name: string = '', date: Date = new Date()) {
         this.name = name;
         this.date = date;
         this.brackets = [];
+        this.manager = new Manager();
     }
 
     async addBracket(bracket: Bracket) {
@@ -27,19 +29,28 @@ class Tournament {
         await this.save();
     }
 
-    // serialization and deserialization
+    // Tournament class
     serialize(): string {
-        return serialize(this);
+        // Extract only plain JSON-safe data (no methods, no cyclic refs)
+        const plainData = {
+            name: this.name,
+            date: this.date.toISOString(),
+            brackets: this.brackets.map(b => b.serialize()),
+        };
+        return JSON.stringify(plainData);
     }
 
     static deserialize(serialized: string): Tournament {
-        console.log('about to deserialize tournament data');
-        const tournament = deserialize(serialized, { Tournament, Bracket, Round, Match }) as Tournament;
-        // Rewire bracket references
-        tournament.brackets.forEach(bracket => {
-            bracket.tournament = tournament;
-        });
+        const raw: {
+            name: string;
+            date: string;
+            brackets: unknown[];
+        } = JSON.parse(serialized);
 
+        const tournament = new Tournament(raw.name, new Date(raw.date));
+        tournament.brackets = raw.brackets.map(bData =>
+            Bracket.deserialize(bData, tournament)
+        );
         return tournament;
     }
 
