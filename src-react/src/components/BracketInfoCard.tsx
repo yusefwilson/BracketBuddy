@@ -1,5 +1,5 @@
 import { UserIcon, AcademicCapIcon, ScaleIcon, TrashIcon, HandRaisedIcon } from '@heroicons/react/24/outline';
-import Bracket from '../lib/Bracket';
+import Bracket from '../../../src-shared/Bracket';
 
 export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { bracket: Bracket; onClick: () => void; onRemoveClick: () => void; }) {
     return (

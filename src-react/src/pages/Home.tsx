@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Tournament from '../lib/Tournament';
-import { saveKeyValue } from '../lib/utils';
+import Tournament from '../../../src-shared/Tournament';
+import { saveKeyValue } from '../../../src-shared/utils';
 
 import { CURRENT_STATE } from '../components/App';
 import TournamentInfoCard from '../components/TournamentInfoCard';

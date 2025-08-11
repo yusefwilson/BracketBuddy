@@ -2,8 +2,8 @@ import { useState, useContext, useEffect } from 'react';
 
 import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon, } from '@heroicons/react/24/outline';
 
-import { Gender, Hand, ExperienceLevel } from '../lib/types';
-import Bracket from '../lib/Bracket';
+import { Gender, Hand, ExperienceLevel } from '../../../src-shared/types';
+import Bracket from '../../../src-shared/Bracket';
 
 import CompetitorInput from './CompetitorInput';
 import Dropdown from './Dropdown';

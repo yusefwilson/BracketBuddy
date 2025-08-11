@@ -3,7 +3,7 @@ import { CURRENT_STATE } from '../components/App';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BracketInputModal from '../components/BracketInputModal';
-import { saveKeyValue } from '../lib/utils';
+import { saveKeyValue } from '../../../src-shared/utils';
 
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);

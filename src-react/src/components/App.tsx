@@ -4,12 +4,12 @@ import { createContext, useState, useEffect } from 'react';
 import Home from '../pages/Home';
 import Navbar from './Navbar';
 
-import Tournament from '../lib/Tournament';
-import Bracket from '../lib/Bracket';
+import Tournament from '../../../src-shared/Tournament';
+import Bracket from '../../../src-shared/Bracket';
 import TournamentView from '../pages/TournamentView';
 import BracketView from '../pages/BracketView';
 
-import { getSaveData } from '../lib/utils';
+import { getSaveData } from '../../../src-shared/utils';
 
 // this holds the current tournament and bracket that the user is viewing. all components that need to access the current tournament and bracket will use this context
 // react automatically triggers refreshes for components that consume this context when the context value changes

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Tournament from '../lib/Tournament';
+import Tournament from '../../../src-shared/Tournament';
 
 export default function TournamentInputModal({ setTournamentModalOpen }: { setTournamentModalOpen: (open: boolean) => void; }) {
     const [name, setName] = useState('');
