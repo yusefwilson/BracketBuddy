@@ -3,12 +3,10 @@ import Manager from 'tournament-organizer';
 
 class Tournament {
 
-    __class: string = 'Tournament'
-
     name: string;
     date: Date;
 
-    manager: Manager
+    manager: Manager // manages all the sub-brackets - be careful as the tournament-organizer package calls a bracket a 'Tournament'
 
     brackets: Bracket[];
 

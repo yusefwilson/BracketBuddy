@@ -2,13 +2,22 @@
 {
     "compilerOptions": {
         "target": "ES2020", // Specify ECMAScript target version
-        "module": "CommonJS", // Use CommonJS for Node.js compatibility
+        "module": "esnext", // Use CommonJS for Node.js compatibility
         "strict": true, // Enable strict type checking
         "esModuleInterop": true, // Enable default imports for CommonJS modules
         "outDir": "./build-electron", // Output directory for compiled files
         "rootDir": "./src-electron", // Specify the root directory of your TypeScript files
-        "moduleResolution": "node", // Use Node.js module resolution strategy
-        "skipLibCheck": true // Skip type checking for library files
+        "moduleResolution": "bundler", // Use Node.js module resolution strategy
+        "skipLibCheck": true, // Skip type checking for library files,
+        "baseUrl": ".",
+        "paths": {
+            "tournament-organizer/components": [
+                "node_modules/tournament-organizer/dist/components/index.d.ts"
+            ],
+            "tournament-organizer/interfaces": [
+                "node_modules/tournament-organizer/dist/interfaces/index.d.ts"
+            ]
+        }
     },
     "include": [
         "src-electron"

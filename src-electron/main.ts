@@ -1,11 +1,12 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
-import * as path from 'node:path';
+import path, { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import { ensure_save_environment, load_all_tournaments, save_tournament, delete_tournament, get_save_data, save_key_value, get_constants } from './endpoints';
-import { DEV } from './constants';
+import { ensure_save_environment, load_all_tournaments, save_tournament, delete_tournament, get_save_data, save_key_value, get_constants } from './endpoints.js';
+import { DEV } from './constants.js';
 
-// so that the app reloads when the code changes in development
-app.isPackaged || require('electron-reloader')(module);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename)
 
 const create_window = async () => {
 

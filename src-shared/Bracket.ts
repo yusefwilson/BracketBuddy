@@ -6,8 +6,6 @@ import { Tournament as ExternalBracket, Match } from 'tournament-organizer/compo
 
 class Bracket {
 
-    __class: string = 'Bracket'
-
     tournament: Tournament | null
 
     gender: Gender
