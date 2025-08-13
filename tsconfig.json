@@ -23,6 +23,7 @@
         "src-electron"
     ], // Include all TypeScript files in the src/electron folder
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "src-electron/preload.ts"
     ] // Exclude node_modules from compilation
 }

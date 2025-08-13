@@ -20,7 +20,13 @@ const create_window = async () => {
     });
 
     if (DEV) {
-        await window.loadURL('http://localhost:5173');
+        try {
+            await window.loadURL('http://localhost:5173');
+        }
+        catch (e) {
+            console.log('Error loading dev server:', e);
+            console.log('hi')
+        }
     }
     else {
         await window.loadFile('../src-react/dist/index.html');
