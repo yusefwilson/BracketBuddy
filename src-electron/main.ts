@@ -2,7 +2,9 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ensure_save_environment, load_all_tournaments, save_tournament, delete_tournament, get_save_data, save_key_value, get_constants } from './endpoints.js';
+import { load_all_tournaments, save_tournament, delete_tournament } from './endpoints/tournament.js';
+import { ensure_save_environment, get_save_data, save_key_value, get_constants } from './endpoints/misc.js';
+
 import { DEV } from './constants.js';
 
 const __filename = fileURLToPath(import.meta.url);

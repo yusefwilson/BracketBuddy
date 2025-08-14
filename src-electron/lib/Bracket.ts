@@ -1,10 +1,12 @@
-import { getLoadableTournamentValues } from './utils';
-import { Gender, Hand, ExperienceLevel } from './types';
-import Tournament from './Tournament';
+import { getLoadableTournamentValues } from './utils.js';
+import { Gender, Hand, ExperienceLevel } from './types.js';
+import Tournament from './Tournament.js';
 
 import { Tournament as ExternalBracket, Match } from 'tournament-organizer/components';
 
 class Bracket {
+
+    id: string
 
     tournament: Tournament | null
 
@@ -23,6 +25,8 @@ class Bracket {
     nextMatchId: number
 
     constructor(tournament: Tournament | null = null, gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
+
+        this.id = tournament?.id + gender + experienceLevel + hand + weightLimit.toString();
 
         // assign everything except subBrackets
         this.tournament = tournament;
@@ -124,6 +128,20 @@ class Bracket {
         bracket.nextMatchId = data.nextMatchId;
 
         return bracket;
+    }
+
+    serializeForFrontend(): string {
+        return JSON.stringify({
+            gender: this.gender,
+            experienceLevel: this.experienceLevel,
+            hand: this.hand,
+            weightLimit: this.weightLimit,
+            competitorNames: this.competitorNames,
+            final: JSON.stringify(this.final),
+            finalRematch: JSON.stringify(this.finalRematch),
+            nextMatchId: this.nextMatchId,
+            externalBracketData: getLoadableTournamentValues(this.externalBracket), // TODO: figure out how to get LoadableTournamentValues
+        });
     }
 
     // canGetWinnerFromFinal(): boolean {

@@ -1,10 +1,11 @@
-import Bracket from './Bracket';
+import Bracket from './Bracket.js';
 import Manager from 'tournament-organizer';
 
 class Tournament {
 
     name: string;
     date: Date;
+    id: string;
 
     manager: Manager // manages all the sub-brackets - be careful as the tournament-organizer package calls a bracket a 'Tournament'
 
@@ -13,18 +14,17 @@ class Tournament {
     constructor(name: string = '', date: Date = new Date()) {
         this.name = name;
         this.date = date;
+        this.id = name + date.toISOString();
         this.brackets = [];
         this.manager = new Manager();
     }
 
     async addBracket(bracket: Bracket) {
         this.brackets.push(bracket);
-        await this.save();
     }
 
-    async removeBracket(bracket: Bracket) {
-        this.brackets = this.brackets.filter(b => b !== bracket);
-        await this.save();
+    async removeBracket(bracketId: string) {
+        this.brackets = this.brackets.filter(b => b.id !== bracketId);
     }
 
     // Tournament class
@@ -52,25 +52,13 @@ class Tournament {
         return tournament;
     }
 
-    // saving and loading
-    async save() {
-        await window.electron.saveTournament(this.name, this.serialize());
+    serializeForFrontend(): string {
+        return JSON.stringify({
+            name: this.name,
+            date: this.date.toISOString(),
+            brackets: this.brackets.map(b => b.serializeForFrontend()),
+        });
     }
-
-    async delete() {
-        await window.electron.deleteTournament(this.name);
-        console.log('Deleted tournament ' + this.name);
-    }
-
-    static async loadAllTournaments(): Promise<Tournament[]> {
-        console.log('Loading all tournaments');
-        const tournaments = await window.electron.loadAllTournaments();
-        console.log('Loaded all tournaments: ', tournaments);
-        const deserializedTournaments = tournaments.map((tournament: string) => Tournament.deserialize(tournament));
-        console.log('Deserialized all tournaments: ', deserializedTournaments);
-        return deserializedTournaments;
-    }
-
 }
 
 export default Tournament;
