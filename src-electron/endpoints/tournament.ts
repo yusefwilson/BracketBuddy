@@ -1,8 +1,8 @@
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { readFile, writeFile, readdir, rename } from 'fs/promises';
-import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
 import * as path from 'node:path';
+
 import Tournament from '../lib/Tournament.js';
+import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
 
 /* TOURNAMENT */
 
