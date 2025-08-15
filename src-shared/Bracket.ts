@@ -1,3 +1,5 @@
+// TODO: do the compilation of these and how best to bundle/import them into the frontend and backend need to be considered? (yes, do it)
+
 import { Gender, Hand, ExperienceLevel } from './types';
 
 import Match from './Match'
