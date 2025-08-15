@@ -1,6 +1,11 @@
-class Tournament {
+import { Bracket } from "./Bracket";
 
+interface Tournament {
+    id: string;
+    name: string;
+    date: Date;
 
+    brackets: Bracket[]
 }
 
-export default Tournament;
+export type { Tournament };

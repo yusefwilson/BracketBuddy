@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Tournament from '../../../src-shared/Tournament';
 
 export default function TournamentInputModal({ setTournamentModalOpen }: { setTournamentModalOpen: (open: boolean) => void; }) {
     const [name, setName] = useState('');
@@ -27,7 +26,9 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
             return;
         }
 
-        const allTournaments = await Tournament.loadAllTournaments();
+        const allTournaments = await window.electron.loadAllTournaments();
+
+        // TODO: should this be some kind of id check instead?
         if (allTournaments.some((t) => t.name === name)) {
             setError(`Tournament with name '${name}' already exists.`);
             return;
@@ -35,9 +36,9 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
 
         // clear error if valid
         setError('');
-        // create and save tournament
-        const newTournament = new Tournament(name, date);
-        newTournament.save();
+
+        // create and save tournament. TODO: does this update state? (probably)
+        await window.electron.createTourament(name, date, []);
 
         // close modal
         setTournamentModalOpen(false);

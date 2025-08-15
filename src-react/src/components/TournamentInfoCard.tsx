@@ -1,5 +1,5 @@
 import { CalendarDaysIcon, UserGroupIcon, TrashIcon, TrophyIcon } from '@heroicons/react/24/outline';
-import Tournament from '../../../src-shared/Tournament';
+import { Tournament } from '../../../src-shared/Tournament';
 
 export default function TournamentInfoCard({ tournament, onClick, onRemoveClick, }: { tournament: Tournament; onClick: () => void; onRemoveClick: () => void; }) {
     return (

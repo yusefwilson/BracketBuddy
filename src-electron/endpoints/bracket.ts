@@ -14,14 +14,8 @@ const add_bracket_to_tournament = async (_: Electron.IpcMainInvokeEvent, tournam
 
     const tournament = await load_tournament(_, tournamentId);
 
-    tournament.addBracket(new Bracket(
-        tournament,
-        gender,
-        experienceLevel,
-        hand,
-        weightLimit,
-        competitorNames
-    ));
+    const bracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
+    tournament.addBracket(bracket);
 
     console.log('Added bracket to tournament ' + tournamentId);
 

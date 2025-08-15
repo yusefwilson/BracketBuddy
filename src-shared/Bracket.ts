@@ -17,4 +17,4 @@ interface Bracket {
     finalRematch: Match | null
 }
 
-export default Bracket;
+export type { Bracket }

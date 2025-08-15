@@ -3,11 +3,8 @@ import { useState, useContext, useEffect } from 'react';
 import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon, } from '@heroicons/react/24/outline';
 
 import { Gender, Hand, ExperienceLevel } from '../../../src-shared/types';
-import Bracket from '../../../src-shared/Bracket';
-
 import CompetitorInput from './CompetitorInput';
 import Dropdown from './Dropdown';
-
 import { CURRENT_STATE } from './App';
 
 export default function BracketInputModal({ setBracketModalOpen, }: { setBracketModalOpen: (open: boolean) => void; }) {
@@ -25,19 +22,11 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
     const onSubmit = async () => {
         if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
 
-        const newBracket = new Bracket(
-            tournament,
-            gender,
-            experienceLevel,
-            hand,
-            weightLimit,
-            competitorNames
-        );
-        newBracket.initialize();
+        const tournamentId = tournament.id;
+        // TODO: reflect this update in the context. is it as simple as setTournament?
+        await window.electron.addBracketToTournament(tournamentId, gender, experienceLevel, hand, weightLimit, competitorNames)
 
-        // add bracket to tournament
-        await tournament?.addBracket(newBracket);
-        // update tournament in context to trigger refresh
+        // trigger refresh
         setRefreshTick(refreshTick + 1);
         // close modal
         setBracketModalOpen(false);

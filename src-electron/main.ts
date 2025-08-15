@@ -3,6 +3,7 @@ import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { load_all_tournaments, save_tournament, delete_tournament } from './endpoints/tournament.js';
+import { add_bracket_to_tournament, remove_bracket_from_tournament } from './endpoints/bracket.js';
 import { ensure_save_environment, get_save_data, save_key_value, get_constants } from './endpoints/misc.js';
 
 import { DEV } from './constants.js';
@@ -35,9 +36,16 @@ const create_window = async () => {
     }
 }
 
+// tournament
 ipcMain.handle('load-all-tournaments', load_all_tournaments);
 ipcMain.handle('save-tournament', save_tournament);
 ipcMain.handle('delete-tournament', delete_tournament);
+
+// bracket
+ipcMain.handle('add-bracket-to-tournament', add_bracket_to_tournament);
+ipcMain.handle('remove-bracket-from-tournament', remove_bracket_from_tournament);
+
+// misc
 ipcMain.handle('get-save-data', get_save_data);
 ipcMain.handle('save-key-value', save_key_value);
 ipcMain.handle('get-constants', get_constants);

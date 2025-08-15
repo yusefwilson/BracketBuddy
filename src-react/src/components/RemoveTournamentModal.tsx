@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import Tournament from '../../../src-shared/Tournament';
+import { Tournament } from '../../../src-shared/Tournament';
 import { CURRENT_STATE } from './App';
 
 export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete }: { setRemoveTournamentModalOpen: (open: boolean) => void; tournamentToDelete: Tournament | null; }) {
@@ -22,12 +22,12 @@ export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, to
     }, []);
 
     // delete tournament from disk, clear state if necessary, and close modal
-    const onDelete = () => {
+    const onDelete = async () => {
 
-        tournamentToDelete?.delete();
+        await window.electron.deleteTournament(tournamentToDelete?.id || '');
 
         // clear state
-        if (tournament?.name === tournamentToDelete?.name) {
+        if (tournament?.id === tournamentToDelete?.id) {
             setTournament(null);
         }
 
