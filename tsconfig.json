@@ -1,4 +1,3 @@
-// mainly for configuring TypeScript compiler options
 {
     "compilerOptions": {
         "target": "ES2020", // Specify ECMAScript target version
@@ -16,11 +15,18 @@
             ],
             "tournament-organizer/interfaces": [
                 "node_modules/tournament-organizer/dist/interfaces/index.d.ts"
+            ],
+            "@shared/*": [
+                "src-shared/*"
+            ],
+            "@electron/*": [
+                "src-electron/*"
             ]
         }
     },
     "include": [
-        "src-electron"
+        "src-electron/**/*",
+        "src-shared/**/*"
     ], // Include all TypeScript files in the src/electron folder
     "exclude": [
         "node_modules",

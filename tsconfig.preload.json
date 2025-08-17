@@ -1,4 +1,5 @@
 {
+    // preload.ts needs to be compiled to CommonJS for Electron to work
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "outDir": "./build-electron",
