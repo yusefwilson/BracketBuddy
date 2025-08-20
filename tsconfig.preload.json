@@ -5,7 +5,12 @@
         "outDir": "./build-electron",
         "module": "CommonJS",
         "moduleResolution": "node",
-        "target": "ES2020"
+        "target": "ES2020",
+        "baseUrl": ".", 
+    "paths": {
+      "@shared/*": ["src-shared/*"],
+      "@electron/*": ["src-electron/*"]
+    }
     },
     "include": [
         "src-electron/preload.ts"

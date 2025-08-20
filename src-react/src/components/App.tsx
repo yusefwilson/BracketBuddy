@@ -4,27 +4,25 @@ import { createContext, useState, useEffect } from 'react';
 import Home from '../pages/Home';
 import Navbar from './Navbar';
 
-import Tournament from '../../../src-shared/Tournament';
-import Bracket from '../../../src-shared/Bracket';
+import { TournamentDTO } from '../../../src-shared/TournamentDTO';
+import { BracketDTO } from '../../../src-shared/BracketDTO';
 import TournamentView from '../pages/TournamentView';
 import BracketView from '../pages/BracketView';
-
-import { getSaveData } from '../../../src-shared/utils';
 
 // this holds the current tournament and bracket that the user is viewing. all components that need to access the current tournament and bracket will use this context
 // react automatically triggers refreshes for components that consume this context when the context value changes
 export const CURRENT_STATE = createContext<{
-  tournament: Tournament | null, bracket: Bracket | null,
-  setTournament: (tournament: Tournament | null) => void,
-  setBracket: (bracket: Bracket) => void
+  tournament: TournamentDTO | null, bracket: BracketDTO | null,
+  setTournament: (tournament: TournamentDTO | null) => void,
+  setBracket: (bracket: BracketDTO) => void
 } | null>(null);
 
 export default function App() {
 
   //localStorage.clear(); // for when some old storage is messing things up
 
-  const [currentTournament, setCurrentTournament] = useState<Tournament | null>(null);
-  const [currentBracket, setCurrentBracket] = useState<Bracket | null>(null);
+  const [currentTournament, setCurrentTournament] = useState<TournamentDTO | null>(null);
+  const [currentBracket, setCurrentBracket] = useState<BracketDTO | null>(null);
 
   // Load latest tournament on mount
   useEffect(() => {
@@ -32,8 +30,11 @@ export default function App() {
     const loadLatest = async () => {
 
       // load saved data from disk. Tournament class has static method to load all tournaments, and getSaveData() is a helper function to read the save file
-      const tournaments = await Tournament.loadAllTournaments();
-      const saveData = await getSaveData();
+      const tournaments = await window.electron.loadAllTournaments();
+      const saveData = await window.electron.getSaveData();
+
+      console.log('Loaded tournaments:', tournaments);
+      console.log('Loaded save data:', saveData);
 
       const lastTournamentIndex = saveData.lastTournamentIndex || 0;
       const lastBracketIndex = saveData.lastBracketIndex || 0;
@@ -41,18 +42,12 @@ export default function App() {
       const latestTournament = tournaments[lastTournamentIndex] || null;
       const latestBracket = latestTournament?.brackets[lastBracketIndex] || null;
 
-      console.log('checking bracket and tournament link valid: ', currentBracket?.tournament?.brackets.includes(currentBracket));
       setCurrentTournament(latestTournament);
       setCurrentBracket(latestBracket);
     };
     console.log('App mounted');
     loadLatest();
   }, []);
-
-  // save the current tournament and bracket to local storage whenever they change
-  useEffect(() => {
-    currentTournament?.save();
-  }, [currentTournament]);
 
   return (
     <CURRENT_STATE.Provider value={{ tournament: currentTournament, bracket: currentBracket, setTournament: setCurrentTournament, setBracket: setCurrentBracket }}>

@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { Tournament } from '../../../src-shared/Tournament';
+import { Tournament } from '../../../src-shared/TournamentDTO';
 import { CURRENT_STATE } from './App';
 
 export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete }: { setRemoveTournamentModalOpen: (open: boolean) => void; tournamentToDelete: Tournament | null; }) {

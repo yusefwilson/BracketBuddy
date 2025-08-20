@@ -5,7 +5,7 @@
         "strict": true, // Enable strict type checking
         "esModuleInterop": true, // Enable default imports for CommonJS modules
         "outDir": "./build-electron", // Output directory for compiled files
-        "rootDir": "./src-electron", // Specify the root directory of your TypeScript files
+        "rootDir": ".", // Specify the root directory of your TypeScript files
         "moduleResolution": "bundler", // Use Node.js module resolution strategy
         "skipLibCheck": true, // Skip type checking for library files,
         "baseUrl": ".",

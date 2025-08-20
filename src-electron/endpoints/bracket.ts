@@ -1,6 +1,6 @@
 import { load_tournament, save_tournament } from './tournament.js';
-import { Gender, Hand, ExperienceLevel } from 'src-electron/lib/types.js';
-import Bracket from 'src-electron/lib/Bracket.js';
+import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
+import Bracket from '../lib/Bracket.js';
 
 /* TOURNAMENT */
 

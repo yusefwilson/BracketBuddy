@@ -1,8 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Tournament from '../../../src-shared/Tournament';
-import { saveKeyValue } from '../../../src-shared/utils';
+import type { TournamentDTO } from '../../../src-shared/TournamentDTO';
 
 import { CURRENT_STATE } from '../components/App';
 import TournamentInfoCard from '../components/TournamentInfoCard';
@@ -13,16 +12,16 @@ export default function Home() {
   const state = useContext(CURRENT_STATE);
   const navigate = useNavigate();
 
-  const [allTournaments, setAllTournaments] = useState<Tournament[]>();
+  const [allTournaments, setAllTournaments] = useState<TournamentDTO[]>();
   const [tournamentModalOpen, setTournamentModalOpen] = useState(false);
   const [removeTournamentModalOpen, setRemoveTournamentModalOpen] = useState(false);
-  const [tournamentToDelete, setTournamentToDelete] = useState<Tournament | null>(null);
+  const [tournamentToDelete, setTournamentToDelete] = useState<TournamentDTO | null>(null);
 
   useEffect(() => {
     const loadTournaments = async () => {
       console.log('Loading tournaments...');
       await new Promise(resolve => setTimeout(resolve, 100)); // 💀
-      const tournaments = await Tournament.loadAllTournaments();
+      const tournaments = await window.electron.loadAllTournaments();
       console.log('Loaded tournaments:', tournaments);
       setAllTournaments(tournaments);
     };
@@ -65,7 +64,7 @@ export default function Home() {
               onClick={async () => {
                 state?.setTournament(tournament);
                 // record this change in the save file
-                await saveKeyValue('lastTournamentIndex', index);
+                await window.electron.saveKeyValue('lastTournamentIndex', index);
                 navigate('/tournament');
               }}
               onRemoveClick={() => {

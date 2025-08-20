@@ -5,7 +5,7 @@
   "exports": "./build-electron/main.js",
   "type": "module",
   "scripts": {
-    "start": "concurrently \"cd src-react && npm run dev\" \"tsc --watch\" \"tsc -p tsconfig.preload.json --watch\" \"wait-on ./build-electron/main.js && electronmon ./build-electron/main.js\"",
+    "start": "concurrently \"cd src-react && npm run dev\" \"tsc --watch\" \"tsc -p tsconfig.preload.json --watch\" \"wait-on ./build-electron/src-electron/main.js && electronmon ./build-electron/src-electron/main.js\"",
     "build": "cd src-react && npm run build && cd .. && tsc && tsc -p tsconfig.preload.json && npx electron ./build-electron/main.js"
   },
   "author": "Yusef Wilson",
@@ -18,6 +18,7 @@
     "wait-on": "^8.0.4"
   },
   "dependencies": {
+    "@g-loot/react-tournament-brackets": "^1.0.31-rc",
     "@heroicons/react": "^2.2.0",
     "tournament-organizer": "^3.9.1"
   }

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { Gender, Hand, ExperienceLevel } from './lib/types';
-import { Bracket } from '../src-shared/Bracket'
+import { Gender, Hand, ExperienceLevel } from '../src-shared/types';
+import { BracketDTO } from '../src-shared/BracketDTO';
 
 //TODO: THESE FUNCTIONS SURELY NEED RETURN STATEMENTS SO THEY CAN ACTUALLY GIVE BACK WHAT global.d.ts THINKS THEY DO RIGHT?
 
@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('electron', {
     loadTournament: async (tournamentId: string) => {
         await ipcRenderer.invoke('load-tournament', tournamentId);
     },
-    createTournament: async (name: string, date: Date, brackets: Bracket[]) => {
+    createTournament: async (name: string, date: Date, brackets: BracketDTO[]) => {
         await ipcRenderer.invoke('create-tournament', name, date, brackets);
     },
     deleteTournament: async (tournamentName: string) => {

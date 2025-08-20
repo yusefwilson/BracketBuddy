@@ -2,9 +2,11 @@
 
 import { Gender, Hand, ExperienceLevel } from './types';
 
-import Match from './Match'
+import { MatchDTO } from './MatchDTO'
 
-interface Bracket {
+interface BracketDTO {
+
+    id: string
 
     tournamentId: string
 
@@ -15,8 +17,8 @@ interface Bracket {
 
     competitorNames: string[]
 
-    final: Match | null
-    finalRematch: Match | null
+    final: MatchDTO | null
+    finalRematch: MatchDTO | null
 }
 
-export type { Bracket }
+export type { BracketDTO }

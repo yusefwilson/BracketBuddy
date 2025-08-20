@@ -3,7 +3,6 @@ import { CURRENT_STATE } from '../components/App';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BracketInputModal from '../components/BracketInputModal';
-import { saveKeyValue } from '../../../src-shared/utils';
 
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
@@ -38,11 +37,11 @@ export default function TournamentView() {
             <BracketInfoCard key={i} bracket={bracket}
               onClick={async () => {
                 setBracket(bracket);
-                await saveKeyValue('lastBracketIndex', i);
+                await window.electron.saveKeyValue('lastBracketIndex', i);
                 navigate('/bracket');
               }}
               onRemoveClick={async () => {
-                await tournament?.removeBracket(bracket);
+                await window.electron.removeBracketFromTournament(tournament.id, bracket.id);
                 setRefreshTick(refreshTick + 1);
               }}
             />

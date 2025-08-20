@@ -1,5 +1,5 @@
 import { getLoadableTournamentValues } from './utils.js';
-import { Gender, Hand, ExperienceLevel } from './types.js';
+import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
 import Tournament from './Tournament.js';
 
 import { Tournament as ExternalBracket, Match } from 'tournament-organizer/components';

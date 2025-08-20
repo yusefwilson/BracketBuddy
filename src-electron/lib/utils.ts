@@ -51,9 +51,10 @@ function getLoadableTournamentValues(externalBracket: ExternalBracket): Loadable
     return {} as LoadableTournamentValues;
 }
 
-import { Match as G_Loot_Match } from '@g-loot/react-tournament-brackets';
+//import { Match as G_Loot_Match } from '@g-loot/react-tournament-brackets';
 
-function convertToGlootMatch(toMatch: TO_Match): G_Loot_Match {
+function convertToGlootMatch(toMatch: TO_Match) //G_Loot_Match
+{
     return {
         id: toMatch.id,
         name: 'Match ' + toMatch.id,

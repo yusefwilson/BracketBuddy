@@ -1,4 +1,4 @@
-interface Match {
+interface MatchDTO {
 
     tournamentId: string
 
@@ -8,4 +8,4 @@ interface Match {
     competitor1Name: string
 }
 
-export default Match;
+export type { MatchDTO };

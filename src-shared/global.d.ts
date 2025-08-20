@@ -1,7 +1,7 @@
 export { };
 
-import { Bracket } from './Bracket';
-import { Tournament } from './Tournament';
+import { Bracket } from './BracketDTO';
+import { Tournament } from './TournamentDTO';
 import { Gender, Hand, ExperienceLevel } from './types';
 
 declare global {

@@ -23,9 +23,17 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "composite": true
+    "composite": true,
+    /* Shared imports */
+    "baseUrl": "..", // <-- root relative to src-react
+    "paths": {
+      "@shared/*": [
+        "src-shared/*"
+      ] // <-- allow imports in React
+    },
   },
   "include": [
-    "src"
-, "../src-shared"  ]
+    "src",
+    "../src-shared"
+  ]
 }
