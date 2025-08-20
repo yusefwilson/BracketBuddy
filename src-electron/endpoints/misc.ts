@@ -5,7 +5,10 @@ import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
 /* MISC */
 
 const get_save_data = async (_: Electron.IpcMainInvokeEvent) => {
+    console.log('getting save data');
     const data = await readFile(SAVE_FILE_PATH, 'utf-8');
+    console.log('made it')
+    console.log('data: ', data);
     return JSON.parse(data);
 }
 

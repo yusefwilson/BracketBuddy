@@ -56,4 +56,6 @@ const main = async () => {
     create_window();
 }
 
+console.log('about to run main')
+
 main();

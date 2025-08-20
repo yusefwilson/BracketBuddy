@@ -5,7 +5,7 @@
   "exports": "./build-electron/main.js",
   "type": "module",
   "scripts": {
-    "start": "concurrently \"cd src-react && npm run dev\" \"tsc --watch\" \"tsc -p tsconfig.preload.json --watch\" \"wait-on ./build-electron/src-electron/main.js && electronmon ./build-electron/src-electron/main.js\"",
+    "start": "concurrently \"cd src-react && npm run dev\" \"tsc --watch\" \"tsc -p tsconfig.preload.json --watch\" \"wait-on ./build-electron/src-electron/main.js && electronmon --watch ./build-electron/src-electron/main.js\"",
     "build": "cd src-react && npm run build && cd .. && tsc && tsc -p tsconfig.preload.json && npx electron ./build-electron/main.js"
   },
   "author": "Yusef Wilson",
