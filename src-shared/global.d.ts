@@ -9,7 +9,7 @@ declare global {
         electron: {
             // tournament
             loadAllTournaments: () => Promise<Tournament[]>;
-            createTourament: (name: string, date: Date, brackets: Bracket[]) => Promise<Tournament>;
+            createTournament: (name: string, date: Date, brackets: Bracket[]) => Promise<Tournament>;
             deleteTournament: (tournamentId: string) => Promise<void>;
 
             // bracket

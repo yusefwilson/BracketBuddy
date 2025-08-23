@@ -1,10 +1,9 @@
 import { Tournament as ExternalBracket, Match } from 'tournament-organizer/components';
 
-import { getLoadableTournamentValues } from './utils.js';
+import { getLoadableTournamentValues, toMatchDTO } from './utils.js';
 import Tournament from './Tournament.js';
 
 import { BracketDTO } from '../../src-shared/BracketDTO.js';
-import { toMatchDTO } from '../../src-shared/utils.js';
 import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
 
 class Bracket {

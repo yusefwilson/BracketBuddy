@@ -14,6 +14,7 @@ class Tournament {
     constructor(name: string = '', date: Date = new Date()) {
         this.name = name;
         this.date = date;
+        console.log('about to try to isostring date: ', date);
         this.id = name + date.toISOString();
         this.brackets = [];
         this.manager = new Manager();
@@ -44,6 +45,8 @@ class Tournament {
             date: string;
             brackets: unknown[];
         } = JSON.parse(serialized);
+
+        console.log('deserializing tournament: ', raw);
 
         const tournament = new Tournament(raw.name, new Date(raw.date));
         tournament.brackets = raw.brackets.map(bData =>

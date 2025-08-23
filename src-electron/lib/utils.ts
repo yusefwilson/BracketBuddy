@@ -21,62 +21,38 @@ const saveKeyValue = async (key: string, value: any): Promise<void> => {
 import { Tournament as ExternalBracket } from 'tournament-organizer/components';
 import { LoadableTournamentValues } from 'tournament-organizer/interfaces';
 
-export interface TO_Match {
-    id: string;
-    round: number;
-    match: number;
-    active: boolean;
-    bye: boolean;
-    player1: {
-        id: string;
-        win: number;
-        loss: number;
-        draw: number;
-    };
-    player2: {
-        id: string;
-        win: number;
-        loss: number;
-        draw: number;
-    };
-    path: {
-        win: string | null;
-        loss: string | null;
-    };
-    meta: Record<string, any>;
-}
-
 function getLoadableTournamentValues(externalBracket: ExternalBracket): LoadableTournamentValues {
     console.log('getting loadable tournament values for external bracket: ', externalBracket);
+    // TODO: actually get loadable tournament values from external bracket
     return {} as LoadableTournamentValues;
 }
 
-//import { Match as G_Loot_Match } from '@g-loot/react-tournament-brackets';
+import { Match } from 'tournament-organizer/components';
+import { MatchDTO } from '../../src-shared/MatchDTO';
 
-function convertToGlootMatch(toMatch: TO_Match) //G_Loot_Match
-{
+function toMatchDTO(match: Match): MatchDTO {
     return {
-        id: toMatch.id,
-        name: 'Match ' + toMatch.id,
-        nextMatchId: toMatch.path.win,
-        nextLooserMatchId: toMatch.path.loss,
-        tournamentRoundText: 'what is this?',
-        startTime: Date.now().toString(),
-        state: 'DONE',
-        participants: [{
-            id: toMatch.player1.id,
-            resultText: 'example result text',
-            isWinner: toMatch.player1.win > toMatch.player2.win,
-            status: null,
-            name: 'Name of ' + toMatch.player1.id,
-        },
-        {
-            id: toMatch.player2.id,
-            resultText: 'example result text',
-            isWinner: toMatch.player2.win >= toMatch.player1.win, // TECHNICALLY THE POINTS SHOULD NEVER BE EQUAL IF THE MATCH IS DONE
-            status: null,
-            name: 'Name of ' + toMatch.player1.id,
-        }
+        id: match.id,
+        name: `Round ${match.round} - Match ${match.match}`,
+        nextMatchId: match.path?.win ?? null,
+        nextLooserMatchId: match.path?.loss ?? null,
+        startTime: null, // not available in Match, so default to null (or inject externally)
+        state: match.active ? 'SCORE_DONE' : 'DONE', // simplistic mapping; adjust as needed
+        participants: [
+            {
+                id: match.player1.id,
+                resultText: match.player1.win > match.player2.win ? 'WON' : 'LOST',
+                isWinner: match.player1.win > match.player2.win,
+                status: match.active ? 'PLAYED' : null,
+                name: match.player1.id, // replace with real name lookup if available
+            },
+            {
+                id: match.player2.id,
+                resultText: match.player2.win > match.player1.win ? 'WON' : 'LOST',
+                isWinner: match.player2.win > match.player1.win,
+                status: match.active ? 'PLAYED' : null,
+                name: match.player2.id, // replace with real name lookup if available
+            },
         ],
     };
 }
@@ -84,5 +60,5 @@ function convertToGlootMatch(toMatch: TO_Match) //G_Loot_Match
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     getSaveData, saveKeyValue,
-    convertToGlootMatch, getLoadableTournamentValues,
+    toMatchDTO, getLoadableTournamentValues,
 };
