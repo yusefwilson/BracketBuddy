@@ -1,5 +1,3 @@
-// TODO: do the compilation of these and how best to bundle/import them into the frontend and backend need to be considered? (yes, do it)
-
 import { Gender, Hand, ExperienceLevel } from './types';
 
 import { MatchDTO } from './MatchDTO'
@@ -17,8 +15,8 @@ interface BracketDTO {
 
     competitorNames: string[]
 
-    final: MatchDTO | null
-    finalRematch: MatchDTO | null
+    final: MatchDTO
+    finalRematch: MatchDTO
 }
 
 export type { BracketDTO }

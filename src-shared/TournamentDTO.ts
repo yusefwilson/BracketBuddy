@@ -1,4 +1,4 @@
-import { BracketDTO } from "./BracketDTO";
+import { BracketDTO } from './BracketDTO';
 
 interface TournamentDTO {
     id: string;

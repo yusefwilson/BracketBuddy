@@ -1,14 +1,17 @@
+import { Tournament as ExternalBracket, Match } from 'tournament-organizer/components';
+
 import { getLoadableTournamentValues } from './utils.js';
-import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
 import Tournament from './Tournament.js';
 
-import { Tournament as ExternalBracket, Match } from 'tournament-organizer/components';
+import { BracketDTO } from '../../src-shared/BracketDTO.js';
+import { toMatchDTO } from '../../src-shared/utils.js';
+import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
 
 class Bracket {
 
     id: string
 
-    tournament: Tournament | null
+    tournament: Tournament
 
     gender: Gender
     experienceLevel: ExperienceLevel
@@ -19,12 +22,12 @@ class Bracket {
 
     externalBracket: ExternalBracket
 
-    final: Match | null
-    finalRematch: Match | null
+    final: Match
+    finalRematch: Match
 
     nextMatchId: number
 
-    constructor(tournament: Tournament | null = null, gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
+    constructor(tournament: Tournament, gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
 
         this.id = tournament?.id + gender + experienceLevel + hand + weightLimit.toString();
 
@@ -41,8 +44,9 @@ class Bracket {
         const name = gender + ' ' + experienceLevel + ' ' + hand + ' ' + weightLimit;
         this.externalBracket = new ExternalBracket(id, name);
 
-        this.final = null;
-        this.finalRematch = null;
+        // TODO: TEMPORARY, NEEDS TO BE REPLACED WITH PROPER INITIALIZATION. MAYBE CALL INITIALIZE HERE?
+        this.final = new Match(id, 0, 0);
+        this.finalRematch = new Match(id, 0, 0);
 
         this.nextMatchId = 1;
     }
@@ -142,6 +146,24 @@ class Bracket {
             nextMatchId: this.nextMatchId,
             externalBracketData: getLoadableTournamentValues(this.externalBracket), // TODO: figure out how to get LoadableTournamentValues
         });
+    }
+
+    toDTO(): BracketDTO {
+        return {
+            id: this.id,
+
+            tournamentId: this.tournament?.id,
+
+            gender: this.gender,
+            experienceLevel: this.experienceLevel,
+            hand: this.hand,
+            weightLimit: this.weightLimit, // in lbs, -1 for no limit
+
+            competitorNames: this.competitorNames,
+
+            final: toMatchDTO(this.final),
+            finalRematch: toMatchDTO(this.finalRematch),
+        };
     }
 
     // canGetWinnerFromFinal(): boolean {
