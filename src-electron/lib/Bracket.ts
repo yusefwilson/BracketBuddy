@@ -133,20 +133,6 @@ class Bracket {
         return bracket;
     }
 
-    serializeForFrontend(): string {
-        return JSON.stringify({
-            gender: this.gender,
-            experienceLevel: this.experienceLevel,
-            hand: this.hand,
-            weightLimit: this.weightLimit,
-            competitorNames: this.competitorNames,
-            final: JSON.stringify(this.final),
-            finalRematch: JSON.stringify(this.finalRematch),
-            nextMatchId: this.nextMatchId,
-            externalBracketData: getLoadableTournamentValues(this.externalBracket), // TODO: figure out how to get LoadableTournamentValues
-        });
-    }
-
     toDTO(): BracketDTO {
         return {
             id: this.id,

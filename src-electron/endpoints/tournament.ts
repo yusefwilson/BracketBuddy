@@ -2,11 +2,15 @@ import { readFile, writeFile, readdir, rename } from 'fs/promises';
 import * as path from 'node:path';
 
 import Tournament from '../lib/Tournament.js';
+import Bracket from '../lib/Bracket.js';
 import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
+
+import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
+import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
 
 /* TOURNAMENT */
 
-const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Tournament[]> => {
+const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<TournamentDTO[]> => {
     const files = await readdir(SAVE_DIR);
     const tournaments = [];
     for (const file of files) {
@@ -20,16 +24,18 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Tou
 
     // go through each tournament and deserialize it
     for (const tournamentData of tournaments) {
-        deserializedTournaments.push(Tournament.deserialize(tournamentData));
+        deserializedTournaments.push(Tournament.deserialize(tournamentData).toDTO());
     }
 
     return deserializedTournaments;
 }
 
-const save_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, serializedTournamentData: string): Promise<void> => {
-    const filePath = path.join(SAVE_DIR, tournamentId + '.json');
-    await writeFile(filePath, serializedTournamentData, 'utf-8');
-    console.log('Saved tournament ' + tournamentId + ' to file ' + filePath);
+const create_tournament = async (_: Electron.IpcMainInvokeEvent, name: string, date: Date): Promise<TournamentDTO> => {
+    const tournament = new Tournament(name, date);
+    console.log('about to save tournament ' + tournament.id);
+    await save_tournament(_, tournament.id, tournament.serialize());
+    console.log('Created tournament ' + tournament.id);
+    return tournament.toDTO();
 }
 
 const delete_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string): Promise<void> => {
@@ -38,6 +44,42 @@ const delete_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: s
     await rename(filePath, filePath + '.deleted');
     console.log('Deleted tournament ' + tournamentId);
 }
+
+const add_bracket_to_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string,
+    gender: Gender,
+    experienceLevel: ExperienceLevel,
+    hand: Hand,
+    weightLimit: number, // in lbs, -1 for no limit
+    competitorNames: string[]
+) => {
+
+    const tournament = await load_tournament(_, tournamentId);
+
+    const bracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
+    tournament.addBracket(bracket);
+
+    console.log('Added bracket to tournament ' + tournamentId);
+
+    await save_tournament(_, tournamentId, tournament.serialize());
+
+    return tournament.toDTO();
+}
+
+const remove_bracket_from_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, bracketId: string): Promise<TournamentDTO> => {
+
+    const tournament = await load_tournament(_, tournamentId);
+
+    tournament.removeBracket(bracketId);
+
+    await save_tournament(_, tournamentId, tournament.serialize());
+
+    console.log('Removed bracket from tournament ' + tournamentId);
+
+    return tournament.toDTO();
+}
+
+
+/* HELPER FUNCTIONS */
 
 const load_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string): Promise<Tournament> => {
     const filePath = path.join(SAVE_DIR, tournamentId + '.json');
@@ -48,9 +90,17 @@ const load_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: str
     return tournament;
 }
 
+const save_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, serializedTournamentData: string): Promise<void> => {
+    const filePath = path.join(SAVE_DIR, tournamentId + '.json');
+    console.log('saving tournament ' + tournamentId + ' to file ' + filePath);
+    await writeFile(filePath, serializedTournamentData, 'utf-8');
+    console.log('Saved tournament ' + tournamentId + ' to file ' + filePath);
+}
+
 export {
     load_all_tournaments,
-    save_tournament,
+    create_tournament,
     delete_tournament,
-    load_tournament
+    add_bracket_to_tournament,
+    remove_bracket_from_tournament
 }

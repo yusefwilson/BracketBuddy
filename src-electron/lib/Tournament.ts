@@ -1,5 +1,6 @@
 import Bracket from './Bracket.js';
 import Manager from 'tournament-organizer';
+import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
 
 class Tournament {
 
@@ -15,7 +16,7 @@ class Tournament {
         this.name = name;
         this.date = date;
         console.log('about to try to isostring date: ', date);
-        this.id = name + date.toISOString();
+        this.id = name + date.toISOString().slice(0, 10);
         this.brackets = [];
         this.manager = new Manager();
     }
@@ -55,13 +56,13 @@ class Tournament {
         return tournament;
     }
 
-    serializeForFrontend(): string {
-        return JSON.stringify({
+    toDTO(): TournamentDTO {
+        return {
+            id: this.id,
             name: this.name,
-            date: this.date.toISOString(),
-            brackets: this.brackets.map(b => b.serializeForFrontend()),
-        });
+            date: this.date,
+            brackets: this.brackets.map(bracket => bracket.toDTO()),
+        };
     }
 }
-
 export default Tournament;
