@@ -18,8 +18,8 @@
     "wait-on": "^8.0.4"
   },
   "dependencies": {
-    "@g-loot/react-tournament-brackets": "^1.0.31-rc",
     "@heroicons/react": "^2.2.0",
+    "@replydev/react-tournament-brackets": "^1.0.1",
     "tournament-organizer": "^3.9.1"
   }
 }

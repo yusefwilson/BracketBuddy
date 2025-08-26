@@ -14,25 +14,27 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
     const [hand, setHand] = useState<Hand>('Right');
     const [weightLimit, setWeightLimit] = useState<number>(0);
     const [competitorNames, setCompetitorNames] = useState<string[]>([]);
-    const [refreshTick, setRefreshTick] = useState(0);
 
     const state = useContext(CURRENT_STATE);
-    const { tournament } = state || {};
+    const { tournament, setTournament = () => { } } = state || {};
 
     const onSubmit = async () => {
+
         if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
 
-        const tournamentId = tournament.id;
-        // TODO: reflect this update in the context. is it as simple as setTournament?
-        await window.electron.addBracketToTournament(tournamentId, gender, experienceLevel, hand, weightLimit, competitorNames)
+        // add bracket to tournament
+        const newTournament = await window.electron.addBracketToTournament(tournament.id, gender, experienceLevel, hand, weightLimit, competitorNames);
 
         // trigger refresh
-        setRefreshTick(refreshTick + 1);
+        setTournament(newTournament);
+
         // close modal
         setBracketModalOpen(false);
     };
 
     useEffect(() => {
+
+        // register a function to close the modal on escape
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 setBracketModalOpen(false);
@@ -40,6 +42,8 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
         };
 
         document.addEventListener('keydown', handleKeyDown);
+
+        // unregister the function on component unmount
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };

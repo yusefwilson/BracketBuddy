@@ -1,7 +1,7 @@
 import { UserIcon, AcademicCapIcon, ScaleIcon, TrashIcon, HandRaisedIcon } from '@heroicons/react/24/outline';
-import { Bracket } from '../../../src-shared/BracketDTO';
+import { BracketDTO } from '../../../src-shared/BracketDTO';
 
-export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { bracket: Bracket; onClick: () => void; onRemoveClick: () => void; }) {
+export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { bracket: BracketDTO; onClick: () => void; onRemoveClick: () => void; }) {
     return (
         <div
             className='bg-slate-500 hover:bg-slate-600 transition cursor-pointer p-4 rounded-xl flex gap-6 shadow-sm items-center'

@@ -1,15 +1,15 @@
 export { };
 
-import { Bracket } from './BracketDTO';
-import { Tournament } from './TournamentDTO';
+import { BracketDTO } from './BracketDTO';
+import { TournamentDTO } from './TournamentDTO';
 import { Gender, Hand, ExperienceLevel } from './types';
 
 declare global {
     interface Window {
         electron: {
             // tournament
-            loadAllTournaments: () => Promise<Tournament[]>;
-            createTournament: (name: string, date: Date, brackets: Bracket[]) => Promise<Tournament>;
+            loadAllTournaments: () => Promise<TournamentDTO[]>;
+            createTournament: (name: string, date: Date, brackets: BracketDTO[]) => Promise<TournamentDTO>;
             deleteTournament: (tournamentId: string) => Promise<void>;
 
             // bracket
@@ -20,11 +20,11 @@ declare global {
                 hand: Hand,
                 weightLimit: number,
                 competitorNames: string[]
-            ) => Promise<Tournament>;
+            ) => Promise<TournamentDTO>;
             removeBracketFromTournament: (
                 tournamentId: string,
                 bracketId: string
-            ) => Promise<Tournament>;
+            ) => Promise<TournamentDTO>;
 
             // misc
             getSaveData: () => Promise<Record<string, any>>;
