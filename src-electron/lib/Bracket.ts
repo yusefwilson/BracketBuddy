@@ -1,6 +1,6 @@
 import { Tournament as ExternalBracket, Match } from 'tournament-organizer/components';
 
-import { getLoadableTournamentValues, toMatchDTO } from './utils.js';
+import { getLoadableExternalBracketValues, toMatchDTO } from './utils.js';
 import Tournament from './Tournament.js';
 
 import { BracketDTO } from '../../src-shared/BracketDTO.js';
@@ -109,7 +109,7 @@ class Bracket {
             final: this.final,
             finalRematch: this.finalRematch,
             nextMatchId: this.nextMatchId,
-            externalBracketData: getLoadableTournamentValues(this.externalBracket), // TODO: figure out how to get LoadableTournamentValues
+            externalBracketData: getLoadableExternalBracketValues(this.externalBracket), // TODO: figure out how to get LoadableTournamentValues
         };
     }
 

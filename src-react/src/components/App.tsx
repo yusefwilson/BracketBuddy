@@ -30,6 +30,7 @@ export default function App() {
     const loadLatest = async () => {
 
       // load saved data from disk. Tournament class has static method to load all tournaments, and getSaveData() is a helper function to read the save file
+      console.log('loading all tournaments');
       const tournaments = await window.electron.loadAllTournaments();
       const saveData = await window.electron.getSaveData();
 

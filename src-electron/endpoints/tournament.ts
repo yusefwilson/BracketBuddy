@@ -11,7 +11,9 @@ import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
 /* TOURNAMENT */
 
 const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<TournamentDTO[]> => {
+    console.log('loading all tournaments');
     const files = await readdir(SAVE_DIR);
+    console.log('files: ', files);
     const tournaments = [];
     for (const file of files) {
         if (file.endsWith('.json') && file !== SAVE_FILE_NAME) {
@@ -20,12 +22,16 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Tou
         }
     }
 
+    console.log('tournaments: ', tournaments);
+
     const deserializedTournaments = [];
 
     // go through each tournament and deserialize it
     for (const tournamentData of tournaments) {
         deserializedTournaments.push(Tournament.deserialize(tournamentData).toDTO());
     }
+
+    console.log('deserialized tournaments: ', deserializedTournaments);
 
     return deserializedTournaments;
 }
