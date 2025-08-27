@@ -20,6 +20,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@replydev/react-tournament-brackets": "^1.0.1",
+    "@uidotdev/usehooks": "^2.4.1",
     "tournament-organizer": "^3.9.1"
   }
 }
