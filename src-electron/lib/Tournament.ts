@@ -64,5 +64,9 @@ class Tournament {
             brackets: this.brackets.map(bracket => bracket.toDTO()),
         };
     }
+
+    getBracket(bracketId: string): Bracket | undefined {
+        return this.brackets.find(bracket => bracket.id === bracketId);
+    }
 }
 export default Tournament;

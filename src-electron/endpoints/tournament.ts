@@ -108,5 +108,7 @@ export {
     create_tournament,
     delete_tournament,
     add_bracket_to_tournament,
-    remove_bracket_from_tournament
+    remove_bracket_from_tournament,
+
+    load_tournament
 }

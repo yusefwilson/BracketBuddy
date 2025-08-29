@@ -1,15 +1,24 @@
 import { DoubleEliminationBracket, SVGViewer, Match as MatchComponent } from '@replydev/react-tournament-brackets';
 import { useWindowSize } from '@uidotdev/usehooks';
-import { exampleData } from './example-data';
+import { useState, useContext } from 'react';
+
+import { CURRENT_STATE } from '../components/App';
+import CompetitorInput from '../components/CompetitorInput';
 
 export default function BracketView() {
 
-  const matches = exampleData;
+  const state = useContext(CURRENT_STATE);
+  const { bracket, setTournament = () => { } } = state || {};
+
+  if (!bracket) {
+    return <div>Bracket not found</div>;
+  }
+
+  const matches = bracket.renderableBracket;
+  console.log('matches: ', matches);
 
   const { width, height } = useWindowSize();
-
-  console.log('width', width);
-  console.log('height', height);
+  const [competitors, setCompetitors] = useState<string[]>([]);
 
   if (!width || !height) {
     return <div>Error with window size!</div>;
@@ -18,14 +27,18 @@ export default function BracketView() {
   const finalWidth = Math.max(width - 50, 500);
   const finalHeight = Math.max(height - 100, 500);
   return (
-    <DoubleEliminationBracket
-      matches={matches}
-      matchComponent={MatchComponent}
-      svgWrapper={({ children, ...props }) => (
-        <SVGViewer width={finalWidth} height={finalHeight} {...props}>
-          {children}
-        </SVGViewer>
-      )}
-    />
+    <div className='flex flex-row'>
+      <CompetitorInput competitors={competitors} setCompetitors={setCompetitors} />
+      <DoubleEliminationBracket
+        matches={matches}
+        matchComponent={MatchComponent}
+        svgWrapper={({ children, ...props }) => (
+          <SVGViewer width={finalWidth} height={finalHeight} {...props}>
+            {children}
+          </SVGViewer>
+        )}
+      />
+    </div>
+
   );
 }

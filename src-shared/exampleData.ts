@@ -1,4 +1,4 @@
-export const exampleData = {
+const exampleData = {
     "upper": [
         {
             "id": "WB R1 M1",
@@ -315,3 +315,5 @@ export const exampleData = {
         }
     ]
 }
+
+export { exampleData }

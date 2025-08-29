@@ -1,6 +1,6 @@
 import { Tournament as ExternalBracket, Match } from 'tournament-organizer/components';
 
-import { getLoadableExternalBracketValues, toMatchDTO } from './utils.js';
+import { getLoadableExternalBracketValues, toMatchDTO, toRenderableBracket } from './utils.js';
 import Tournament from './Tournament.js';
 
 import { BracketDTO } from '../../src-shared/BracketDTO.js';
@@ -146,9 +146,29 @@ class Bracket {
 
             competitorNames: this.competitorNames,
 
+            renderableBracket: toRenderableBracket(this.externalBracket),
+
             final: toMatchDTO(this.final),
             finalRematch: toMatchDTO(this.finalRematch),
         };
+    }
+
+    updateMatch(matchId: string, player1Won: boolean) {
+        const match = this.findMatchById(matchId);
+        if (!match) {
+            throw new Error('Match not found');
+        }
+
+        let player1Wins = 0, player2Wins = 0;
+
+        if (player1Won) {
+            player1Wins++;
+        }
+        else {
+            player2Wins++;
+        }
+
+        this.externalBracket.enterResult(matchId, player1Wins, player2Wins);
     }
 
     // canGetWinnerFromFinal(): boolean {

@@ -81,6 +81,7 @@ function getLoadableExternalBracketValues(tournament: ExternalBracket): Loadable
 }
 
 import { MatchDTO } from '../../src-shared/MatchDTO';
+import { RenderableBracket } from '@shared/types';
 
 function toMatchDTO(match: Match): MatchDTO {
     return {
@@ -109,8 +110,13 @@ function toMatchDTO(match: Match): MatchDTO {
     };
 }
 
+import { exampleData } from '../../src-shared/exampleData.js';
+
+function toRenderableBracket(bracket: ExternalBracket): RenderableBracket {
+    return exampleData;
+}
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     getSaveData, saveKeyValue,
-    toMatchDTO, getLoadableExternalBracketValues,
+    toMatchDTO, getLoadableExternalBracketValues, toRenderableBracket
 };

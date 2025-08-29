@@ -3,6 +3,7 @@ import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { load_all_tournaments, create_tournament, delete_tournament, add_bracket_to_tournament, remove_bracket_from_tournament } from './endpoints/tournament.js';
+import { update_bracket } from './endpoints/bracket.js';
 import { ensure_save_environment, get_save_data, save_key_value, get_constants } from './endpoints/misc.js';
 
 import { DEV } from './constants.js';
@@ -43,6 +44,7 @@ ipcMain.handle('add-bracket-to-tournament', add_bracket_to_tournament);
 ipcMain.handle('remove-bracket-from-tournament', remove_bracket_from_tournament);
 
 // bracket
+ipcMain.handle('update-bracket', update_bracket);
 
 // misc
 ipcMain.handle('get-save-data', get_save_data);

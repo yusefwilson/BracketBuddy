@@ -11,8 +11,6 @@ declare global {
             loadAllTournaments: () => Promise<TournamentDTO[]>;
             createTournament: (name: string, date: Date, brackets: BracketDTO[]) => Promise<TournamentDTO>;
             deleteTournament: (tournamentId: string) => Promise<void>;
-
-            // bracket
             addBracketToTournament: (
                 tournamentId: string,
                 gender: Gender,
@@ -25,6 +23,9 @@ declare global {
                 tournamentId: string,
                 bracketId: string
             ) => Promise<TournamentDTO>;
+
+            // bracket
+            updateBracket: (tournamentId: string, bracketId: string, matchId: string, player1Won: boolean) => Promise<TournamentDTO>;
 
             // misc
             getSaveData: () => Promise<Record<string, any>>;
