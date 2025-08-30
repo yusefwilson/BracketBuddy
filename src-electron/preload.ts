@@ -33,8 +33,14 @@ contextBridge.exposeInMainWorld('electron', {
     },
 
     // bracket
-    updateBracket: async (tournamentId: string, bracketId: string, matchId: string, player1Won: boolean) => {
+    enterResult: async (tournamentId: string, bracketId: string, matchId: string, player1Won: boolean) => {
         return await ipcRenderer.invoke('update-bracket', tournamentId, bracketId, matchId, player1Won);
+    },
+    addCompetitorToBracket: async (tournamentId: string, bracketId: string, competitorName: string) => {
+        return await ipcRenderer.invoke('add-competitor-to-bracket', tournamentId, bracketId, competitorName);
+    },
+    removeCompetitorFromBracket: async (tournamentId: string, bracketId: string, competitorName: string) => {
+        return await ipcRenderer.invoke('remove-competitor-from-bracket', tournamentId, bracketId, competitorName);
     },
 
     // misc

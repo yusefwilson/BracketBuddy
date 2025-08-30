@@ -3,7 +3,7 @@ import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { load_all_tournaments, create_tournament, delete_tournament, add_bracket_to_tournament, remove_bracket_from_tournament } from './endpoints/tournament.js';
-import { update_bracket } from './endpoints/bracket.js';
+import { add_competitor_to_bracket, remove_competitor_from_bracket, update_bracket } from './endpoints/bracket.js';
 import { ensure_save_environment, get_save_data, save_key_value, get_constants } from './endpoints/misc.js';
 
 import { DEV } from './constants.js';
@@ -45,6 +45,8 @@ ipcMain.handle('remove-bracket-from-tournament', remove_bracket_from_tournament)
 
 // bracket
 ipcMain.handle('update-bracket', update_bracket);
+ipcMain.handle('add-competitor-to-bracket', add_competitor_to_bracket);
+ipcMain.handle('remove-competitor-from-bracket', remove_competitor_from_bracket);
 
 // misc
 ipcMain.handle('get-save-data', get_save_data);
@@ -57,6 +59,6 @@ const main = async () => {
     create_window();
 }
 
-console.log('about to run main')
+console.log('Starting BracketBuddy')
 
 main();

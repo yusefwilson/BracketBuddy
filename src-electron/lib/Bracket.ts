@@ -60,6 +60,8 @@ class Bracket {
         this.initialize();
     }
 
+    //TODO: does this function need a harder reset rather than just calling .start()?
+
     // create the initial bracket structure
     initialize() {
         this.externalBracket.start();
@@ -169,6 +171,18 @@ class Bracket {
         }
 
         this.externalBracket.enterResult(matchId, player1Wins, player2Wins);
+    }
+
+    //TODO: do these functions need a harder reset rather than just initialize? or should that be taken care of in initialize?
+
+    addCompetitor(competitorName: string) {
+        this.competitorNames.push(competitorName);
+        this.initialize();
+    }
+
+    removeCompetitor(competitorName: string) {
+        this.competitorNames = this.competitorNames.filter(name => name !== competitorName);
+        this.initialize();
     }
 
     // canGetWinnerFromFinal(): boolean {

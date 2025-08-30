@@ -39,7 +39,7 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Tou
 const create_tournament = async (_: Electron.IpcMainInvokeEvent, name: string, date: Date): Promise<TournamentDTO> => {
     const tournament = new Tournament(name, date);
     console.log('about to save tournament ' + tournament.id);
-    await save_tournament(_, tournament.id, tournament.serialize());
+    await save_tournament(_, tournament);
     console.log('Created tournament ' + tournament.id);
     return tournament.toDTO();
 }
@@ -66,7 +66,7 @@ const add_bracket_to_tournament = async (_: Electron.IpcMainInvokeEvent, tournam
 
     console.log('Added bracket to tournament ' + tournamentId);
 
-    await save_tournament(_, tournamentId, tournament.serialize());
+    await save_tournament(_, tournament);
 
     return tournament.toDTO();
 }
@@ -77,7 +77,7 @@ const remove_bracket_from_tournament = async (_: Electron.IpcMainInvokeEvent, to
 
     tournament.removeBracket(bracketId);
 
-    await save_tournament(_, tournamentId, tournament.serialize());
+    await save_tournament(_, tournament);
 
     console.log('Removed bracket from tournament ' + tournamentId);
 
@@ -96,7 +96,11 @@ const load_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: str
     return tournament;
 }
 
-const save_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, serializedTournamentData: string): Promise<void> => {
+const save_tournament = async (_: Electron.IpcMainInvokeEvent, tournament: Tournament): Promise<void> => {
+
+    const tournamentId = tournament.id;
+    const serializedTournamentData = tournament.serialize();
+
     const filePath = path.join(SAVE_DIR, tournamentId + '.json');
     console.log('saving tournament ' + tournamentId + ' to file ' + filePath);
     await writeFile(filePath, serializedTournamentData, 'utf-8');
@@ -110,5 +114,6 @@ export {
     add_bracket_to_tournament,
     remove_bracket_from_tournament,
 
-    load_tournament
+    load_tournament,
+    save_tournament
 }

@@ -26,7 +26,7 @@ export default function BracketView() {
       throw new Error('Match id is not a string');
     }
 
-    const newTournament = await window.electron.updateBracket(tournament.id, bracket.id, args.match.id, args.topWon);
+    const newTournament = await window.electron.enterResult(tournament.id, bracket.id, args.match.id, args.topWon);
     setTournament(newTournament);
   };
 

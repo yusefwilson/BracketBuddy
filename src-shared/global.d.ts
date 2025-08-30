@@ -25,7 +25,7 @@ declare global {
             ) => Promise<TournamentDTO>;
 
             // bracket
-            updateBracket: (tournamentId: string, bracketId: string, matchId: string, player1Won: boolean) => Promise<TournamentDTO>;
+            enterResult: (tournamentId: string, bracketId: string, matchId: string, player1Won: boolean) => Promise<TournamentDTO>;
 
             // misc
             getSaveData: () => Promise<Record<string, any>>;
