@@ -43,7 +43,7 @@ class Bracket {
         const name = gender + ' ' + experienceLevel + ' ' + hand + ' ' + weightLimit;
         this.externalBracket = new ExternalBracket(id, name);
 
-        // TODO: TEMPORARY, NEEDS TO BE REPLACED WITH PROPER INITIALIZATION. MAYBE CALL INITIALIZE HERE?
+        // TODO: TEMPORARY, NEEDS TO BE REPLACED WITH PROPER INITIALIZATION.
         this.final = new Match(id, 0, 0);
         this.finalRematch = new Match(id, 0, 0);
 
@@ -173,16 +173,26 @@ class Bracket {
         this.externalBracket.enterResult(matchId, player1Wins, player2Wins);
     }
 
-    //TODO: do these functions need a harder reset rather than just initialize? or should that be taken care of in initialize?
-
     addCompetitor(competitorName: string) {
         this.competitorNames.push(competitorName);
-        this.initialize();
+
+        //TODO: check if this status check is actually what we need to do
+
+        // if bracket is already in progress, reinitialize
+        if (this.externalBracket.status !== 'setup') {
+            this.initialize();
+        }
     }
 
     removeCompetitor(competitorName: string) {
         this.competitorNames = this.competitorNames.filter(name => name !== competitorName);
-        this.initialize();
+
+        //TODO: check if this status check is actually what we need to do
+
+        // if bracket is already in progress, reinitialize
+        if (this.externalBracket.status !== 'setup') {
+            this.initialize();
+        }
     }
 
     // canGetWinnerFromFinal(): boolean {

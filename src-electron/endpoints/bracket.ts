@@ -65,9 +65,26 @@ const remove_competitor_from_bracket = async (_: Electron.IpcMainInvokeEvent, to
     return tournament.toDTO();
 }
 
+const start_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, bracketId: string): Promise<TournamentDTO> => {
+
+    const tournament = await load_tournament(_, tournamentId);
+    const bracket = tournament.getBracket(bracketId);
+
+    if (!bracket) {
+        throw new Error('Bracket not found');
+    }
+
+    bracket.initialize();
+
+    await save_tournament(_, tournament);
+
+    return tournament.toDTO();
+}
+
 
 export {
     update_bracket,
     add_competitor_to_bracket,
-    remove_competitor_from_bracket
+    remove_competitor_from_bracket,
+    start_bracket
 }

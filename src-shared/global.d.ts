@@ -25,6 +25,17 @@ declare global {
             ) => Promise<TournamentDTO>;
 
             // bracket
+            addCompetitorToBracket: (
+                tournamentId: string,
+                bracketId: string,
+                competitorName: string
+            ) => Promise<TournamentDTO>;
+            removeCompetitorFromBracket: (
+                tournamentId: string,
+                bracketId: string,
+                competitorName: string
+            ) => Promise<TournamentDTO>;
+            startBracket: (tournamentId: string, bracketId: string) => Promise<TournamentDTO>;
             enterResult: (tournamentId: string, bracketId: string, matchId: string, player1Won: boolean) => Promise<TournamentDTO>;
 
             // misc

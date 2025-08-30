@@ -42,6 +42,9 @@ contextBridge.exposeInMainWorld('electron', {
     removeCompetitorFromBracket: async (tournamentId: string, bracketId: string, competitorName: string) => {
         return await ipcRenderer.invoke('remove-competitor-from-bracket', tournamentId, bracketId, competitorName);
     },
+    startBracket: async (tournamentId: string, bracketId: string) => {
+        return await ipcRenderer.invoke('start-bracket', tournamentId, bracketId);
+    },
 
     // misc
     getSaveData: async () => {
