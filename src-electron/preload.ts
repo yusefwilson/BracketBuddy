@@ -18,7 +18,6 @@ contextBridge.exposeInMainWorld('electron', {
         return await ipcRenderer.invoke('delete-tournament', tournamentName);
     },
 
-    // bracket
     addBracketToTournament: async (
         tournamentId: string,
         gender: Gender,
@@ -31,6 +30,11 @@ contextBridge.exposeInMainWorld('electron', {
     },
     removeBracketFromTournament: async (tournamentId: string, bracketId: string) => {
         return await ipcRenderer.invoke('remove-bracket-from-tournament', tournamentId, bracketId);
+    },
+
+    // bracket
+    updateBracket: async (tournamentId: string, bracketId: string, matchId: string, player1Won: boolean) => {
+        return await ipcRenderer.invoke('update-bracket', tournamentId, bracketId, matchId, player1Won);
     },
 
     // misc

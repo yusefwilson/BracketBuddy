@@ -15,7 +15,6 @@ class Tournament {
     constructor(name: string = '', date: Date = new Date()) {
         this.name = name;
         this.date = date;
-        console.log('about to try to isostring date: ', date);
         this.id = name + date.toISOString().slice(0, 10);
         this.brackets = [];
         this.manager = new Manager();
@@ -47,8 +46,6 @@ class Tournament {
             brackets: unknown[];
         } = JSON.parse(serialized);
 
-        console.log('deserializing tournament: ', raw);
-
         const tournament = new Tournament(raw.name, new Date(raw.date));
         tournament.brackets = raw.brackets.map(bData =>
             Bracket.deserialize(bData, tournament)
@@ -67,6 +64,10 @@ class Tournament {
 
     getBracket(bracketId: string): Bracket | undefined {
         return this.brackets.find(bracket => bracket.id === bracketId);
+    }
+
+    getAllBrackets(): Bracket[] {
+        return this.brackets;
     }
 }
 export default Tournament;

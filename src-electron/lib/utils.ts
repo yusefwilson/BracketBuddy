@@ -20,7 +20,7 @@ const saveKeyValue = async (key: string, value: any): Promise<void> => {
 
 import { Tournament as ExternalBracket, Match, Player } from 'tournament-organizer/components';
 import { LoadableTournamentValues, PlayerValues, MatchValues } from 'tournament-organizer/interfaces';
-/**
+/*
  * Convert a Player class instance into a plain PlayerValues object.
  */
 function serializePlayer(player: Player): PlayerValues {
@@ -43,7 +43,7 @@ function serializePlayer(player: Player): PlayerValues {
     };
 }
 
-/**
+/*
  * Convert a Match class instance into a plain MatchValues object.
  */
 function serializeMatch(match: Match): MatchValues {
@@ -60,7 +60,7 @@ function serializeMatch(match: Match): MatchValues {
     };
 }
 
-/**
+/*
  * Convert a Tournament class instance into a plain LoadableTournamentValues object.
  */
 function getLoadableExternalBracketValues(tournament: ExternalBracket): LoadableTournamentValues {
@@ -110,10 +110,27 @@ function toMatchDTO(match: Match): MatchDTO {
     };
 }
 
-import { exampleData } from '../../src-shared/exampleData.js';
-
 function toRenderableBracket(bracket: ExternalBracket): RenderableBracket {
-    return exampleData;
+    // keep track of all ids that are linked to via the path.loss property
+    const losersBracketMatchIds = new Set<string>();
+
+    for (const match of bracket.matches) {
+        if (match.path?.loss) {
+            losersBracketMatchIds.add(match.path.loss);
+        }
+    }
+    // separate matches into upper and lower based on presence in previous map
+    const upperMatches = bracket.matches.filter(match => !losersBracketMatchIds.has(match.id));
+    const lowerMatches = bracket.matches.filter(match => losersBracketMatchIds.has(match.id));
+
+    // convert all matches to MatchDTOs
+    const upperMatchesDTO = upperMatches.map(match => toMatchDTO(match));
+    const lowerMatchesDTO = lowerMatches.map(match => toMatchDTO(match));
+
+    return {
+        upper: upperMatchesDTO,
+        lower: lowerMatchesDTO,
+    };
 }
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
