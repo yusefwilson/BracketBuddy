@@ -10,6 +10,12 @@ export default function BracketView() {
   const state = useContext(CURRENT_STATE);
   const { bracket, tournament, setTournament = () => { } } = state || {};
 
+  const startBracket = async () => {
+    const newTournament = await window.electron.startBracket(tournament?.id as string, bracket?.id as string);
+    setTournament(newTournament);
+  }
+
+
   if (!bracket) {
     return <div>Bracket not found</div>;
   }
@@ -29,6 +35,20 @@ export default function BracketView() {
     const newTournament = await window.electron.enterResult(tournament.id, bracket.id, args.match.id, args.topWon);
     setTournament(newTournament);
   };
+
+  console.log('bracket in BracketView: ', bracket);
+  console.log('tournament in BracketView: ', tournament);
+
+  if (!bracket.started) {
+    return (
+
+      <div className="div">
+        <div>Bracket not started!</div>
+        <button className='bg-red-400 p-2' onClick={startBracket}>Start Bracket</button>
+      </div>
+
+    );
+  }
 
   const WrappedMatchComponent = (props: MatchComponentProps) => {
     return <MatchComponent {...props} onMatchClick={onMatchClick} />;

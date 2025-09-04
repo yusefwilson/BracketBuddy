@@ -13,6 +13,8 @@ interface BracketDTO {
     hand: Hand
     weightLimit: number // in lbs, -1 for no limit
 
+    started: boolean
+
     competitorNames: string[]
 
     renderableBracket: RenderableBracket

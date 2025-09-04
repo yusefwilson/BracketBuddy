@@ -64,6 +64,8 @@ class Bracket {
 
     // create the initial bracket structure
     initialize() {
+        // TODO: replace external bracket competitors with competitorNames
+        this.externalBracket.players;
         this.externalBracket.start();
     }
 
@@ -136,6 +138,7 @@ class Bracket {
     }
 
     toDTO(): BracketDTO {
+        console.log('about to set started to ', this.externalBracket.status === 'setup', ' because status = ', this.externalBracket.status);
         return {
             id: this.id,
 
@@ -147,6 +150,9 @@ class Bracket {
             weightLimit: this.weightLimit, // in lbs, -1 for no limit
 
             competitorNames: this.competitorNames,
+
+            started: this.externalBracket.status !== 'setup',
+            
 
             renderableBracket: toRenderableBracket(this.externalBracket),
 
