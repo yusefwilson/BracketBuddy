@@ -43,6 +43,9 @@ class Bracket {
         const name = gender + ' ' + experienceLevel + ' ' + hand + ' ' + weightLimit;
         this.externalBracket = new ExternalBracket(id, name);
 
+        // add competitors - is this the right way to do this?
+        // competitorNames.forEach(competitorName => this.externalBracket.createPlayer(competitorName));
+
         // TODO: TEMPORARY, NEEDS TO BE REPLACED WITH PROPER INITIALIZATION.
         this.final = new Match(id, 0, 0);
         this.finalRematch = new Match(id, 0, 0);
@@ -50,22 +53,10 @@ class Bracket {
         this.nextMatchId = 1;
     }
 
-    setCompetitorNames(competitorNames: string[]) {
-
-        //console.log('setting competitor names');
-
-        this.competitorNames = competitorNames;
-
-        // reinitialize bracket
-        this.initialize();
-    }
-
     //TODO: does this function need a harder reset rather than just calling .start()?
 
     // create the initial bracket structure
     initialize() {
-        // TODO: replace external bracket competitors with competitorNames
-        this.externalBracket.players;
         this.externalBracket.start();
     }
 
@@ -104,7 +95,8 @@ class Bracket {
     }
 
     serialize() {
-        return {
+
+        const data = {
             gender: this.gender,
             experienceLevel: this.experienceLevel,
             hand: this.hand,
@@ -115,6 +107,8 @@ class Bracket {
             nextMatchId: this.nextMatchId,
             externalBracketData: getLoadableExternalBracketValues(this.externalBracket), // TODO: figure out how to get LoadableTournamentValues
         };
+        console.log('about to serialize bracket as: ', data);
+        return data;
     }
 
     static deserialize(data: any, tournament: Tournament): Bracket {
@@ -128,8 +122,9 @@ class Bracket {
         );
 
         // Restore external bracket from LoadableTournamentValues
-        tournament.manager.reloadTournament(data.externalBracketData);
+        const externalBracket = tournament.manager.reloadTournament(data.externalBracketData);
 
+        bracket.externalBracket = externalBracket;
         bracket.final = data.final;
         bracket.finalRematch = data.finalRematch;
         bracket.nextMatchId = data.nextMatchId;
@@ -138,7 +133,7 @@ class Bracket {
     }
 
     toDTO(): BracketDTO {
-        console.log('about to set started to ', this.externalBracket.status === 'setup', ' because status = ', this.externalBracket.status);
+        console.log('about to set started to ', this.externalBracket.status !== 'setup', ' because status = ', this.externalBracket.status);
         return {
             id: this.id,
 
@@ -152,7 +147,7 @@ class Bracket {
             competitorNames: this.competitorNames,
 
             started: this.externalBracket.status !== 'setup',
-            
+
 
             renderableBracket: toRenderableBracket(this.externalBracket),
 
@@ -181,24 +176,12 @@ class Bracket {
 
     addCompetitor(competitorName: string) {
         this.competitorNames.push(competitorName);
-
-        //TODO: check if this status check is actually what we need to do
-
-        // if bracket is already in progress, reinitialize
-        if (this.externalBracket.status !== 'setup') {
-            this.initialize();
-        }
+        this.externalBracket.createPlayer(competitorName);
     }
 
     removeCompetitor(competitorName: string) {
         this.competitorNames = this.competitorNames.filter(name => name !== competitorName);
-
-        //TODO: check if this status check is actually what we need to do
-
-        // if bracket is already in progress, reinitialize
-        if (this.externalBracket.status !== 'setup') {
-            this.initialize();
-        }
+        this.externalBracket.removePlayer(competitorName);
     }
 
     // canGetWinnerFromFinal(): boolean {

@@ -26,10 +26,10 @@ const update_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: stri
 }
 
 const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, bracketId: string, competitorName: string): Promise<TournamentDTO> => {
-    console.log('adding competitor to bracket');
-    console.log('tournamentId: ', tournamentId);
-    console.log('bracketId: ', bracketId);
-    console.log('competitorName: ', competitorName);
+    // console.log('adding competitor to bracket');
+    // console.log('tournamentId: ', tournamentId);
+    // console.log('bracketId: ', bracketId);
+    // console.log('competitorName: ', competitorName);
 
     const tournament = await load_tournament(_, tournamentId);
     const bracket = tournament.getBracket(bracketId);
@@ -46,10 +46,10 @@ const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, tournam
 }
 
 const remove_competitor_from_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, bracketId: string, competitorName: string): Promise<TournamentDTO> => {
-    console.log('removing competitor from bracket');
-    console.log('tournamentId: ', tournamentId);
-    console.log('bracketId: ', bracketId);
-    console.log('competitorName: ', competitorName);
+    // console.log('removing competitor from bracket');
+    // console.log('tournamentId: ', tournamentId);
+    // console.log('bracketId: ', bracketId);
+    // console.log('competitorName: ', competitorName);
 
     const tournament = await load_tournament(_, tournamentId);
     const bracket = tournament.getBracket(bracketId);
@@ -67,6 +67,10 @@ const remove_competitor_from_bracket = async (_: Electron.IpcMainInvokeEvent, to
 
 const start_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, bracketId: string): Promise<TournamentDTO> => {
 
+    console.log('starting bracket');
+    console.log('tournamentId: ', tournamentId);
+    console.log('bracketId: ', bracketId);
+
     const tournament = await load_tournament(_, tournamentId);
     const bracket = tournament.getBracket(bracketId);
 
@@ -76,7 +80,11 @@ const start_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: strin
 
     bracket.initialize();
 
+    console.log('bracket is now: ', bracket.toDTO());
+
     await save_tournament(_, tournament);
+
+    console.log('about to return: ', tournament.toDTO());
 
     return tournament.toDTO();
 }

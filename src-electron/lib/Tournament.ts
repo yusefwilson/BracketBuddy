@@ -47,8 +47,8 @@ class Tournament {
         } = JSON.parse(serialized);
 
         const tournament = new Tournament(raw.name, new Date(raw.date));
-        tournament.brackets = raw.brackets.map(bData =>
-            Bracket.deserialize(bData, tournament)
+        tournament.brackets = raw.brackets.map(bracketData =>
+            Bracket.deserialize(bracketData, tournament)
         );
         return tournament;
     }

@@ -13,7 +13,6 @@ import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
 const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<TournamentDTO[]> => {
     console.log('loading all tournaments');
     const files = await readdir(SAVE_DIR);
-    console.log('files: ', files);
     const tournaments = [];
     for (const file of files) {
         if (file.endsWith('.json') && file !== SAVE_FILE_NAME) {
@@ -22,7 +21,7 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Tou
         }
     }
 
-    console.log('tournaments: ', tournaments);
+    // console.log('tournaments: ', tournaments);
 
     const deserializedTournaments = [];
 
@@ -31,7 +30,7 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Tou
         deserializedTournaments.push(Tournament.deserialize(tournamentData).toDTO());
     }
 
-    console.log('deserialized tournaments: ', deserializedTournaments);
+    // console.log('deserialized tournaments: ', deserializedTournaments);
 
     return deserializedTournaments;
 }
@@ -61,7 +60,9 @@ const add_bracket_to_tournament = async (_: Electron.IpcMainInvokeEvent, tournam
 
     const tournament = await load_tournament(_, tournamentId);
 
-    const bracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
+    // manually add competitors here to sync competitorNames and externalBracket.players - ugly
+    const bracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit);
+    competitorNames.forEach(competitorName => bracket.addCompetitor(competitorName));
     tournament.addBracket(bracket);
 
     console.log('Added bracket to tournament ' + tournamentId);
