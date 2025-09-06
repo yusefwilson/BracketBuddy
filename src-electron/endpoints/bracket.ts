@@ -13,6 +13,7 @@ const update_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: stri
     console.log('all brackets: ', tournament.getAllBrackets().map(b => b.id));
 
     const bracket = tournament.getBracket(bracketId);
+    console.log('bracket: ', bracket);
 
     if (!bracket) {
         throw new Error('Bracket not found');
@@ -80,11 +81,13 @@ const start_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: strin
 
     bracket.initialize();
 
-    console.log('bracket is now: ', bracket.toDTO());
+    console.log('bracket is now: ', bracket);
+    console.log('bracketDTO is now: ', bracket.toDTO());
 
     await save_tournament(_, tournament);
 
     console.log('about to return: ', tournament.toDTO());
+    console.log('about to return renderableBracket: ', bracket.toDTO().renderableBracket);
 
     return tournament.toDTO();
 }

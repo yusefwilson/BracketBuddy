@@ -83,7 +83,10 @@ function getLoadableExternalBracketValues(tournament: ExternalBracket): Loadable
 import { MatchDTO } from '../../src-shared/MatchDTO';
 import { RenderableBracket } from '@shared/types';
 
-function toMatchDTO(match: Match): MatchDTO {
+function toMatchDTO(match: Match, bracket: ExternalBracket): MatchDTO {
+
+    const playerIdToName = (id: string) => bracket.players.find(p => p.id === id)?.name ?? id;
+
     return {
         id: match.id,
         name: `Round ${match.round} - Match ${match.match}`,
@@ -97,14 +100,14 @@ function toMatchDTO(match: Match): MatchDTO {
                 resultText: match.player1.win > match.player2.win ? 'WON' : 'LOST',
                 isWinner: match.player1.win > match.player2.win,
                 status: match.active ? 'PLAYED' : null,
-                name: match.player1.id, // replace with real name lookup if available
+                name: playerIdToName(match.player1.id as string),
             },
             {
                 id: match.player2.id,
                 resultText: match.player2.win > match.player1.win ? 'WON' : 'LOST',
                 isWinner: match.player2.win > match.player1.win,
                 status: match.active ? 'PLAYED' : null,
-                name: match.player2.id, // replace with real name lookup if available
+                name: playerIdToName(match.player2.id as string),
             },
         ],
     };
@@ -124,8 +127,8 @@ function toRenderableBracket(bracket: ExternalBracket): RenderableBracket {
     const lowerMatches = bracket.matches.filter(match => losersBracketMatchIds.has(match.id));
 
     // convert all matches to MatchDTOs
-    const upperMatchesDTO = upperMatches.map(match => toMatchDTO(match));
-    const lowerMatchesDTO = lowerMatches.map(match => toMatchDTO(match));
+    const upperMatchesDTO = upperMatches.map(match => toMatchDTO(match, bracket));
+    const lowerMatchesDTO = lowerMatches.map(match => toMatchDTO(match, bracket));
 
     return {
         upper: upperMatchesDTO,

@@ -43,8 +43,12 @@ class Bracket {
         const name = gender + ' ' + experienceLevel + ' ' + hand + ' ' + weightLimit;
         this.externalBracket = new ExternalBracket(id, name);
 
-        // add competitors - is this the right way to do this?
-        // competitorNames.forEach(competitorName => this.externalBracket.createPlayer(competitorName));
+        // make bracket double elimination - crucial to do this here since this information is serialized and deserialized ad infinitum
+        this.externalBracket.settings = {
+            stageOne: {
+                format: 'double-elimination',
+            }
+        }
 
         // TODO: TEMPORARY, NEEDS TO BE REPLACED WITH PROPER INITIALIZATION.
         this.final = new Match(id, 0, 0);
@@ -107,7 +111,7 @@ class Bracket {
             nextMatchId: this.nextMatchId,
             externalBracketData: getLoadableExternalBracketValues(this.externalBracket), // TODO: figure out how to get LoadableTournamentValues
         };
-        console.log('about to serialize bracket as: ', data);
+        //console.log('about to serialize bracket as: ', data);
         return data;
     }
 
@@ -133,7 +137,9 @@ class Bracket {
     }
 
     toDTO(): BracketDTO {
-        console.log('about to set started to ', this.externalBracket.status !== 'setup', ' because status = ', this.externalBracket.status);
+        //console.log('about to set started to ', this.externalBracket.status !== 'setup', ' because status = ', this.externalBracket.status);
+        //console.log('about to transform externalBracket: ', this.externalBracket);
+        //console.log('into renderableBracket: ', toRenderableBracket(this.externalBracket));
         return {
             id: this.id,
 
@@ -151,8 +157,8 @@ class Bracket {
 
             renderableBracket: toRenderableBracket(this.externalBracket),
 
-            final: toMatchDTO(this.final),
-            finalRematch: toMatchDTO(this.finalRematch),
+            final: toMatchDTO(this.final, this.externalBracket),
+            finalRematch: toMatchDTO(this.finalRematch, this.externalBracket),
         };
     }
 
@@ -171,7 +177,9 @@ class Bracket {
             player2Wins++;
         }
 
+        console.log('about to enter result for match ' + matchId + ' with player1Wins = ' + player1Wins + ' and player2Wins = ' + player2Wins);
         this.externalBracket.enterResult(matchId, player1Wins, player2Wins);
+        console.log('finished entering result');
     }
 
     addCompetitor(competitorName: string) {
