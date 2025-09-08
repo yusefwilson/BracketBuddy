@@ -20,7 +20,7 @@ export default function CompetitorInput({ competitors, setCompetitors, }: { comp
 
     return (
         <div className='flex flex-col h-full justify-between'>
-            <div className='overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700'>
+            <div className='overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64'>
                 <h2 className='text-lg font-semibold text-white mb-4'>
                     Enter Competitor Names ({competitors.length})
                 </h2>
