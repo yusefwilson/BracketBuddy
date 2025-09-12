@@ -18,125 +18,118 @@ const saveKeyValue = async (key: string, value: any): Promise<void> => {
     await window.electron.saveKeyValue(key, value);
 }
 
-import { Tournament as ExternalBracket, Match, Player } from 'tournament-organizer/components';
-import { LoadableTournamentValues, PlayerValues, MatchValues } from 'tournament-organizer/interfaces';
-/*
- * Convert a Player class instance into a plain PlayerValues object.
- */
-function serializePlayer(player: Player): PlayerValues {
-    return {
-        id: player.id,
-        name: player.name,
-        active: player.active,
-        value: player.value,
-        matches: player.matches.map(m => ({
-            id: m.id,
-            opponent: m.opponent,
-            pairUpDown: m.pairUpDown ?? false,
-            seating: m.seating ?? null,
-            bye: m.bye ?? false,
-            win: m.win ?? 0,
-            loss: m.loss ?? 0,
-            draw: m.draw ?? 0,
-        })),
-        meta: { ...player.meta },
-    };
+/* SERIALIZATION AND DESERIALIZATION */
+import { parse, stringify } from 'flatted';
+
+function rehydrate(data: any, classMap: Record<string, new () => any>, cache = new WeakMap()): any {
+
+    // Handle Date objects differently than the custom classes
+    if (typeof data === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(data)) {
+        return new Date(data); // Convert ISO string to Date instance
+    }
+
+    // Handle null and non-objects
+    if (data === null || typeof data !== 'object') return data;
+
+    // Handle circular references
+    if (cache.has(data)) return cache.get(data);
+
+    // Handle classes
+    if (data.__class && classMap[data.__class]) {
+        const instance = new classMap[data.__class]();
+        cache.set(data, instance);
+        Object.keys(data).forEach((key) => {
+            if (key !== '__class') {
+                (instance as any)[key] = rehydrate(data[key], classMap, cache);
+            }
+        });
+        return instance;
+    }
+
+    // Handle arrays
+    if (Array.isArray(data)) {
+        const rehydratedArray = data.map((item) => rehydrate(item, classMap, cache));
+        cache.set(data, rehydratedArray);
+        return rehydratedArray;
+    }
+
+    const rehydratedObject = {} as any;
+    cache.set(data, rehydratedObject);
+
+    Object.keys(data).forEach((key) => {
+        rehydratedObject[key] = rehydrate(data[key], classMap, cache);
+    });
+
+    return rehydratedObject;
 }
 
-/*
- * Convert a Match class instance into a plain MatchValues object.
- */
-function serializeMatch(match: Match): MatchValues {
-    return {
-        id: match.id,
-        round: match.round,
-        match: match.match,
-        active: match.active,
-        bye: match.bye,
-        player1: { ...match.player1 },
-        player2: { ...match.player2 },
-        path: { ...match.path },
-        meta: { ...match.meta },
-    };
+function serialize(obj: any): string {
+    return stringify(obj);
 }
 
-/*
- * Convert a Tournament class instance into a plain LoadableTournamentValues object.
- */
-function getLoadableExternalBracketValues(tournament: ExternalBracket): LoadableTournamentValues {
-    return {
-        id: tournament.id,
-        name: tournament.name,
-        status: tournament.status,
-        round: tournament.round,
-        seating: tournament.seating,
-        sorting: tournament.sorting,
-        scoring: { ...tournament.scoring },
-        stageOne: { ...tournament.stageOne },
-        stageTwo: { ...tournament.stageTwo },
-        meta: { ...tournament.meta },
-        players: tournament.players.map(p => serializePlayer(p)),
-        matches: tournament.matches.map(m => serializeMatch(m)),
-    };
+function deserialize(serialized: string, classMap: Record<string, new () => any>): any {
+
+    const deserialized = parse(serialized);
+
+    // now rehydrate object by changing all __class fields to their respective classes
+    const rehydrated = rehydrate(deserialized, classMap);
+
+    return rehydrated;
 }
 
-import { MatchDTO } from '../../src-shared/MatchDTO';
-import { RenderableBracket } from '@shared/types';
+/* BRACKET */
+import Match from './Match';
+function separateBrackets(matches: Match[]): { winners: Match[][]; losers: Match[][] } {
+    const winners: Match[][] = [];
+    const losers: Match[][] = [];
 
-function toMatchDTO(match: Match, bracket: ExternalBracket): MatchDTO {
-
-    const playerIdToName = (id: string) => bracket.players.find(p => p.id === id)?.name ?? id;
-
-    return {
-        id: match.id,
-        name: `Round ${match.round} - Match ${match.match}`,
-        nextMatchId: match.path?.win ?? null,
-        nextLooserMatchId: match.path?.loss ?? null,
-        startTime: null, // not available in Match, so default to null (or inject externally)
-        state: match.active ? 'SCORE_DONE' : 'DONE', // simplistic mapping; adjust as needed
-        participants: [
-            {
-                id: match.player1.id,
-                resultText: match.player1.win > match.player2.win ? 'WON' : 'LOST',
-                isWinner: match.player1.win > match.player2.win,
-                status: match.active ? 'PLAYED' : null,
-                name: playerIdToName(match.player1.id as string),
-            },
-            {
-                id: match.player2.id,
-                resultText: match.player2.win > match.player1.win ? 'WON' : 'LOST',
-                isWinner: match.player2.win > match.player1.win,
-                status: match.active ? 'PLAYED' : null,
-                name: playerIdToName(match.player2.id as string),
-            },
-        ],
+    // Helper: ensure the round array exists
+    const ensureRound = (arr: Match[][], round: number) => {
+        while (arr.length <= round) arr.push([]);
     };
-}
 
-function toRenderableBracket(bracket: ExternalBracket): RenderableBracket {
-    // keep track of all ids that are linked to via the path.loss property
-    const losersBracketMatchIds = new Set<string>();
-
-    for (const match of bracket.matches) {
-        if (match.path?.loss) {
-            losersBracketMatchIds.add(match.path.loss);
+    // Precompute which matches are in losers bracket
+    const matchIsLoser = new Map<string, boolean>();
+    for (const m of matches) {
+        matchIsLoser.set(`${m.round}-${m.match}`, false);
+    }
+    for (const m of matches) {
+        if (m.loss) {
+            matchIsLoser.set(`${m.loss.round}-${m.loss.match}`, true);
         }
     }
-    // separate matches into upper and lower based on presence in previous map
-    const upperMatches = bracket.matches.filter(match => !losersBracketMatchIds.has(match.id));
-    const lowerMatches = bracket.matches.filter(match => losersBracketMatchIds.has(match.id));
 
-    // convert all matches to MatchDTOs
-    const upperMatchesDTO = upperMatches.map(match => toMatchDTO(match, bracket));
-    const lowerMatchesDTO = lowerMatches.map(match => toMatchDTO(match, bracket));
+    for (const m of matches) {
+        const target = matchIsLoser.get(`${m.round}-${m.match}`) ? losers : winners;
+        ensureRound(target, m.round);
+        target[m.round][m.match] = m;
+    }
 
-    return {
-        upper: upperMatchesDTO,
-        lower: lowerMatchesDTO,
-    };
+    return { winners, losers };
 }
+
+type ExternalMatch = {
+    round: number,
+    match: number,
+    player1: string | number | null,
+    player2: string | number | null,
+    win?: {
+        round: number,
+        match: number
+    },
+    loss?: {
+        round: number,
+        match: number
+    }
+}
+
+function externalMatchToInternalMatch(match: ExternalMatch): Match {
+    return new Match(match.round, match.match, match.player1, match.player2, -1, match.win, match.loss);
+}
+
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     getSaveData, saveKeyValue,
-    toMatchDTO, getLoadableExternalBracketValues, toRenderableBracket
-};
+    serialize, deserialize,
+    separateBrackets, externalMatchToInternalMatch
+}

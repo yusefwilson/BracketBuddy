@@ -1,5 +1,6 @@
+import { serialize, deserialize } from './utils';
 import Bracket from './Bracket.js';
-import Manager from 'tournament-organizer';
+import Match from './Match';
 import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
 
 class Tournament {
@@ -8,8 +9,6 @@ class Tournament {
     date: Date;
     id: string;
 
-    manager: Manager // manages all the sub-brackets - be careful as the tournament-organizer package calls a bracket a 'Tournament'
-
     brackets: Bracket[];
 
     constructor(name: string = '', date: Date = new Date()) {
@@ -17,7 +16,6 @@ class Tournament {
         this.date = date;
         this.id = name + date.toISOString().slice(0, 10);
         this.brackets = [];
-        this.manager = new Manager();
     }
 
     async addBracket(bracket: Bracket) {
@@ -28,28 +26,19 @@ class Tournament {
         this.brackets = this.brackets.filter(b => b.id !== bracketId);
     }
 
-    // Tournament class
+// serialization and deserialization
     serialize(): string {
-        // Extract only plain JSON-safe data (no methods, no cyclic refs)
-        const plainData = {
-            name: this.name,
-            date: this.date.toISOString(),
-            brackets: this.brackets.map(b => b.serialize()),
-        };
-        return JSON.stringify(plainData);
+        return serialize(this);
     }
 
     static deserialize(serialized: string): Tournament {
-        const raw: {
-            name: string;
-            date: string;
-            brackets: unknown[];
-        } = JSON.parse(serialized);
+        console.log('about to deserialize tournament data');
+        const tournament = deserialize(serialized, { Tournament, Bracket, Match }) as Tournament;
+        // Rewire bracket references
+        tournament.brackets.forEach(bracket => {
+            bracket.tournament = tournament;
+        });
 
-        const tournament = new Tournament(raw.name, new Date(raw.date));
-        tournament.brackets = raw.brackets.map(bracketData =>
-            Bracket.deserialize(bracketData, tournament)
-        );
         return tournament;
     }
 
