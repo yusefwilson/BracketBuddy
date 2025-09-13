@@ -2,6 +2,7 @@ import { serialize, deserialize, prepareMatches, } from './utils';
 import { Gender, Hand, ExperienceLevel } from '../../src-shared/types';
 import Match from './Match';
 import Tournament from './Tournament';
+import { BracketDTO } from '../../src-shared/BracketDTO';
 
 class Bracket {
 
@@ -9,10 +10,14 @@ class Bracket {
 
     tournament: Tournament | null
 
+    id: string
+
     gender: Gender
     experienceLevel: ExperienceLevel
     hand: Hand
     weightLimit: number // in lbs, -1 for no limit
+
+    started: boolean
 
     competitorNames: string[]
 
@@ -24,7 +29,9 @@ class Bracket {
 
     constructor(tournament: Tournament | null = null, gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
 
-        // assign everything except subBrackets
+        // tournament.id-gender-experienceLevel-hand-weightLimit
+        this.id = tournament?.id + [gender, experienceLevel, hand, weightLimit].join('-');
+
         this.tournament = tournament;
         this.gender = gender;
         this.experienceLevel = experienceLevel;
@@ -38,6 +45,8 @@ class Bracket {
 
         this.final = null;
         this.finalRematch = null;
+
+        this.started = false;
     }
 
     setCompetitorNames(competitorNames: string[]) {
@@ -74,6 +83,8 @@ class Bracket {
 
         // TODO: get final rematch here - prepareMatches should probably create this? will require some caveats probably
         this.finalRematch = null;
+
+        this.started = true;
     }
 
     findMatchByRoundAndIndex(round: number, index: number): Match | undefined {
@@ -126,6 +137,22 @@ class Bracket {
 
     static deserialize(serialized: string): Bracket {
         return deserialize(serialized, { Tournament, Bracket, Match });
+    }
+
+    toDTO(): BracketDTO {
+        return {
+            id: this.id,
+            gender: this.gender,
+            experienceLevel: this.experienceLevel,
+            hand: this.hand,
+            weightLimit: this.weightLimit,
+            competitorNames: this.competitorNames,
+            winnersBracket: this.winnersBracket.map(round => round.map(match => match.toDTO())),
+            losersBracket: this.losersBracket.map(round => round.map(match => match.toDTO())),
+            started: this.started,
+            final: this.final ? this.final.toDTO() : null,
+            finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
+        };
     }
 
     // canGetWinnerFromFinal(): boolean {

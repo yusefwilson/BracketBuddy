@@ -1,12 +1,9 @@
-import { Gender, Hand, ExperienceLevel, RenderableBracket } from './types';
-
+import { Gender, Hand, ExperienceLevel } from './types';
 import { MatchDTO } from './MatchDTO'
 
 interface BracketDTO {
 
     id: string
-
-    tournamentId: string
 
     gender: Gender
     experienceLevel: ExperienceLevel
@@ -17,10 +14,11 @@ interface BracketDTO {
 
     competitorNames: string[]
 
-    renderableBracket: RenderableBracket
+    winnersBracket: MatchDTO[][]
+    losersBracket: MatchDTO[][]
 
-    final: MatchDTO
-    finalRematch: MatchDTO
+    final: MatchDTO | null
+    finalRematch: MatchDTO | null
 }
 
 export type { BracketDTO }

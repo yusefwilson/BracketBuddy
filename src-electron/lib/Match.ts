@@ -1,3 +1,5 @@
+import { MatchDTO } from "../../src-shared/MatchDTO";
+
 class Match {
 
     __class: string = 'Match'
@@ -36,7 +38,7 @@ class Match {
 
     getWinnerPretty() {
         if (this.winner === -1 || this.winner === undefined) {
-            return 'Winner of match ' + this.id;
+            return 'Winner of match ' + this.match + ' in round ' + this.round;
         }
 
         // if winner is set to 0 or 1, then the corresponding competitor name is definitely not undefined
@@ -53,9 +55,21 @@ class Match {
 
     getLoser() {
         if (this.winner === -1 || this.winner === undefined) {
-            return 'Loser of match ' + this.id;
+            return 'Loser of match ' + this.match + ' in round ' + this.round;
         }
         return this.winner === 0 ? this.player2 : this.player1;
+    }
+
+    toDTO(): MatchDTO {
+        return {
+            round: this.round,
+            match: this.match,
+            player1: this.player1,
+            player2: this.player2,
+            winner: this.winner,
+            win: this.win,
+            loss: this.loss,
+        };
     }
 }
 
