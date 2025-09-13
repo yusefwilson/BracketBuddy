@@ -83,14 +83,16 @@ function deserialize(serialized: string, classMap: Record<string, new () => any>
 // 1. convert all to internal Match class
 // 2. separate brackets into winners and losers
 
+import Match from './Match';
+import { DoubleElimination } from 'tournament-pairings';
+import { ExternalMatch } from '../../src-shared/types';
+
 function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][] } {
     const matches = DoubleElimination(competitorNames);
     const convertedMatches = matches.map(m => externalMatchToInternalMatch(m));
     return separateBrackets(convertedMatches);
 }
 
-import Match from './Match';
-import { DoubleElimination } from 'tournament-pairings';
 function separateBrackets(matches: Match[]): { winnersBracket: Match[][]; losersBracket: Match[][] } {
     const winnersBracket: Match[][] = [];
     const losersBracket: Match[][] = [];
@@ -120,33 +122,10 @@ function separateBrackets(matches: Match[]): { winnersBracket: Match[][]; losers
     return { winnersBracket, losersBracket };
 }
 
-// functionality to convert tournament-pairings output to the internal Match class
-
-type ExternalMatch = {
-    round: number,
-    match: number,
-    player1: string | number | null,
-    player2: string | number | null,
-    win?: {
-        round: number,
-        match: number
-    },
-    loss?: {
-        round: number,
-        match: number
-    }
-}
-
+// function to convert tournament-pairings output to the internal Match class
 function externalMatchToInternalMatch(match: ExternalMatch): Match {
     return new Match(match.round, match.match, match.player1, match.player2, -1, match.win, match.loss);
 }
-
-
-const names = ['a', 'b', 'c', 'd'];
-const pairings = DoubleElimination(names);
-
-console.log(pairings);
-
 
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,

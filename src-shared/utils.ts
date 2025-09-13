@@ -1,5 +1,5 @@
-import { BracketDTO } from "./BracketDTO";
-import { MatchDTO } from "./MatchDTO";
+import { BracketDTO } from './BracketDTO';
+import { MatchDTO } from './MatchDTO';
 
 /* MATH */
 function greatestPowerOf2LessThanOrEqualTo(n: number): number {

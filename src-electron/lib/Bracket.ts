@@ -3,8 +3,6 @@ import { Gender, Hand, ExperienceLevel } from '../../src-shared/types';
 import Match from './Match';
 import Tournament from './Tournament';
 
-import { DoubleElimination } from 'tournament-pairings';
-
 class Bracket {
 
     __class: string = 'Bracket'
