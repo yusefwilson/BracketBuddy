@@ -16,7 +16,7 @@ class Match {
         match: number
     }
 
-    constructor(round: number, match: number, player1: string | number | null, player2: string | number | null, winner: number = -1,
+    constructor(round: number = -1, match: number = -1, player1: string | number | null = null, player2: string | number | null = null, winner: number = -1,
         win?: {
             round: number,
             match: number

@@ -78,10 +78,22 @@ function deserialize(serialized: string, classMap: Record<string, new () => any>
 }
 
 /* BRACKET */
+
+// function to get tournament-pairings output ready for the internal data structure
+// 1. convert all to internal Match class
+// 2. separate brackets into winners and losers
+
+function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][] } {
+    const matches = DoubleElimination(competitorNames);
+    const convertedMatches = matches.map(m => externalMatchToInternalMatch(m));
+    return separateBrackets(convertedMatches);
+}
+
 import Match from './Match';
-function separateBrackets(matches: Match[]): { winners: Match[][]; losers: Match[][] } {
-    const winners: Match[][] = [];
-    const losers: Match[][] = [];
+import { DoubleElimination } from 'tournament-pairings';
+function separateBrackets(matches: Match[]): { winnersBracket: Match[][]; losersBracket: Match[][] } {
+    const winnersBracket: Match[][] = [];
+    const losersBracket: Match[][] = [];
 
     // Helper: ensure the round array exists
     const ensureRound = (arr: Match[][], round: number) => {
@@ -100,13 +112,15 @@ function separateBrackets(matches: Match[]): { winners: Match[][]; losers: Match
     }
 
     for (const m of matches) {
-        const target = matchIsLoser.get(`${m.round}-${m.match}`) ? losers : winners;
+        const target = matchIsLoser.get(`${m.round}-${m.match}`) ? losersBracket : winnersBracket;
         ensureRound(target, m.round);
         target[m.round][m.match] = m;
     }
 
-    return { winners, losers };
+    return { winnersBracket, losersBracket };
 }
+
+// functionality to convert tournament-pairings output to the internal Match class
 
 type ExternalMatch = {
     round: number,
@@ -127,9 +141,16 @@ function externalMatchToInternalMatch(match: ExternalMatch): Match {
     return new Match(match.round, match.match, match.player1, match.player2, -1, match.win, match.loss);
 }
 
+
+const names = ['a', 'b', 'c', 'd'];
+const pairings = DoubleElimination(names);
+
+console.log(pairings);
+
+
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     getSaveData, saveKeyValue,
     serialize, deserialize,
-    separateBrackets, externalMatchToInternalMatch
+    prepareMatches
 }
