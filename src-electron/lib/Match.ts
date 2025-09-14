@@ -1,25 +1,19 @@
 import { MatchDTO } from "../../src-shared/MatchDTO";
+import { SlotCoordinates } from "../../src-shared/types";
 import util from 'util';
 
 class Match {
 
     __class: string = 'Match'
 
+    id: string
     round: number
     match: number
     player1: string | null
     player2: string | null
-    winner: number // 1 if player1 won, 2 if player2 won, -1 if it is undetermined
-    win?: {
-        round: number,
-        match: number,
-        slot: 1 | 2
-    }
-    loss?: {
-        round: number,
-        match: number,
-        slot: 1 | 2
-    }
+    winner: number // 1 if player1 won, 2 if player2 won, -1 if it is undecided
+    win?: SlotCoordinates
+    loss?: SlotCoordinates
     winChild?: Match
     lossChild?: Match
     slot1Parent?: Match
@@ -27,17 +21,10 @@ class Match {
     slot2Parent?: Match
     slot2PreviouslyWinner?: boolean
 
-    constructor(round: number = -1, match: number = -1, player1: string | null = null, player2: string | null = null, winner: number = -1,
-        win?: {
-            round: number,
-            match: number,
-            slot: 1 | 2
-        },
-        loss?: {
-            round: number,
-            match: number,
-            slot: 1 | 2
-        }) {
+    constructor(id: string = '', round: number = -1, match: number = -1, player1: string | null = null, player2: string | null = null,
+        winner: number = -1, win?: SlotCoordinates, loss?: SlotCoordinates) {
+
+        this.id = id;
         this.round = round;
         this.match = match;
         this.player1 = player1;
@@ -47,28 +34,36 @@ class Match {
         this.loss = loss;
     }
 
-    getWinnerPretty() {
-        if (this.winner === -1 || this.winner === undefined) {
-            return 'Winner of match ' + this.match + ' in round ' + this.round;
-        }
-
-        // if winner is set to 0 or 1, then the corresponding competitor name is definitely not undefined
-        return (this.winner === 0 ? this.player1 : this.player2) as string;
+    isDecided() {
+        return this.winner !== -1;
     }
 
-    getWinnerReal() {
-        if (this.winner === -1 || this.winner === undefined) {
-            return undefined;
-        }
+    getGenericWinner() {
+        return 'Winner of match ' + this.match + ' in round ' + this.round;
+    }
 
+    getGenericLoser() {
+        return 'Loser of match ' + this.match + ' in round ' + this.round;
+    }
+
+    getWinningPlayer() {
+        // if the match has not been filled or determined, then throw an error
+        if (!this.isDecided() || this.player1 === null || this.player2 === null) {
+            throw new Error('Match is undetermined');
+        }
+        return this.winner === 1 ? this.player1 : this.player2;
+    }
+
+    getLosingPlayer() {
+        // if the match has not been filled or determined, then throw an error
+        if (!this.isDecided() || this.player1 === null || this.player2 === null) {
+            throw new Error('Match is undetermined');
+        }
+        return this.winner === 1 ? this.player2 : this.player1;
+    }
+
+    getWinner() {
         return this.winner;
-    }
-
-    getLoser() {
-        if (this.winner === -1 || this.winner === undefined) {
-            return 'Loser of match ' + this.match + ' in round ' + this.round;
-        }
-        return this.winner === 0 ? this.player2 : this.player1;
     }
 
     toDTO(): MatchDTO {
@@ -92,6 +87,40 @@ class Match {
         }
         else {
             throw new Error('Slot must be 1 or 2');
+        }
+    }
+
+    // update the winner of this match and then trigger a recursive update of all children matches' player names
+    updateWinner(winner: number) {
+        this.winner = winner;
+
+        if (this.winChild) {
+            //console.log('updating winner child which has id ' + this.winnerChild.id);
+            this.winChild.updatePlayers();
+        }
+
+        if (this.lossChild) {
+            //console.log('updating loser child which has id ' + this.loserChild.id);
+            this.lossChild.updatePlayers();
+        }
+    }
+
+    // update the players of the current match if and only if the parent matches have been decided
+    updatePlayers() {
+
+        // if the parent match exists and has been decided, update the player of this match
+        if (this.slot1Parent && this.slot1Parent.isDecided()) {
+            this.player1 = this.slot1PreviouslyWinner ? this.slot1Parent.getWinningPlayer() : this.slot1Parent.getLosingPlayer();
+        }
+        if (this.slot2Parent && this.slot2Parent.isDecided()) {
+            this.player2 = this.slot2PreviouslyWinner ? this.slot2Parent.getWinningPlayer() : this.slot2Parent.getLosingPlayer();
+        }
+
+        if (this.winChild) {
+            this.winChild.updatePlayers();
+        }
+        if (this.lossChild) {
+            this.lossChild.updatePlayers();
         }
     }
 

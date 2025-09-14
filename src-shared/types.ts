@@ -19,4 +19,10 @@ type ExternalMatch = {
     }
 }
 
-export type { Gender, Hand, ExperienceLevel, ExternalMatch };
+type SlotCoordinates = {
+    round: number,
+    match: number,
+    slot: 1 | 2
+}
+
+export type { Gender, Hand, ExperienceLevel, ExternalMatch, SlotCoordinates };

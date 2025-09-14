@@ -110,7 +110,9 @@ const createInternalMatch = (match: ExternalMatch, winSlot: 1 | 2 | undefined, l
         loss = { round: match.loss.round, match: match.loss.match, slot: lossSlot as 1 | 2 };
     }
 
-    return new Match(match.round, match.match, match.player1, match.player2, -1, win, loss);
+    const id = match.round + '-' + match.match;
+
+    return new Match(id, match.round, match.match, match.player1, match.player2, -1, win, loss);
 }
 
 // function to convert tournament-pairings output to the internal Match class

@@ -100,67 +100,22 @@ class Bracket {
         this.setCompetitorNames(this.competitorNames.filter(c => c !== competitorName));
     }
 
-    updateMatch(round: number, match: number, winner: number) {
+    updateMatchByRoundAndIndex(round: number, match: number, winner: number) {
+        const matchToBeUpdated = this.findMatchByRoundAndIndex(round, match);
+        matchToBeUpdated.updateWinner(winner);
+    }
 
-        let initialMatch = this.findMatchByRoundAndIndex(round, match);
+    updateMatchById(matchId: string, winner: number) {
+        const matchToBeUpdated = this.findMatchById(matchId);
+        matchToBeUpdated.updateWinner(winner);
+    }
 
-        // if winner is 1 or 2, then update winner of the match, and traverse through dependent matches to update their winners
-        if (winner === 1 || winner === 2) {
-
-            let currentMatch = initialMatch;
-            currentMatch.winner = winner;
-            // assert string type because is currentWinner is 1 or 2, there better be 2 players lol
-            let currentWinner: string | undefined = (currentMatch.winner === 1 ? currentMatch.player1 : currentMatch.player2) as string;
-            let currentLoser: string | undefined = undefined; // should be unnecessary for the first update, and then should be set if necessary
-            let currentWinDestination = currentMatch.win;
-            let currentLossDestination = undefined;
-
-            // update winner trajectory
-            while (currentWinDestination || currentLossDestination) {
-
-                // update player of winDestination. if that match is done, keep updating, otherwise stop.
-                if (currentWinDestination) {
-
-                    const { round: nextMatchRound, match: nextMatchIndex, slot: nextMatchSlot } = currentWinDestination;
-                    const nextMatch = this.findMatchByRoundAndIndex(nextMatchRound, nextMatchIndex);
-                    nextMatch.updatePlayer(currentWinner, nextMatchSlot);
-
-                    currentWinDestination = nextMatch.win;
-
-                    // if the match has a winner, and there is a winDestination, then keep going
-                    if ((nextMatch.winner !== -1) && (nextMatch.winner)) {
-                        currentWinDestination = nextMatch.win;
-                        currentWinner = (nextMatch.winner === 1 ? nextMatch.player1 : nextMatch.player2) as string;
-                        currentLoser = (nextMatch.winner === 1 ? nextMatch.player2 : nextMatch.player1) as string;
-                    }
-                }
-            }
-
-            currentMatch = initialMatch;
-            currentWinner = undefined;
-            currentLoser = (currentMatch.winner === 1 ? currentMatch.player2 : currentMatch.player1) as string;
-            currentWinDestination = undefined;
-            currentLossDestination = currentMatch.loss;
-
-            // update loser trajectory
-            while (currentLossDestination || currentWinDestination) {
-                if (currentLossDestination) {
-
-                    const { round: nextMatchRound, match: nextMatchIndex, slot: nextMatchSlot } = currentLossDestination;
-                    const nextMatch = this.findMatchByRoundAndIndex(nextMatchRound, nextMatchIndex);
-                    nextMatch.updatePlayer(currentLoser, nextMatchSlot);
-
-                    currentLossDestination = nextMatch.win;
-
-                    // if the match has a winner, and there is a winDestination, then keep going
-                    if ((nextMatch.winner !== -1) && (nextMatch.winner)) {
-                        currentLossDestination = nextMatch.win;
-                        currentWinner = (nextMatch.winner === 1 ? nextMatch.player1 : nextMatch.player2) as string;
-                        currentLoser = (nextMatch.winner === 1 ? nextMatch.player2 : nextMatch.player1) as string;
-                    }
-                }
-            }
+    findMatchById(matchId: string): Match {
+        const match = this.getMatches().find(match => match.id === matchId);
+        if (!match) {
+            throw new Error('Match not found');
         }
+        return match;
     }
 
     findMatchByRoundAndIndex(round: number, index: number): Match {

@@ -1,12 +1,12 @@
 import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
 import { load_tournament, save_tournament } from './tournament.js';
 
-const update_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, bracketId: string, matchId: string, player1Won: boolean): Promise<TournamentDTO> => {
+const update_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, bracketId: string, matchId: string, winner: number): Promise<TournamentDTO> => {
 
     console.log('tournamentId: ', tournamentId);
     console.log('bracketId: ', bracketId);
     console.log('matchId: ', matchId);
-    console.log('player1Won: ', player1Won);
+    console.log('player1Won: ', winner);
 
     // load tournament and bracket
     const tournament = await load_tournament(_, tournamentId);
@@ -19,7 +19,7 @@ const update_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: stri
         throw new Error('Bracket not found');
     }
 
-    bracket.updateMatch(matchId, player1Won);
+    bracket.updateMatchById(matchId, winner);
 
     await save_tournament(_, tournament);
 
