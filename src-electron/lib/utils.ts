@@ -9,12 +9,13 @@ function greatestPowerOf2LessThanOrEqualTo(n: number): number {
 
 function isPowerOfTwo(n: number) { return n > 0 && (n & (n - 1)) === 0; };
 
-const getSaveData = async (): Promise<Record<string, any>> => {
+/* SAVE DATA */
+async function getSaveData(): Promise<Record<string, any>> {
     const data = await window.electron.getSaveData();
     return data;
 }
 
-const saveKeyValue = async (key: string, value: any): Promise<void> => {
+async function saveKeyValue(key: string, value: any): Promise<void> {
     await window.electron.saveKeyValue(key, value);
 }
 
@@ -77,23 +78,166 @@ function deserialize(serialized: string, classMap: Record<string, new () => any>
     return rehydrated;
 }
 
-/* BRACKET */
-
-// function to get tournament-pairings output ready for the internal data structure
-// 1. convert all to internal Match class
-// 2. separate brackets into winners and losers
+/* MATCHES */
 
 import Match from './Match';
 import { DoubleElimination } from 'tournament-pairings';
 import { ExternalMatch } from '../../src-shared/types';
 
 function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][] } {
-    const matches = DoubleElimination(competitorNames);
-    const convertedMatches = matches.map(m => externalMatchToInternalMatch(m));
+    // generate pairings using external library
+    const matches = DoubleElimination(competitorNames, 0) as ExternalMatch[];
+    // convert to internal matches
+    const convertedMatches = convertExternalMatchesToInternalMatches(matches);
+    // link matches
+    linkMatches(convertedMatches);
+    // separate into winnersBracket and losersBracket
     return separateBrackets(convertedMatches);
 }
 
-function separateBrackets(matches: Match[]): { winnersBracket: Match[][]; losersBracket: Match[][] } {
+// helper functions
+
+// function to create internal Match class objet from ExternalMatch object and slot information
+const createInternalMatch = (match: ExternalMatch, winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined): Match => {
+
+    let win, loss;
+
+    // assert 1 | 2 type, because if match.win or match.loss exist, then winSlot and lossSlot must be 1 | 2 respectively
+    if (match.win) {
+        win = { round: match.win.round, match: match.win.match, slot: winSlot as 1 | 2 };
+    }
+    if (match.loss) {
+        loss = { round: match.loss.round, match: match.loss.match, slot: lossSlot as 1 | 2 };
+    }
+
+    return new Match(match.round, match.match, match.player1, match.player2, -1, win, loss);
+}
+
+// function to convert tournament-pairings output to the internal Match class
+const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Match[] => {
+
+    const convertedMatches = [];
+
+    const seenDestinations = new Set<string>();
+
+    for (let match of matches) {
+
+        let winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined;
+
+        if (match.win) {
+            const matchWinDestination = `${match.win.round}-${match.win.match}`;
+
+            // if the win pointer has not been seen, slot is 1
+            if (seenDestinations.has(matchWinDestination)) {
+                winSlot = 2;
+            }
+
+            // if the win pointer has been seen, slot is 2
+            else {
+                winSlot = 1;
+                seenDestinations.add(matchWinDestination);
+            }
+        }
+
+        if (match.loss) {
+            const matchLossDestination = `${match.loss.round}-${match.loss.match}`;
+
+            // if the loss pointer has not been seen, slot is 1
+            if (seenDestinations.has(matchLossDestination)) {
+                lossSlot = 2;
+            }
+
+            // if the loss pointer has been seen, slot is 2
+            else {
+                lossSlot = 1;
+                seenDestinations.add(matchLossDestination);
+            }
+        }
+
+        const convertedMatch = createInternalMatch(match, winSlot, lossSlot);
+        convertedMatches.push(convertedMatch);
+    }
+    return convertedMatches;
+}
+
+// function to organize matches into a 2-dimensional array for easy access by round and match
+const putMatchesIntoMatrix = (matches: Match[]): Match[][] => {
+    // find amount of rounds and matches
+    let maxRound = 0;
+    let maxMatch = 0;
+    for (let match of matches) {
+        if (match.round > maxRound) {
+            maxRound = match.round;
+        }
+        if (match.match > maxMatch) {
+            maxMatch = match.match;
+        }
+    }
+
+    // store Match objects in a 2-dimensional array for easy access by round and match
+    const matchesMatrix: Match[][] = Array.from({ length: maxRound + 1 }, () => Array(maxMatch + 1).fill(null));
+    for (let match of matches) {
+        matchesMatrix[match.round][match.match] = match;
+    }
+
+    return matchesMatrix;
+}
+
+const linkMatches = (matches: Match[]): void => {
+
+    // index matches in 2-dimensional matrix
+    const matchesMatrix = putMatchesIntoMatrix(matches);
+
+    // loop through all matches. whenever there is a win or a loss, update children of current match, and parents of destination matches
+    for (let round = 0; round < matchesMatrix.length; round++) {
+        for (let index = 0; index < matchesMatrix[round].length; index++) {
+
+            const match = matchesMatrix[round][index];
+
+            if (!match) {
+                continue;
+            }
+
+            // if there is a win pointer, update winChild and correct slot parent of winChild
+            if (match.win) {
+
+                // set win destination match
+                const winChild = matchesMatrix[match.win.round][match.win.match];
+                match.winChild = winChild
+
+                // set this match as the parent of the win destination match
+                if (match.win.slot === 1) {
+                    winChild.slot1Parent = match;
+                    winChild.slot1PreviouslyWinner = true;
+                }
+                else if (match.win.slot === 2) {
+                    winChild.slot2Parent = match;
+                    winChild.slot2PreviouslyWinner = true;
+                }
+            }
+
+            // if there is a loss pointer, update lossChild and correct slot parent of lossChild
+            if (match.loss) {
+
+                // set loss destination match
+                const lossChild = matchesMatrix[match.loss.round][match.loss.match];
+                match.lossChild = lossChild;
+
+                // set this match as the parent of the loss destination match
+                if (match.loss.slot === 1) {
+                    lossChild.slot1Parent = match;
+                    lossChild.slot1PreviouslyWinner = false;
+                }
+                else if (match.loss.slot === 2) {
+                    lossChild.slot2Parent = match;
+                    lossChild.slot2PreviouslyWinner = false;
+                }
+            }
+        }
+    }
+}
+
+const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losersBracket: Match[][] } => {
     const winnersBracket: Match[][] = [];
     const losersBracket: Match[][] = [];
 
@@ -120,11 +264,6 @@ function separateBrackets(matches: Match[]): { winnersBracket: Match[][]; losers
     }
 
     return { winnersBracket, losersBracket };
-}
-
-// function to convert tournament-pairings output to the internal Match class
-function externalMatchToInternalMatch(match: ExternalMatch): Match {
-    return new Match(match.round, match.match, match.player1, match.player2, -1, match.win, match.loss);
 }
 
 export {

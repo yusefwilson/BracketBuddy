@@ -7,8 +7,8 @@ type ExperienceLevel = 'Youth' | 'Novice' | 'Amateur' | 'Semipro' | 'Pro' | 'Mas
 type ExternalMatch = {
     round: number,
     match: number,
-    player1: string | number | null,
-    player2: string | number | null,
+    player1: string | null,
+    player2: string | null,
     win?: {
         round: number,
         match: number

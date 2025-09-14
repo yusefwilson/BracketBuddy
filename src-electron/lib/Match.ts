@@ -1,4 +1,5 @@
 import { MatchDTO } from "../../src-shared/MatchDTO";
+import util from 'util';
 
 class Match {
 
@@ -6,26 +7,36 @@ class Match {
 
     round: number
     match: number
-    player1: string | number | null
-    player2: string | number | null
-    winner: number // 1 if player1 won, 0 if player2 won, -1 if it is undetermined
+    player1: string | null
+    player2: string | null
+    winner: number // 1 if player1 won, 2 if player2 won, -1 if it is undetermined
     win?: {
         round: number,
-        match: number
+        match: number,
+        slot: 1 | 2
     }
     loss?: {
         round: number,
-        match: number
+        match: number,
+        slot: 1 | 2
     }
+    winChild?: Match
+    lossChild?: Match
+    slot1Parent?: Match
+    slot1PreviouslyWinner?: boolean
+    slot2Parent?: Match
+    slot2PreviouslyWinner?: boolean
 
-    constructor(round: number = -1, match: number = -1, player1: string | number | null = null, player2: string | number | null = null, winner: number = -1,
+    constructor(round: number = -1, match: number = -1, player1: string | null = null, player2: string | null = null, winner: number = -1,
         win?: {
             round: number,
-            match: number
+            match: number,
+            slot: 1 | 2
         },
         loss?: {
             round: number,
-            match: number
+            match: number,
+            slot: 1 | 2
         }) {
         this.round = round;
         this.match = match;
@@ -70,6 +81,43 @@ class Match {
             win: this.win,
             loss: this.loss,
         };
+    }
+
+    updatePlayer(player: string, slot: 1 | 2) {
+        if (slot === 1) {
+            this.player1 = player;
+        }
+        else if (slot === 2) {
+            this.player2 = player;
+        }
+        else {
+            throw new Error('Slot must be 1 or 2');
+        }
+    }
+
+    toPrintable(): any {
+        const formatLink = (link?: { round: number; match: number; slot: 1 | 2 }) =>
+            link ? `Match ${link.round}-${link.match} (slot ${link.slot})` : 'null';
+
+        return {
+            round: this.round,
+            match: this.match,
+            player1: this.player1,
+            player2: this.player2,
+            winner: this.winner,
+            win: formatLink(this.win),
+            loss: formatLink(this.loss),
+            slot1Parent: this.slot1Parent ? `Match ${this.slot1Parent.round}-${this.slot1Parent.match}` : null,
+            slot2Parent: this.slot2Parent ? `Match ${this.slot2Parent.round}-${this.slot2Parent.match}` : null,
+            winChild: this.winChild ? `Match ${this.winChild.round}-${this.winChild.match}` : null,
+            lossChild: this.lossChild ? `Match ${this.lossChild.round}-${this.lossChild.match}` : null,
+            slot1PreviouslyWinner: this.slot1PreviouslyWinner,
+            slot2PreviouslyWinner: this.slot2PreviouslyWinner
+        };
+    }
+
+    [util.inspect.custom](): any {
+        return this.toPrintable();
     }
 }
 

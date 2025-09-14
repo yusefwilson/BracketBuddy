@@ -86,9 +86,6 @@ const start_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: strin
 
     await save_tournament(_, tournament);
 
-    console.log('about to return: ', tournament.toDTO());
-    console.log('about to return renderableBracket: ', bracket.toDTO().renderableBracket);
-
     return tournament.toDTO();
 }
 

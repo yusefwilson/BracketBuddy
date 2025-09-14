@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "flatted": "^3.3.3",
-    "tournament-pairings": "^2.0.1"
+    "tournament-pairings": "^2.0.1",
+    "util": "^0.12.5"
   }
 }
