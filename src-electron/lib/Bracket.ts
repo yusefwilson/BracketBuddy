@@ -1,8 +1,8 @@
-import { serialize, deserialize, prepareMatches, } from './utils';
-import { Gender, Hand, ExperienceLevel } from '../../src-shared/types';
-import Match from './Match';
-import Tournament from './Tournament';
-import { BracketDTO } from '../../src-shared/BracketDTO';
+import { serialize, deserialize, prepareMatches, } from './utils.js';
+import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
+import Match from './Match.js';
+import Tournament from './Tournament.js';
+import { BracketDTO } from '../../src-shared/BracketDTO.js';
 
 class Bracket {
 

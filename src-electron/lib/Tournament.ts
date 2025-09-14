@@ -1,6 +1,6 @@
-import { serialize, deserialize } from './utils';
+import { serialize, deserialize } from './utils.js';
 import Bracket from './Bracket.js';
-import Match from './Match';
+import Match from './Match.js';
 import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
 
 class Tournament {
@@ -26,7 +26,7 @@ class Tournament {
         this.brackets = this.brackets.filter(b => b.id !== bracketId);
     }
 
-// serialization and deserialization
+    // serialization and deserialization
     serialize(): string {
         return serialize(this);
     }

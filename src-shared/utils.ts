@@ -60,22 +60,22 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
         return [];
     }
 
-    numberOfCompetitors = side === 'winner' ? (bracket?.competitorNames.length || 0) : ((bracket?.winnersBracket[0].matches.length || 0) + (bracket?.winnersBracket[1].matches.length || 0));
+    numberOfCompetitors = side === 'winner' ? (bracket?.competitorNames.length || 0) : ((bracket?.winnersBracket[0].length || 0) + (bracket?.winnersBracket[1].length || 0));
 
 
     // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
     if (!isPowerOfTwo(numberOfCompetitors)) {
-        matches.push(subBracket[0].matches.map((match, index) => {
+        matches.push(subBracket[0].map((match, index) => {
             let [x, y] = calculateMatchPosition(0, index, true, horizontal_offset, vertical_offset);
             return { match, x, y };
         }));
-        matches.push(subBracket[1].matches.map((match, index) => {
+        matches.push(subBracket[1].map((match, index) => {
             let [x, y] = calculateMatchPosition(1, index, false, horizontal_offset, vertical_offset);
             return { match, x, y };
         }));
     }
     else {
-        matches.push(subBracket[0].matches.map((match, index) => {
+        matches.push(subBracket[0].map((match, index) => {
             let [x, y] = calculateMatchPosition(0, index, false, horizontal_offset, vertical_offset);
             return { match, x, y };
         }));
@@ -84,7 +84,7 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
     return matches;
 }
 
-const calculateMatchPositionsFromParentAverages = (previousRoundMatches: MatchAndPosition[], matches: Match[], roundIndex: number) => {
+const calculateMatchPositionsFromParentAverages = (previousRoundMatches: MatchAndPosition[], matches: MatchDTO[], roundIndex: number) => {
     return matches.map((match, index) => {
 
         // edge case when there is one parent
@@ -108,7 +108,7 @@ const calculateMatchPositionsFromParentAverages = (previousRoundMatches: MatchAn
     });
 }
 
-const calculateMatchPositionsFromParentStaggered = (previousRoundMatches: MatchAndPosition[], matches: Match[], roundIndex: number) => {
+const calculateMatchPositionsFromParentStaggered = (previousRoundMatches: MatchAndPosition[], matches: MatchDTO[], roundIndex: number) => {
     return matches.map((match, index) => {
         const correspondingMatch = previousRoundMatches[index];
         if (!correspondingMatch) {

@@ -4,7 +4,7 @@ import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 
-import Bracket from '../lib/Bracket';
+import { BracketDTO } from '../../../src-shared/BracketDTO';
 
 import {
   MatchAndPosition,
@@ -125,7 +125,7 @@ export default function BracketView() {
 
       {/* Controls Panel */}
       <div className='bg-slate-700 rounded-lg p-4 shadow-md flex flex-col gap-4'>
-        
+
         {/* Bracket Details (Gender, Hand, Experience Level, etc.) */}
         <p className='self-center text-lg font-bold'>{bracket?.gender + ' | ' + bracket?.hand + ' | ' + bracket?.experienceLevel + ' | ' + bracket?.weightLimit}</p>
 

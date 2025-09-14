@@ -80,9 +80,9 @@ function deserialize(serialized: string, classMap: Record<string, new () => any>
 
 /* MATCHES */
 
-import Match from './Match';
+import Match from './Match.js';
+import { ExternalMatch } from '../../src-shared/types.js';
 import { DoubleElimination } from 'tournament-pairings';
-import { ExternalMatch } from '../../src-shared/types';
 
 function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][] } {
     // generate pairings using external library
