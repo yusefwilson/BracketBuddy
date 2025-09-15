@@ -1,5 +1,7 @@
 interface MatchDTO {
 
+    id: string
+    number: number
     round: number
     match: number
     player1: string | number | null
@@ -13,5 +15,7 @@ interface MatchDTO {
         round: number,
         match: number
     }
+    slot1GenericName: string
+    slot2GenericName: string
 }
 export type { MatchDTO };

@@ -6,7 +6,7 @@ import BracketInputModal from '../components/BracketInputModal';
 
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
-  const { tournament, setBracket = () => { }, setTournament = () => { } } = state || {};
+  const { tournament, setBracketIndex = () => { }, setTournament = () => { } } = state || {};
   const navigate = useNavigate();
 
   const [bracketModalOpen, setBracketModalOpen] = useState(false);
@@ -33,11 +33,11 @@ export default function TournamentView() {
 
       <div className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 gap-6 mt-6'>
         {tournament?.brackets.length ? (
-          tournament.brackets.map((bracket, i) => (
-            <BracketInfoCard key={i} bracket={bracket}
+          tournament.brackets.map((bracket, index) => (
+            <BracketInfoCard key={index} bracket={bracket}
               onClick={async () => {
-                setBracket(bracket);
-                await window.electron.saveKeyValue('lastBracketIndex', i);
+                setBracketIndex(index);
+                await window.electron.saveKeyValue('lastBracketIndex', index);
                 navigate('/bracket');
               }}
               onRemoveClick={async () => {

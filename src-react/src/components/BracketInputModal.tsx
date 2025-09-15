@@ -18,6 +18,14 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
     const state = useContext(CURRENT_STATE);
     const { tournament, setTournament = () => { } } = state || {};
 
+    const addCompetitor = async (name: string) => {
+        setCompetitorNames([...competitorNames, name]);
+    };
+
+    const removeCompetitor = async (name: string) => {
+        setCompetitorNames(competitorNames.filter(c => c !== name));
+    };
+
     const onSubmit = async () => {
 
         if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
@@ -119,7 +127,8 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
                 {/* Competitor Input - full width */}
                 <CompetitorInput
                     competitors={competitorNames}
-                    setCompetitors={setCompetitorNames}
+                    addCompetitor={addCompetitor}
+                    removeCompetitor={removeCompetitor}
                 />
 
                 {/* Action Buttons */}

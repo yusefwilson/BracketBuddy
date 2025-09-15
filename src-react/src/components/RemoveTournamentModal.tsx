@@ -1,8 +1,8 @@
 import { useContext, useEffect } from 'react';
-import { Tournament } from '../../../src-shared/TournamentDTO';
+import { TournamentDTO } from '../../../src-shared/TournamentDTO';
 import { CURRENT_STATE } from './App';
 
-export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete }: { setRemoveTournamentModalOpen: (open: boolean) => void; tournamentToDelete: Tournament | null; }) {
+export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete }: { setRemoveTournamentModalOpen: (open: boolean) => void; tournamentToDelete: TournamentDTO | null; }) {
 
     const state = useContext(CURRENT_STATE);
     const { tournament, setTournament = () => { } } = state || {};

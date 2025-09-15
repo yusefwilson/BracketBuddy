@@ -1,42 +1,54 @@
-export default function CompetitorInput({ competitors, setCompetitors, }: { competitors: string[]; setCompetitors: (competitors: string[]) => void; }) {
+import { useEffect, useRef, useState } from "react";
+import { TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
 
-    // Handle input change
-    const handleInputChange = (index: number, value: string) => {
-        const newCompetitors = [...competitors];
-        newCompetitors[index] = value;
-        setCompetitors(newCompetitors);
+function usePrevious<T>(value: T): T | undefined {
+    const ref = useRef<T>();
+    useEffect(() => {
+        ref.current = value;
+    }, [value]);
+    return ref.current;
+}
+
+export default function CompetitorInput(
+    { competitors, addCompetitor, removeCompetitor, }:
+        { competitors: string[]; addCompetitor: (name: string) => void; removeCompetitor: (name: string) => void; }) {
+    const [newName, setNewName] = useState("");
+
+    // This is a dummy div that we use to auto-scroll to the bottom when competitors update
+    const bottomRef = useRef<HTMLDivElement | null>(null);
+    const prevLength = usePrevious(competitors.length);
+
+    // Add a new competitor
+    const handleAdd = () => {
+        if (newName.trim() === "") return;
+        addCompetitor(newName.trim());
+        setNewName("");
     };
 
-    // Add a new empty competitor
-    const addCompetitor = () => {
-        setCompetitors([...competitors, '']);
-    };
-
-    // Remove a competitor by index
-    const removeCompetitor = (index: number) => {
-        const newCompetitors = competitors.filter((_, i) => i !== index);
-        setCompetitors(newCompetitors);
-    };
-
+    // Auto-scroll to bottom when competitors update, but only scroll when a competitor was added
+    useEffect(() => {
+        if (prevLength !== undefined && competitors.length > prevLength) {
+            bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [competitors.length, prevLength]);
     return (
-        <div className='flex flex-col h-full justify-between'>
-            <div className='overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64'>
-                <h2 className='text-lg font-semibold text-white mb-4'>
+        <div className="flex flex-col h-full justify-between">
+            <div className="overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64">
+                <h2 className="text-lg font-semibold text-white mb-4">
                     Enter Competitor Names ({competitors.length})
                 </h2>
 
                 {competitors.length === 0 && (
-                    <p className='text-gray-400 italic'>No competitors added yet.</p>
+                    <p className="text-gray-400 italic">No competitors added yet.</p>
                 )}
 
                 {competitors.map((name, index) => (
-                    <div key={index} className='flex items-center space-x-3 mb-3'>
+                    <div key={index} className="flex items-center space-x-3 mb-3">
                         <input
-                            type='text'
-                            placeholder={`Competitor ${index + 1}`}
+                            type="text"
                             value={name}
-                            onChange={(e) => handleInputChange(index, e.target.value)}
-                            className='
+                            disabled
+                            className="
                 flex-grow
                 p-2
                 rounded-md
@@ -44,22 +56,15 @@ export default function CompetitorInput({ competitors, setCompetitors, }: { comp
                 border-gray-500
                 bg-slate-600
                 text-white
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-400
-                transition
-                duration-200
-                ease-in-out
-              '
+                opacity-80
+                cursor-not-allowed
+              "
                         />
                         <button
-                            onClick={() => removeCompetitor(index)}
-                            disabled={competitors.length === 0}
-                            className='
+                            onClick={() => removeCompetitor(name)}
+                            className="
                 bg-red-600
                 hover:bg-red-700
-                disabled:opacity-50
-                disabled:cursor-not-allowed
                 text-white
                 px-3
                 py-1.5
@@ -67,37 +72,63 @@ export default function CompetitorInput({ competitors, setCompetitors, }: { comp
                 transition
                 duration-200
                 ease-in-out
-                select-none
-              '
-                            aria-label={`Remove competitor ${index + 1}`}
-                            type='button'
+              "
+                            type="button"
                         >
-                            Remove
+                            <TrashIcon className="h-5 w-5" />
                         </button>
                     </div>
                 ))}
-            </div>
 
-            <button
-                onClick={addCompetitor}
-                className='
-          mt-4
-          bg-blue-400
-          hover:bg-blue-500
-          text-white
-          px-5
-          py-2
-          rounded-md
-          font-semibold
-          transition
-          duration-200
-          ease-in-out
-          select-none
-        '
-                type='button'
-            >
-                Add Competitor
-            </button>
+                {/* Ghost input always at the bottom */}
+                <div className="flex items-center space-x-3 mt-3">
+                    <input
+                        type="text"
+                        placeholder="New competitor name"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        className="
+              flex-grow
+              p-2
+              rounded-md
+              border
+              border-gray-500
+              bg-slate-600
+              text-white
+              focus:outline-none
+              focus:ring-2
+              focus:ring-blue-400
+              transition
+              duration-200
+              ease-in-out
+            "
+                    />
+                    <button
+                        onClick={handleAdd}
+                        disabled={newName.trim() === ""}
+                        className="
+              bg-blue-500
+              hover:bg-blue-600
+              disabled:opacity-50
+              disabled:cursor-not-allowed
+              text-white
+              px-3
+              py-1.5
+              rounded-md
+              transition
+              duration-200
+              ease-in-out
+            "
+                        type="button"
+                    >
+                        <PlusIcon className="h-5 w-5" />
+                    </button>
+                </div>
+
+                {/* This dummy div is the scroll target */}
+                <div ref={bottomRef} />
+
+            </div>
         </div>
     );
 }

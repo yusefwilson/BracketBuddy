@@ -2,7 +2,7 @@ import WinnerCheckbox from './WinnerCheckbox';
 import { MatchDTO } from '../../../src-shared/MatchDTO';
 
 export default function MatchView({ match, updateMatch, x, y, currentMatchId }:
-    { match: MatchDTO, updateMatch: (matchId: number, winner: number) => void, x: number, y: number, currentMatchId: number | undefined }) {
+    { match: MatchDTO, updateMatch: (matchId: string, winner: number) => void, x: number, y: number, currentMatchId: number | undefined }) {
 
     const toggleWinner = (newWinner: number) => {
         const updatedWinner = match.winner === newWinner ? -1 : newWinner;
@@ -10,13 +10,13 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId }:
     };
 
     // highlight the match yellow if it is the current match, gray if it is stale
-    const highlighted = match.id === currentMatchId;
+    const highlighted = match.number === currentMatchId;
 
     let stale;
     if (currentMatchId === undefined) {
         stale = false;
     }
-    else if (match.id < currentMatchId && match.winner === -1) {
+    else if (match.number < currentMatchId && match.winner === -1) {
         stale = true;
     }
     else {
@@ -46,13 +46,13 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId }:
                 <div className='flex flex-col gap-2'>
                     <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleWinner(0)}>
                         <div className='text-sm truncate w-0 flex-1'>
-                            {match.competitor0Name || `[Enter Name]`}
+                            {match.player1 || `[Enter Name]`}
                         </div>
                         <WinnerCheckbox toggleWinner={() => toggleWinner(0)} checked={match.winner === 0} />
                     </div>
                     <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleWinner(1)}>
                         <div className='text-sm truncate w-0 flex-1'>
-                            {match.competitor1Name || `[Enter Name]`}
+                            {match.player2 || `[Enter Name]`}
                         </div>
                         <WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={match.winner === 1} />
                     </div>

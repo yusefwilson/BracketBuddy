@@ -1,7 +1,7 @@
 import { CalendarDaysIcon, UserGroupIcon, TrashIcon, TrophyIcon } from '@heroicons/react/24/outline';
-import { Tournament } from '../../../src-shared/TournamentDTO';
+import { TournamentDTO } from '../../../src-shared/TournamentDTO';
 
-export default function TournamentInfoCard({ tournament, onClick, onRemoveClick, }: { tournament: Tournament; onClick: () => void; onRemoveClick: () => void; }) {
+export default function TournamentInfoCard({ tournament, onClick, onRemoveClick, }: { tournament: TournamentDTO; onClick: () => void; onRemoveClick: () => void; }) {
     return (
         <div
             className='bg-slate-500 hover:bg-slate-600 p-4 rounded-xl cursor-pointer shadow-md transition duration-200 flex flex-col gap-3 group'
