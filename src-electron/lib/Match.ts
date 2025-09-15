@@ -7,6 +7,7 @@ class Match {
     __class: string = 'Match'
 
     id: string
+    number: number
     round: number
     match: number
     player1: string | null
@@ -21,10 +22,11 @@ class Match {
     slot2Parent?: Match
     slot2PreviouslyWinner?: boolean
 
-    constructor(id: string = '', round: number = -1, match: number = -1, player1: string | null = null, player2: string | null = null,
+    constructor(id: string = '', number: number = -1, round: number = -1, match: number = -1, player1: string | null = null, player2: string | null = null,
         winner: number = -1, win?: SlotCoordinates, loss?: SlotCoordinates) {
 
         this.id = id;
+        this.number = number;
         this.round = round;
         this.match = match;
         this.player1 = player1;

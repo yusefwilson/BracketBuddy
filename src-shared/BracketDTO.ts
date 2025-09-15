@@ -5,6 +5,8 @@ interface BracketDTO {
 
     id: string
 
+    tournamentId: string
+
     gender: Gender
     experienceLevel: ExperienceLevel
     hand: Hand
@@ -19,6 +21,10 @@ interface BracketDTO {
 
     final: MatchDTO | null
     finalRematch: MatchDTO | null
+
+    currentMatchNumber: number
+
+    finalRematchNeeded: boolean
 }
 
 export type { BracketDTO }

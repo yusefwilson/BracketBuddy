@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
-import { CURRENT_STATE } from '../components/App';
 
+import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 
@@ -10,40 +10,35 @@ import {
   MatchAndPosition,
   isPowerOfTwo, calculateInitialRoundsMatchPositions, calculateMatchPositionsFromParentAverages, calculateMatchPositionsFromParentStaggered,
   WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET, HORIZONTAL_GAP,
-} from '../lib/utils';
+} from '../../../src-shared/utils';
 import FinalPlacings from '../components/FinalPlacings';
 
 export default function BracketView() {
   // state
   const state = useContext(CURRENT_STATE);
-  const { bracket } = state || {};
+  const { bracket, setTournament = () => { } } = state || {};
 
   console.log('bracket: ', bracket);
-
-  // local state. DO NOT try to load bracket info into here, since this can run before bracket is loaded from context.
-  const [refreshTick, setRefreshTick] = useState(0);
-
   console.log('bracket.competitorNames: ', bracket?.competitorNames);
 
   // update the winner of a match (this calls a recursive method on the Match class which updates all dependent matches)
   const updateMatch = async (matchId: number, winner: number): Promise<void> => {
-    // find winner
-    const matchToBeUpdated = bracket?.findMatchById(matchId);
 
-    matchToBeUpdated?.updateWinnerRecursively(winner);
+    if (!bracket) {
+      throw new Error('Bracket not found');
+    }
 
-    // save changes to tournament
-    await bracket?.tournament?.save();
+    const newTournament = await window.electron.enterResult(bracket.tournamentId, bracket.id, matchId.toString(), winner);
 
     // hacky way to trigger refresh, and also to trigger tournament save in App useEffect
-    setRefreshTick(refreshTick + 1);
+    setTournament(newTournament);
   };
 
   let winnerMatches: MatchAndPosition[] = [], loserMatches: MatchAndPosition[] = [], WINNERS_BOTTOM = 0, LAST_WINNER_Y = 0, WINNERS_RIGHTMOST = 0;
 
   if (bracket?.competitorNames && bracket?.competitorNames.length >= 2) {
     // {match, x, y}[][]
-    const winnerRounds = calculateInitialRoundsMatchPositions(bracket as Bracket, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+    const winnerRounds = calculateInitialRoundsMatchPositions(bracket as BracketDTO, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
     const initialWinnerMatches = winnerRounds.slice();
 
     // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
@@ -58,7 +53,7 @@ export default function BracketView() {
         console.warn(`No matches found for round index ${roundIndex - 1}`);
         continue;
       }
-      const nextRound = calculateMatchPositionsFromParentAverages(previousRound, bracket?.winnersBracket[roundIndex].matches || [], roundIndex);
+      const nextRound = calculateMatchPositionsFromParentAverages(previousRound, bracket?.winnersBracket[roundIndex] || [], roundIndex);
 
       winnerRounds.push(nextRound);
     }
@@ -74,7 +69,7 @@ export default function BracketView() {
     // **** RENDER LOSERS BRACKET ****
     // {match, x, y}[][]
     const loserRounds = calculateInitialRoundsMatchPositions(
-      bracket as Bracket,
+      bracket as BracketDTO,
       'loser',
       LOSER_HORIZONTAL_OFFSET,
       WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET
@@ -95,8 +90,8 @@ export default function BracketView() {
       if (!previousRoundMatches || previousRoundMatches.length === 0) continue;
 
       const nextRound = halving
-        ? calculateMatchPositionsFromParentAverages(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex)
-        : calculateMatchPositionsFromParentStaggered(previousRoundMatches, bracket?.losersBracket[roundIndex].matches || [], roundIndex);
+        ? calculateMatchPositionsFromParentAverages(previousRoundMatches, bracket?.losersBracket[roundIndex] || [], roundIndex)
+        : calculateMatchPositionsFromParentStaggered(previousRoundMatches, bracket?.losersBracket[roundIndex] || [], roundIndex);
 
       loserRounds.push(nextRound);
       halving = !halving;
@@ -119,7 +114,7 @@ export default function BracketView() {
 
   //import YGuideLines from '../components/YGuideLines';
 
-  console.log('current match id: ', bracket?.getLowestIdUnfilledMatch());
+  //console.log('current match id: ', bracket?.getLowestIdUnfilledMatch());
   return (
     <div className='h-full flex gap-6 p-4 bg-slate-800 rounded-lg shadow-inner'>
 
@@ -131,18 +126,18 @@ export default function BracketView() {
 
         <h2 className='text-white text-lg font-semibold text-center'>Competitors</h2>
         <div className='h-[45%]'>
-          <CompetitorInput
+          {/*<CompetitorInput
             competitors={bracket?.competitorNames ?? []}
             setCompetitors={(names) => {
               bracket?.setCompetitorNames(names);
               bracket?.tournament?.save();
               setRefreshTick((tick) => tick + 1);
             }}
-          />
+          />*/}
         </div>
         {/* Final Placings */}
         {
-          <FinalPlacings first={bracket?.getFirstPlace()} second={bracket?.getSecondPlace()} third={bracket?.getThirdPlace()} />
+          /*<FinalPlacings first={bracket?.getFirstPlace()} second={bracket?.getSecondPlace()} third={bracket?.getThirdPlace()} />*/
         }
 
       </div>
@@ -167,7 +162,7 @@ export default function BracketView() {
 
             {/* Winner Matches */}
             {winnerMatches?.map(({ match, x, y }) => (
-              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
+              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket?.currentMatchNumber} />
             ))}
 
             {/* Separators */}
@@ -182,18 +177,18 @@ export default function BracketView() {
 
             {/* Loser Matches */}
             {loserMatches?.map(({ match, x, y }) => (
-              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
+              <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket?.currentMatchNumber} />
             ))}
 
             {/* Final and Rematch */}
             {final.match && (
-              <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
+              <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={bracket?.currentMatchNumber} />
 
             )}
             {finalRematch.match &&
-              bracket?.finalRematchNeeded() &&
+              bracket?.finalRematchNeeded &&
               (
-                <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={bracket?.getLowestIdUnfilledMatch()} />
+                <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={bracket?.currentMatchNumber} />
               )}
           </>
         )}

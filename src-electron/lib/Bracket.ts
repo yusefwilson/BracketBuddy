@@ -8,7 +8,7 @@ class Bracket {
 
     __class: string = 'Bracket'
 
-    tournament: Tournament | null
+    tournament: Tournament
 
     id: string
 
@@ -27,7 +27,7 @@ class Bracket {
     final: Match | null
     finalRematch: Match | null
 
-    constructor(tournament: Tournament | null = null, gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
+    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
 
         // tournament.id-gender-experienceLevel-hand-weightLimit
         this.id = tournament?.id + [gender, experienceLevel, hand, weightLimit].join('-');
@@ -83,8 +83,10 @@ class Bracket {
 
         this.competitorNames = competitorNames;
 
-        // reinitialize bracket
-        this.initialize();
+        // reinitialize bracket if it was already started
+        if (this.started) {
+            this.initialize();
+        }
     }
 
     addCompetitor(competitorName: string) {
@@ -173,6 +175,7 @@ class Bracket {
     toDTO(): BracketDTO {
         return {
             id: this.id,
+            tournamentId: this.tournament.id,
             gender: this.gender,
             experienceLevel: this.experienceLevel,
             hand: this.hand,
@@ -183,6 +186,8 @@ class Bracket {
             started: this.started,
             final: this.final ? this.final.toDTO() : null,
             finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
+            currentMatchNumber: 1,
+            finalRematchNeeded: false,
         };
     }
 

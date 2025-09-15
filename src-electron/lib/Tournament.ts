@@ -5,6 +5,8 @@ import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
 
 class Tournament {
 
+    __class: string = 'Tournament'
+
     name: string;
     date: Date;
     id: string;

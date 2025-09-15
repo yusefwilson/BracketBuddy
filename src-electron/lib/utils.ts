@@ -98,7 +98,7 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
 // helper functions
 
 // function to create internal Match class objet from ExternalMatch object and slot information
-const createInternalMatch = (match: ExternalMatch, winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined): Match => {
+const createInternalMatch = (match: ExternalMatch, matchNumber: number, winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined): Match => {
 
     let win, loss;
 
@@ -112,7 +112,7 @@ const createInternalMatch = (match: ExternalMatch, winSlot: 1 | 2 | undefined, l
 
     const id = match.round + '-' + match.match;
 
-    return new Match(id, match.round, match.match, match.player1, match.player2, -1, win, loss);
+    return new Match(id, matchNumber, match.round, match.match, match.player1, match.player2, -1, win, loss);
 }
 
 // function to convert tournament-pairings output to the internal Match class
@@ -121,6 +121,8 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
     const convertedMatches = [];
 
     const seenDestinations = new Set<string>();
+
+    let matchNumber = 0;
 
     for (let match of matches) {
 
@@ -156,8 +158,9 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
             }
         }
 
-        const convertedMatch = createInternalMatch(match, winSlot, lossSlot);
+        const convertedMatch = createInternalMatch(match, matchNumber, winSlot, lossSlot);
         convertedMatches.push(convertedMatch);
+        matchNumber++;
     }
     return convertedMatches;
 }

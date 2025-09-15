@@ -27,7 +27,8 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Tou
 
     // go through each tournament and deserialize it
     for (const tournamentData of tournaments) {
-        deserializedTournaments.push(Tournament.deserialize(tournamentData).toDTO());
+        const tournament = Tournament.deserialize(tournamentData);
+        deserializedTournaments.push(tournament.toDTO());
     }
 
     // console.log('deserialized tournaments: ', deserializedTournaments);
