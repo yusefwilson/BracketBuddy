@@ -160,6 +160,12 @@ export default function BracketView() {
           /*<FinalPlacings first={bracket.getFirstPlace()} second={bracket.getSecondPlace()} third={bracket.getThirdPlace()} />*/
         }
 
+        {/* Start Bracket Button  */}
+        <button onClick={async () => {
+          const newTournament = await window.electron.startBracket(bracket.tournamentId, bracket.id);
+          setTournament(newTournament);
+        }} className='bg-slate-800 text-white rounded-lg p-4 shadow-md'>Start Bracket</button>
+
       </div>
 
       {/* Bracket Display */}

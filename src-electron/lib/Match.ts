@@ -69,14 +69,25 @@ class Match {
     }
 
     toDTO(): MatchDTO {
+        let slot1GenericName = '', slot2GenericName = '';
+        if (this.slot1Parent) {
+            slot1GenericName = this.slot1PreviouslyWinner ? this.slot1Parent.getGenericLoser() : this.slot1Parent.getGenericWinner();
+        }
+        if (this.slot2Parent) {
+            slot2GenericName = this.slot2PreviouslyWinner ? this.slot2Parent.getGenericLoser() : this.slot2Parent.getGenericWinner();
+        }
         return {
+            id: this.id,
             round: this.round,
             match: this.match,
+            number: this.number,
             player1: this.player1,
             player2: this.player2,
             winner: this.winner,
             win: this.win,
             loss: this.loss,
+            slot1GenericName: slot1GenericName,
+            slot2GenericName: slot2GenericName,
         };
     }
 
