@@ -86,7 +86,7 @@ import { DoubleElimination } from 'tournament-pairings';
 
 function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][] } {
     // generate pairings using external library
-    const matches = DoubleElimination(competitorNames, 0) as ExternalMatch[];
+    const matches = DoubleElimination(competitorNames) as ExternalMatch[];
     console.log('1. matches', matches);
     // convert to internal matches
     const convertedMatches = convertExternalMatchesToInternalMatches(matches);
@@ -256,32 +256,66 @@ const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losers
         while (arr.length <= round) arr.push([]);
     };
 
-    // Precompute which matches are in losers bracket
-    const matchIsLoser = new Map<string, boolean>();
+    // get all matches linked to by loss
+    const loserBracketMatchIds = new Map<string, boolean>();
     for (const m of matches) {
-        matchIsLoser.set(`${m.round}-${m.match}`, false);
+        loserBracketMatchIds.set(`${m.round}-${m.match}`, false);
     }
     for (const m of matches) {
         if (m.loss) {
-            matchIsLoser.set(`${m.loss.round}-${m.loss.match}`, true);
+            loserBracketMatchIds.set(`${m.loss.round}-${m.loss.match}`, true);
         }
     }
 
+    console.log('loserBracketMatchIds: ', loserBracketMatchIds);
+
+    // get all matches that are pointed to by 2 win pointers, both of which are from losers bracket matches
+    const matchesPointedToByLosersBracketWins = new Map<string, number>();
     for (const m of matches) {
-        const target = matchIsLoser.get(`${m.round}-${m.match}`) ? losersBracket : winnersBracket;
-        ensureRound(target, m.round);
-        target[m.round][m.match - 1] = m; // because match numbering starts at 1
+        console.log('match id: ', m.id);
+        console.log('match.win: ', m.win);
+        if (m.win) {
+            const key = `${m.round}-${m.match}`;
+            console.log('key: ', key);
+            if (loserBracketMatchIds.get(key)) {
+
+                // get win child matchs
+                const winKey = `${m.win.round}-${m.win.match}`;
+                console.log('winKey: ', winKey);
+
+                const currentValue = matchesPointedToByLosersBracketWins.get(winKey);
+                console.log('currentValue: ', currentValue);
+
+                if (currentValue) {
+                    matchesPointedToByLosersBracketWins.set(winKey, currentValue + 1);
+                    loserBracketMatchIds.set(winKey, true);
+                }
+                else {
+                    matchesPointedToByLosersBracketWins.set(winKey, 1);
+                }
+            }
+        }
     }
 
-    // clean up empty rounds
+    console.log('matchesPointedToByLosersBracketWins: ', matchesPointedToByLosersBracketWins);
+
+    console.log('loserBracketMatchIds: ', loserBracketMatchIds);
+
+    for (const m of matches) {
+        const target = loserBracketMatchIds.get(`${m.round}-${m.match}`) ? losersBracket : winnersBracket;
+        ensureRound(target, m.round);
+        target[m.round - 1][m.match - 1] = m; // because round and match indexing starts at 1
+    }
+
+    // clean up empty rounds TODO: should there be a better solution that doesn't require this?
     winnersBracket = winnersBracket.filter(round => round.length > 0);
     losersBracket = losersBracket.filter(round => round.length > 0);
 
     return { winnersBracket, losersBracket };
 }
 
-// const competitorNames = ['A', 'B', 'C', 'D', 'E'];
-// const { winnersBracket, losersBracket } = prepareMatches(competitorNames);
+const competitorNames = ['A', 'B', 'C', 'D', 'E', 'F'];
+const { winnersBracket, losersBracket } = prepareMatches(competitorNames);
 
 // console.log(winnersBracket);
 // console.log(losersBracket);
