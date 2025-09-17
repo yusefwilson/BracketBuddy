@@ -125,7 +125,17 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
 
     const convertedMatches = [];
 
-    const seenDestinations = new Set<string>();
+    const occupiedDestinations = new Set<string>();
+
+    // fill occupiedDestinations with any players already in the bracket
+    for (let match of matches) {
+        if (match.player1) {
+            occupiedDestinations.add(`${match.round}-${match.match}`);
+        }
+        if (match.player2) {
+            occupiedDestinations.add(`${match.round}-${match.match}`);
+        }
+    }
 
     let matchNumber = 0;
 
@@ -137,14 +147,14 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
             const matchWinDestination = `${match.win.round}-${match.win.match}`;
 
             // if the win pointer has not been seen, slot is 1
-            if (seenDestinations.has(matchWinDestination)) {
+            if (occupiedDestinations.has(matchWinDestination)) {
                 winSlot = 2;
             }
 
             // if the win pointer has been seen, slot is 2
             else {
                 winSlot = 1;
-                seenDestinations.add(matchWinDestination);
+                occupiedDestinations.add(matchWinDestination);
             }
         }
 
@@ -152,14 +162,14 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
             const matchLossDestination = `${match.loss.round}-${match.loss.match}`;
 
             // if the loss pointer has not been seen, slot is 1
-            if (seenDestinations.has(matchLossDestination)) {
+            if (occupiedDestinations.has(matchLossDestination)) {
                 lossSlot = 2;
             }
 
             // if the loss pointer has been seen, slot is 2
             else {
                 lossSlot = 1;
-                seenDestinations.add(matchLossDestination);
+                occupiedDestinations.add(matchLossDestination);
             }
         }
 
@@ -319,8 +329,8 @@ const { winnersBracket, losersBracket } = prepareMatches(competitorNames);
 
 // console.log(winnersBracket);
 // console.log(losersBracket);
-// console.log(winnersBracket[0][0]);
-
+console.log(winnersBracket[1][1]);
+console.log('DTO: ', winnersBracket[1][1].toDTO());
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     getSaveData, saveKeyValue,

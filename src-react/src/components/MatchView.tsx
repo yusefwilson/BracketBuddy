@@ -46,13 +46,13 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId }:
                 <div className='flex flex-col gap-2'>
                     <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleWinner(0)}>
                         <div className='text-sm truncate w-0 flex-1'>
-                            {match.player1 || `[Enter Name]`}
+                            {match.player1 || match.slot1GenericName}
                         </div>
                         <WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={match.winner === 1} />
                     </div>
                     <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleWinner(1)}>
                         <div className='text-sm truncate w-0 flex-1'>
-                            {match.player2 || `[Enter Name]`}
+                            {match.player2 || match.slot2GenericName}
                         </div>
                         <WinnerCheckbox toggleWinner={() => toggleWinner(2)} checked={match.winner === 2} />
                     </div>

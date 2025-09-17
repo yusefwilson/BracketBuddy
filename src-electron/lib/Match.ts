@@ -41,11 +41,11 @@ class Match {
     }
 
     getGenericWinner() {
-        return 'Winner of match ' + this.match + ' in round ' + this.round;
+        return 'Winner of ' + this.round + '-' + this.match;
     }
 
     getGenericLoser() {
-        return 'Loser of match ' + this.match + ' in round ' + this.round;
+        return 'Loser of ' + this.round + '-' + this.match;
     }
 
     getWinningPlayer() {
@@ -71,10 +71,10 @@ class Match {
     toDTO(): MatchDTO {
         let slot1GenericName = '', slot2GenericName = '';
         if (this.slot1Parent) {
-            slot1GenericName = this.slot1PreviouslyWinner ? this.slot1Parent.getGenericLoser() : this.slot1Parent.getGenericWinner();
+            slot1GenericName = this.slot1PreviouslyWinner ? this.slot1Parent.getGenericWinner() : this.slot1Parent.getGenericLoser();
         }
         if (this.slot2Parent) {
-            slot2GenericName = this.slot2PreviouslyWinner ? this.slot2Parent.getGenericLoser() : this.slot2Parent.getGenericWinner();
+            slot2GenericName = this.slot2PreviouslyWinner ? this.slot2Parent.getGenericWinner() : this.slot2Parent.getGenericLoser();
         }
         return {
             id: this.id,
