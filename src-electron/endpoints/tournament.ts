@@ -28,6 +28,9 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Tou
     // go through each tournament and deserialize it
     for (const tournamentData of tournaments) {
         const tournament = Tournament.deserialize(tournamentData);
+        console.log('deserialized tournament: ', tournament);
+        // console.log('winnersBracket: ', tournament.brackets[0].winnersBracket);
+        // console.log('losersBracket: ', tournament.brackets[0].losersBracket);
         deserializedTournaments.push(tournament.toDTO());
     }
 

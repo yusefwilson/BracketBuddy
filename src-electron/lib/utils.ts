@@ -87,12 +87,17 @@ import { DoubleElimination } from 'tournament-pairings';
 function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][] } {
     // generate pairings using external library
     const matches = DoubleElimination(competitorNames, 0) as ExternalMatch[];
+    console.log('1. matches', matches);
     // convert to internal matches
     const convertedMatches = convertExternalMatchesToInternalMatches(matches);
+    console.log('2. convertedMatches', convertedMatches);
     // link matches
     linkMatches(convertedMatches);
+    console.log('3. linked matches', convertedMatches);
     // separate into winnersBracket and losersBracket
-    return separateBrackets(convertedMatches);
+    const separatedBrackets = separateBrackets(convertedMatches);
+    console.log('4. separatedBrackets', separatedBrackets);
+    return separatedBrackets;
 }
 
 // helper functions
@@ -243,8 +248,8 @@ const linkMatches = (matches: Match[]): void => {
 }
 
 const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losersBracket: Match[][] } => {
-    const winnersBracket: Match[][] = [];
-    const losersBracket: Match[][] = [];
+    let winnersBracket: Match[][] = [];
+    let losersBracket: Match[][] = [];
 
     // Helper: ensure the round array exists
     const ensureRound = (arr: Match[][], round: number) => {
@@ -265,11 +270,22 @@ const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losers
     for (const m of matches) {
         const target = matchIsLoser.get(`${m.round}-${m.match}`) ? losersBracket : winnersBracket;
         ensureRound(target, m.round);
-        target[m.round][m.match] = m;
+        target[m.round][m.match - 1] = m; // because match numbering starts at 1
     }
+
+    // clean up empty rounds
+    winnersBracket = winnersBracket.filter(round => round.length > 0);
+    losersBracket = losersBracket.filter(round => round.length > 0);
 
     return { winnersBracket, losersBracket };
 }
+
+// const competitorNames = ['A', 'B', 'C', 'D', 'E'];
+// const { winnersBracket, losersBracket } = prepareMatches(competitorNames);
+
+// console.log(winnersBracket);
+// console.log(losersBracket);
+// console.log(winnersBracket[0][0]);
 
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
