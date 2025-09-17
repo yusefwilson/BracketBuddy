@@ -105,6 +105,8 @@ class Match {
 
     // update the winner of this match and then trigger a recursive update of all children matches' player names
     updateWinner(winner: number) {
+
+        console.log('updating winner of match ' + this.id + ' to ' + winner);
         this.winner = winner;
 
         if (this.winChild) {
@@ -127,6 +129,14 @@ class Match {
         }
         if (this.slot2Parent && this.slot2Parent.isDecided()) {
             this.player2 = this.slot2PreviouslyWinner ? this.slot2Parent.getWinningPlayer() : this.slot2Parent.getLosingPlayer();
+        }
+
+        // if the parent match exist and has not been decided, then make the player of this match null
+        if (this.slot1Parent && !this.slot1Parent.isDecided()) {
+            this.player1 = null;
+        }
+        if (this.slot2Parent && !this.slot2Parent.isDecided()) {
+            this.player2 = null;
         }
 
         if (this.winChild) {

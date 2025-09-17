@@ -10,10 +10,8 @@ const update_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: stri
 
     // load tournament and bracket
     const tournament = await load_tournament(_, tournamentId);
-    console.log('all brackets: ', tournament.getAllBrackets().map(b => b.id));
 
     const bracket = tournament.getBracket(bracketId);
-    console.log('bracket: ', bracket);
 
     if (!bracket) {
         throw new Error('Bracket not found');

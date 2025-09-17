@@ -324,13 +324,13 @@ const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losers
     return { winnersBracket, losersBracket };
 }
 
-const competitorNames = ['A', 'B', 'C', 'D', 'E', 'F'];
-const { winnersBracket, losersBracket } = prepareMatches(competitorNames);
+// const competitorNames = ['A', 'B', 'C', 'D', 'E', 'F'];
+// const { winnersBracket, losersBracket } = prepareMatches(competitorNames);
 
-// console.log(winnersBracket);
-// console.log(losersBracket);
-console.log(winnersBracket[1][1]);
-console.log('DTO: ', winnersBracket[1][1].toDTO());
+// // console.log(winnersBracket);
+// // console.log(losersBracket);
+// console.log(winnersBracket[1][1]);
+// console.log('DTO: ', winnersBracket[1][1].toDTO());
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     getSaveData, saveKeyValue,
