@@ -106,6 +106,11 @@ class Match {
     // update the winner of this match and then trigger a recursive update of all children matches' player names
     updateWinner(winner: number) {
 
+        // winner must be -1, 1, or 2
+        if (winner !== -1 && winner !== 1 && winner !== 2) {
+            throw new Error('Winner must be -1, 1, or 2');
+        }
+
         // make sure that winner can only be updated if match is filled
         if (this.player1 === null || this.player2 === null) {
             throw new Error('Match cannot be updated because it is not filled');

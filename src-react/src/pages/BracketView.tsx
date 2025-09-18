@@ -212,7 +212,7 @@ export default function BracketView() {
 
             )}
             {finalRematch.match &&
-              !bracket.finalRematchNeeded &&
+              bracket.finalRematchNeeded &&
               (
                 <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={bracket.currentMatchNumber} />
               )}

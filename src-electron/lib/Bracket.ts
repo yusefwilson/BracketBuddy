@@ -108,7 +108,10 @@ class Bracket {
     }
 
     findMatchById(matchId: string): Match {
-        const match = this.getMatches().find(match => match.id === matchId);
+        console.log("trying to find match with id: ", matchId);
+        const matches = this.getMatches();
+        console.log("matches: ", matches);
+        const match = matches.find(match => match.id === matchId);
         if (!match) {
             throw new Error('Match not found');
         }
@@ -135,6 +138,14 @@ class Bracket {
 
         matches = matches.concat(this.winnersBracket.flat());
         matches = matches.concat(this.losersBracket.flat());
+
+        // add final and final rematch
+        if (this.final) {
+            matches.push(this.final);
+        }
+        if (this.finalRematch) {
+            matches.push(this.finalRematch);
+        }
 
         return matches;
     }
@@ -182,7 +193,7 @@ class Bracket {
             final: this.final ? this.final.toDTO() : null,
             finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
             currentMatchNumber: this.getLowestUnfilledMatchNumber(),
-            finalRematchNeeded: false,
+            finalRematchNeeded: this.finalRematchNeeded(),
         };
     }
 
@@ -238,16 +249,29 @@ class Bracket {
 
     }
 
-    // finalRematchNeeded(): boolean {
-    //     let winnersBracketFinal = this.winnersBracket[this.winnersBracket.length - 1].matches[0];
-    //     if (winnersBracketFinal.getWinnerPretty() === this.final?.getWinnerPretty()) {
-    //         return false;
-    //     }
-    //     else if (this.final?.winner === -1 || this.final?.winner === undefined) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
+    finalRematchNeeded(): boolean {
+
+        // if final is not decided, final rematch not needed
+        if (!this.final?.isDecided()) {
+            console.log('returning false because final is not decided');
+            return false;
+        }
+
+        // if winners bracket final is not decided, final rematch not needed
+        const winnersBracketFinal = this.winnersBracket[this.winnersBracket.length - 1][0];
+        if (!winnersBracketFinal.isDecided()) {
+            console.log('returning false because winners bracket final is not decided');
+            return false;
+        }
+
+        // if winner of final came from winners bracket, final rematch not needed
+        const winnersBracketFinalWinner = winnersBracketFinal.getWinningPlayer();
+        const finalWinner = this.final?.getWinningPlayer();
+
+        console.log('returning ', winnersBracketFinalWinner !== finalWinner, ' because winners bracket final winner is ', winnersBracketFinalWinner, ', and final winner is ', finalWinner);
+
+        return winnersBracketFinalWinner !== finalWinner;
+    }
 }
 
 export default Bracket;

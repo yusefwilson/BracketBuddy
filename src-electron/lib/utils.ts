@@ -110,16 +110,8 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
 
 // helper functions
 
-// add final rematch to tournament-pairings output
-const addFinalRematch = (matches: ExternalMatch[]): ExternalMatch[] => {
-    const finalRematch = matches[matches.length - 1];
-    matches.push(finalRematch);
-    return matches;
-}
-
-
 // function to create internal Match class objet from ExternalMatch object and slot information
-const createInternalMatch = (match: ExternalMatch, matchNumber: number, winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined): Match => {
+const createInternalMatch = (match: ExternalMatch, winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined): Match => {
 
     let win, loss;
 
@@ -133,7 +125,7 @@ const createInternalMatch = (match: ExternalMatch, matchNumber: number, winSlot:
 
     const id = match.round + '-' + match.match;
 
-    return new Match(id, matchNumber, match.round, match.match, match.player1, match.player2, -1, win, loss);
+    return new Match(id, -1, match.round, match.match, match.player1, match.player2, -1, win, loss);
 }
 
 // function to convert tournament-pairings output to the internal Match class
@@ -188,7 +180,7 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
         }
 
         // TODO: match number should be -1 for now, but should be replaced with the actual match number later
-        const convertedMatch = createInternalMatch(match, -1, winSlot, lossSlot);
+        const convertedMatch = createInternalMatch(match, winSlot, lossSlot);
         convertedMatches.push(convertedMatch);
     }
     return convertedMatches;
