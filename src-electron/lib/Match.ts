@@ -106,6 +106,11 @@ class Match {
     // update the winner of this match and then trigger a recursive update of all children matches' player names
     updateWinner(winner: number) {
 
+        // make sure that winner can only be updated if match is filled
+        if (this.player1 === null || this.player2 === null) {
+            throw new Error('Match cannot be updated because it is not filled');
+        }
+
         console.log('updating winner of match ' + this.id + ' to ' + winner);
         this.winner = winner;
 
