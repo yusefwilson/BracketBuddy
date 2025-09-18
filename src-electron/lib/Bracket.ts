@@ -62,17 +62,12 @@ class Bracket {
             //  might need special logic heres
         }
 
-        const { winnersBracket, losersBracket } = prepareMatches(this.competitorNames);
+        const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(this.competitorNames);
 
         this.winnersBracket = winnersBracket;
         this.losersBracket = losersBracket;
-
-        // now, create finals. this is the winner of the last match of the losers bracket vs the winner of the last match of the winners bracket.
-        const finalsMatch = this.winnersBracket[this.winnersBracket.length - 1][0];
-        this.final = finalsMatch;
-
-        // TODO: get final rematch here - prepareMatches should probably create this? will require some caveats probably
-        this.finalRematch = null;
+        this.final = final;
+        this.finalRematch = finalRematch;
 
         this.started = true;
     }
@@ -186,7 +181,7 @@ class Bracket {
             started: this.started,
             final: this.final ? this.final.toDTO() : null,
             finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
-            currentMatchNumber: 1,
+            currentMatchNumber: this.getLowestUnfilledMatchNumber(),
             finalRematchNeeded: false,
         };
     }
@@ -229,14 +224,19 @@ class Bracket {
     //     return undefined;
     // }
 
-    // getLowestIdUnfilledMatch(): number | undefined {
-    //     let matches = this.getMatches().sort((a, b) => a.id - b.id);
-    //     for (let match of matches) {
-    //         if (match.winner === -1 || match.winner === undefined) {
-    //             return match.id;
-    //         }
-    //     }
-    // }
+    getLowestUnfilledMatchNumber(): number {
+        const matches = this.getMatches().sort((a, b) => a.number - b.number);
+        for (let match of matches) {
+            if (match.winner === -1) {
+                return match.number;
+            }
+        }
+
+        //TODO: what should really go here?
+        // if no match unfilled, return largest number
+        return matches[matches.length - 1].number;
+
+    }
 
     // finalRematchNeeded(): boolean {
     //     let winnersBracketFinal = this.winnersBracket[this.winnersBracket.length - 1].matches[0];

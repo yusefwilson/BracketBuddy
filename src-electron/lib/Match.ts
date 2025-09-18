@@ -159,6 +159,7 @@ class Match {
         return {
             round: this.round,
             match: this.match,
+            number: this.number,
             player1: this.player1,
             player2: this.player2,
             winner: this.winner,

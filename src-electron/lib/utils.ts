@@ -84,23 +84,39 @@ import Match from './Match.js';
 import { ExternalMatch } from '../../src-shared/types.js';
 import { DoubleElimination } from 'tournament-pairings';
 
-function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][] } {
+function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } {
+
     // generate pairings using external library
     const matches = DoubleElimination(competitorNames) as ExternalMatch[];
     console.log('1. matches', matches);
+
     // convert to internal matches
     const convertedMatches = convertExternalMatchesToInternalMatches(matches);
     console.log('2. convertedMatches', convertedMatches);
+
     // link matches
     linkMatches(convertedMatches);
     console.log('3. linked matches', convertedMatches);
+
     // separate into winnersBracket and losersBracket
-    const separatedBrackets = separateBrackets(convertedMatches);
-    console.log('4. separatedBrackets', separatedBrackets);
-    return separatedBrackets;
+    const { winnersBracket, losersBracket } = separateBrackets(convertedMatches);
+    console.log('4. separatedBrackets', { winnersBracket, losersBracket });
+
+    // separate final from winners bracket and add final rematch
+    const { final, finalRematch } = separateFinalsFromBrackets(winnersBracket, losersBracket);
+
+    return { winnersBracket, losersBracket, final, finalRematch };
 }
 
 // helper functions
+
+// add final rematch to tournament-pairings output
+const addFinalRematch = (matches: ExternalMatch[]): ExternalMatch[] => {
+    const finalRematch = matches[matches.length - 1];
+    matches.push(finalRematch);
+    return matches;
+}
+
 
 // function to create internal Match class objet from ExternalMatch object and slot information
 const createInternalMatch = (match: ExternalMatch, matchNumber: number, winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined): Match => {
@@ -137,8 +153,6 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
         }
     }
 
-    let matchNumber = 0;
-
     for (let match of matches) {
 
         let winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined;
@@ -173,9 +187,9 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
             }
         }
 
-        const convertedMatch = createInternalMatch(match, matchNumber, winSlot, lossSlot);
+        // TODO: match number should be -1 for now, but should be replaced with the actual match number later
+        const convertedMatch = createInternalMatch(match, -1, winSlot, lossSlot);
         convertedMatches.push(convertedMatch);
-        matchNumber++;
     }
     return convertedMatches;
 }
@@ -201,6 +215,13 @@ const putMatchesIntoMatrix = (matches: Match[]): Match[][] => {
     }
 
     return matchesMatrix;
+}
+
+const numberMatches = (matches: Match[]): void => {
+
+    // if power of 2, then first complete first winner round. otherwise, complete first 2 winner rounds
+    // if initial amount of losers is power of 2, then complete first loser round. otherwise, complete first 2 loser rounds
+    // then, 
 }
 
 const linkMatches = (matches: Match[]): void => {
@@ -268,33 +289,27 @@ const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losers
 
     // get all matches linked to by loss
     const loserBracketMatchIds = new Map<string, boolean>();
-    for (const m of matches) {
-        loserBracketMatchIds.set(`${m.round}-${m.match}`, false);
+    for (const match of matches) {
+        loserBracketMatchIds.set(`${match.round}-${match.match}`, false);
     }
-    for (const m of matches) {
-        if (m.loss) {
-            loserBracketMatchIds.set(`${m.loss.round}-${m.loss.match}`, true);
+    for (const match of matches) {
+        if (match.loss) {
+            loserBracketMatchIds.set(`${match.loss.round}-${match.loss.match}`, true);
         }
     }
 
-    console.log('loserBracketMatchIds: ', loserBracketMatchIds);
-
     // get all matches that are pointed to by 2 win pointers, both of which are from losers bracket matches
     const matchesPointedToByLosersBracketWins = new Map<string, number>();
-    for (const m of matches) {
-        console.log('match id: ', m.id);
-        console.log('match.win: ', m.win);
-        if (m.win) {
-            const key = `${m.round}-${m.match}`;
+    for (const match of matches) {
+        if (match.win) {
+            const key = `${match.round}-${match.match}`;
             console.log('key: ', key);
             if (loserBracketMatchIds.get(key)) {
 
                 // get win child matchs
-                const winKey = `${m.win.round}-${m.win.match}`;
-                console.log('winKey: ', winKey);
+                const winKey = `${match.win.round}-${match.win.match}`;
 
                 const currentValue = matchesPointedToByLosersBracketWins.get(winKey);
-                console.log('currentValue: ', currentValue);
 
                 if (currentValue) {
                     matchesPointedToByLosersBracketWins.set(winKey, currentValue + 1);
@@ -307,14 +322,10 @@ const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losers
         }
     }
 
-    console.log('matchesPointedToByLosersBracketWins: ', matchesPointedToByLosersBracketWins);
-
-    console.log('loserBracketMatchIds: ', loserBracketMatchIds);
-
-    for (const m of matches) {
-        const target = loserBracketMatchIds.get(`${m.round}-${m.match}`) ? losersBracket : winnersBracket;
-        ensureRound(target, m.round);
-        target[m.round - 1][m.match - 1] = m; // because round and match indexing starts at 1
+    for (const match of matches) {
+        const target = loserBracketMatchIds.get(`${match.round}-${match.match}`) ? losersBracket : winnersBracket;
+        ensureRound(target, match.round);
+        target[match.round - 1][match.match - 1] = match; // because round and match indexing starts at 1
     }
 
     // clean up empty rounds TODO: should there be a better solution that doesn't require this?
@@ -324,13 +335,42 @@ const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losers
     return { winnersBracket, losersBracket };
 }
 
-// const competitorNames = ['A', 'B', 'C', 'D', 'E', 'F'];
-// const { winnersBracket, losersBracket } = prepareMatches(competitorNames);
+const separateFinalsFromBrackets = (winnersBracket: Match[][], losersBracket: Match[][]): { final: Match, finalRematch: Match } => {
 
-// // console.log(winnersBracket);
-// // console.log(losersBracket);
-// console.log(winnersBracket[1][1]);
-// console.log('DTO: ', winnersBracket[1][1].toDTO());
+    // extract finals (last 2 matches of winnersBracket)
+    const finalRound = winnersBracket[winnersBracket.length - 1];
+    const final = finalRound.pop();
+
+    if (!final) {
+        throw new Error('No final found');
+    }
+
+    // delete last round from winnersBracket, since it should now be empty
+    winnersBracket.pop();
+
+    // create final rematch
+    const finalRematchRound = winnersBracket.length + losersBracket.length + 2;
+    const finalRematchMatch = 1;
+    const finalRematchId = `${finalRematchRound}-${finalRematchMatch}`;
+    const finalRematchNumber = final.number + 1;
+
+    const finalRematch = new Match(finalRematchId, finalRematchNumber, finalRematchRound, finalRematchMatch, null, null, -1);
+
+    // link finalRematch to final
+    finalRematch.slot1Parent = final;
+    finalRematch.slot1PreviouslyWinner = true;
+    finalRematch.slot2Parent = final;
+    finalRematch.slot2PreviouslyWinner = false;
+
+    // link final to finalRematch
+    final.winChild = finalRematch;
+    final.lossChild = finalRematch;
+    final.win = { round: finalRematchRound, match: finalRematchMatch, slot: 1 };
+    final.loss = { round: finalRematchRound, match: finalRematchMatch, slot: 2 };
+
+    return { final, finalRematch };
+}
+
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     getSaveData, saveKeyValue,
