@@ -25,6 +25,10 @@ interface BracketDTO {
     currentMatchNumber: number
 
     finalRematchNeeded: boolean
+
+    firstPlace: string | undefined
+    secondPlace: string | undefined
+    thirdPlace: string | undefined
 }
 
 export type { BracketDTO }

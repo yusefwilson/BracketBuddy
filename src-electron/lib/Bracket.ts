@@ -171,25 +171,6 @@ class Bracket {
         return deserialize(serialized, { Tournament, Bracket, Match });
     }
 
-    toDTO(): BracketDTO {
-        return {
-            id: this.id,
-            tournamentId: this.tournament.id,
-            gender: this.gender,
-            experienceLevel: this.experienceLevel,
-            hand: this.hand,
-            weightLimit: this.weightLimit,
-            competitorNames: this.competitorNames,
-            winnersBracket: this.winnersBracket.map(round => round.map(match => match.toDTO())),
-            losersBracket: this.losersBracket.map(round => round.map(match => match.toDTO())),
-            started: this.started,
-            final: this.final ? this.final.toDTO() : null,
-            finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
-            currentMatchNumber: this.getLowestUnfilledMatchNumber(),
-            finalRematchNeeded: this.finalRematchNeeded(),
-        };
-    }
-
     canGetWinnerFromFinal(): boolean {
         if (!this.final) {
             throw new Error('Bracket has no final');
@@ -241,9 +222,10 @@ class Bracket {
             throw new Error('Bracket has no final rematch');
         }
 
-        const lastMatchBeforeFinal = this.findMatchByNumber(this.finalRematch.number - 3);
-        if (lastMatchBeforeFinal.isDecided()) {
-            return lastMatchBeforeFinal.getLosingPlayer();
+        const losersBracketFinal = this.losersBracket[this.losersBracket.length - 1][0];
+
+        if (losersBracketFinal.isDecided()) {
+            return losersBracketFinal.getLosingPlayer();
         }
 
         return undefined;
@@ -285,6 +267,28 @@ class Bracket {
         console.log('returning ', winnersBracketFinalWinner !== finalWinner, ' because winners bracket final winner is ', winnersBracketFinalWinner, ', and final winner is ', finalWinner);
 
         return winnersBracketFinalWinner !== finalWinner;
+    }
+
+    toDTO(): BracketDTO {
+        return {
+            id: this.id,
+            tournamentId: this.tournament.id,
+            gender: this.gender,
+            experienceLevel: this.experienceLevel,
+            hand: this.hand,
+            weightLimit: this.weightLimit,
+            competitorNames: this.competitorNames,
+            winnersBracket: this.winnersBracket.map(round => round.map(match => match.toDTO())),
+            losersBracket: this.losersBracket.map(round => round.map(match => match.toDTO())),
+            started: this.started,
+            final: this.final ? this.final.toDTO() : null,
+            finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
+            currentMatchNumber: this.getLowestUnfilledMatchNumber(),
+            finalRematchNeeded: this.finalRematchNeeded(),
+            firstPlace: this.getFirstPlace(),
+            secondPlace: this.getSecondPlace(),
+            thirdPlace: this.getThirdPlace(),
+        };
     }
 }
 

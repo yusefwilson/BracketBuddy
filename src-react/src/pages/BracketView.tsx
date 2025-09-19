@@ -157,7 +157,7 @@ export default function BracketView() {
         </div>
         {/* Final Placings */}
         {
-          /*<FinalPlacings first={bracket.getFirstPlace()} second={bracket.getSecondPlace()} third={bracket.getThirdPlace()} />*/
+          <FinalPlacings first={bracket.firstPlace} second={bracket.secondPlace} third={bracket.thirdPlace} />
         }
 
         {/* Start Bracket Button  */}
@@ -212,8 +212,7 @@ export default function BracketView() {
 
             )}
             {finalRematch.match &&
-              bracket.finalRematchNeeded &&
-              (
+              bracket.finalRematchNeeded && (
                 <MatchView match={finalRematch.match} updateMatch={updateMatch} x={finalRematch.x} y={finalRematch.y} currentMatchId={bracket.currentMatchNumber} />
               )}
           </>
