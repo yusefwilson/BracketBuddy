@@ -97,20 +97,13 @@ class Bracket {
         this.setCompetitorNames(this.competitorNames.filter(c => c !== competitorName));
     }
 
-    updateMatchByRoundAndIndex(round: number, match: number, winner: number) {
-        const matchToBeUpdated = this.findMatchByRoundAndIndex(round, match);
-        matchToBeUpdated.updateWinner(winner);
-    }
-
     updateMatchById(matchId: string, winner: number) {
         const matchToBeUpdated = this.findMatchById(matchId);
         matchToBeUpdated.updateWinner(winner);
     }
 
     findMatchById(matchId: string): Match {
-        console.log("trying to find match with id: ", matchId);
         const matches = this.getMatches();
-        console.log("matches: ", matches);
         const match = matches.find(match => match.id === matchId);
         if (!match) {
             throw new Error('Match not found');
@@ -118,17 +111,17 @@ class Bracket {
         return match;
     }
 
-    findMatchByRoundAndIndex(round: number, index: number): Match {
+    findMatchByNumber(number: number): Match {
 
         // loop through all rounds and matches to find the match with the given id
         let matches = this.getMatches();
         for (let match of matches) {
-            if (match.round === round && match.match === index) {
+            if (match.number === number) {
                 return match;
             }
         }
 
-        throw new Error('Match with round: ' + round + ' and index: ' + index + ' not found');
+        throw new Error('Match with number: ' + number + ' not found');
     }
 
     // return matches flattened and in no particular order
@@ -197,43 +190,64 @@ class Bracket {
         };
     }
 
-    // canGetWinnerFromFinal(): boolean {
-    //     return this.final?.winner !== -1 && this.final?.winner !== undefined && this.final?.getWinnerPretty() === this.winnersBracket[this.winnersBracket.length - 1].matches[0].getWinnerPretty()
-    // }
+    canGetWinnerFromFinal(): boolean {
+        if (!this.final) {
+            throw new Error('Bracket has no final');
+        }
+        const winnersBracketFinal = this.winnersBracket[this.winnersBracket.length - 1][0];
+        // return true if winner of final is winner of winners bracket final too
+        return this.final.isDecided() && this.final.getWinningPlayer() === winnersBracketFinal.getWinningPlayer();
+    }
 
-    // canGetWinnerFromFinalRematch(): boolean {
-    //     return this.finalRematch?.winner !== -1 && this.finalRematch?.winner !== undefined;
-    // }
+    getFirstPlace(): string | undefined {
 
-    // getFirstPlace(): string | undefined {
-    //     // if the final rematch has taken place, then the first place is the winner of the final rematch
-    //     if (this.canGetWinnerFromFinalRematch()) {
-    //         return this.finalRematch?.getWinnerPretty();
-    //     }
-    //     // if the final rematch has not taken place, and the final has, and the winner of the final is the winner of the last winnners bracket match
-    //     if (this.canGetWinnerFromFinal()) {
-    //         return this.final?.getWinnerPretty();
-    //     }
-    //     return undefined;
-    // }
+        if (!this.final) {
+            throw new Error('Bracket has no final');
+        }
+        // if the final rematch has not taken place, and the final has, and the winner of the final is the winner of the last winnners bracket match
+        if (this.canGetWinnerFromFinal()) {
+            return this.final.getWinningPlayer();
+        }
 
-    // getSecondPlace(): string | undefined {
-    //     if (this.canGetWinnerFromFinalRematch()) {
-    //         return this.finalRematch?.getLoser();
-    //     }
-    //     if (this.canGetWinnerFromFinal()) {
-    //         return this.final?.getLoser();
-    //     }
-    //     return undefined;
-    // }
+        if (!this.finalRematch) {
+            throw new Error('Bracket has no final rematch');
+        }
 
-    // getThirdPlace(): string | undefined {
-    //     const lastMatchBeforeFinal = this.findMatchByRoundAndIndex(this.nextMatchId - 3);
-    //     if (lastMatchBeforeFinal?.winner !== -1 && lastMatchBeforeFinal?.winner !== undefined) {
-    //         return lastMatchBeforeFinal?.getLoser();
-    //     }
-    //     return undefined;
-    // }
+        // if the final rematch has taken place, then the first place is the winner of the final rematch
+        if (this.finalRematch.isDecided()) {
+            return this.finalRematch.getWinningPlayer();
+        }
+
+        // if cannot get winner from final, and final rematch has not taken place, return undefined
+        return undefined;
+    }
+
+    getSecondPlace(): string | undefined {
+
+        if (this.canGetWinnerFromFinal()) {
+            return this.final?.getLosingPlayer();
+        }
+
+        if (this.finalRematch?.isDecided()) {
+            return this.finalRematch?.getLosingPlayer();
+        }
+
+        return undefined;
+    }
+
+    getThirdPlace(): string | undefined {
+
+        if (!this.finalRematch) {
+            throw new Error('Bracket has no final rematch');
+        }
+
+        const lastMatchBeforeFinal = this.findMatchByNumber(this.finalRematch.number - 3);
+        if (lastMatchBeforeFinal.isDecided()) {
+            return lastMatchBeforeFinal.getLosingPlayer();
+        }
+
+        return undefined;
+    }
 
     getLowestUnfilledMatchNumber(): number {
         const matches = this.getMatches().sort((a, b) => a.number - b.number);

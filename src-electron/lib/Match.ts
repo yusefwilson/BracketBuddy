@@ -36,8 +36,9 @@ class Match {
         this.loss = loss;
     }
 
+    // for now, a match can only be decided if it has been filled
     isDecided() {
-        return this.winner !== -1;
+        return this.winner !== -1 && this.player1 !== null && this.player2 !== null;
     }
 
     getGenericWinner() {
@@ -50,18 +51,21 @@ class Match {
 
     getWinningPlayer() {
         // if the match has not been filled or determined, then throw an error
-        if (!this.isDecided() || this.player1 === null || this.player2 === null) {
-            throw new Error('Match is undetermined');
+        if (!this.isDecided()) {
+            throw new Error('Match ' + this.id + ' is undecided: ');
         }
-        return this.winner === 1 ? this.player1 : this.player2;
+
+        // assert that player1 and player2 are not null because we passed isDecided() check
+        return this.winner === 1 ? this.player1 as string : this.player2 as string;
     }
 
     getLosingPlayer() {
         // if the match has not been filled or determined, then throw an error
-        if (!this.isDecided() || this.player1 === null || this.player2 === null) {
-            throw new Error('Match is undetermined');
+        if (!this.isDecided()) {
+            throw new Error('Match ' + this.id + ' is undecided: ');
         }
-        return this.winner === 1 ? this.player2 : this.player1;
+        // assert that player1 and player2 are not null because we passed isDecided() check
+        return this.winner === 1 ? this.player2 as string : this.player1 as string;
     }
 
     getWinner() {
@@ -106,6 +110,8 @@ class Match {
     // update the winner of this match and then trigger a recursive update of all children matches' player names
     updateWinner(winner: number) {
 
+        console.log('updating winner of match ' + this.id + ' to ' + winner);
+
         // winner must be -1, 1, or 2
         if (winner !== -1 && winner !== 1 && winner !== 2) {
             throw new Error('Winner must be -1, 1, or 2');
@@ -133,19 +139,29 @@ class Match {
     // update the players of the current match if and only if the parent matches have been decided
     updatePlayers() {
 
+        console.log('updating players of match ' + this.id);
+        console.log('slot1Parent: ', this.slot1Parent?.id);
+        console.log('slot2Parent: ', this.slot2Parent?.id);
+        console.log('slot1Parent.isDecided(): ', this.slot1Parent?.isDecided());
+        console.log('slot2Parent.isDecided(): ', this.slot2Parent?.isDecided());
+
         // if the parent match exists and has been decided, update the player of this match
         if (this.slot1Parent && this.slot1Parent.isDecided()) {
+            console.log('updating player1 of match ' + this.id + ' because parent match ' + this.slot1Parent.id + ' isDecided(): ' + this.slot1Parent.isDecided());
             this.player1 = this.slot1PreviouslyWinner ? this.slot1Parent.getWinningPlayer() : this.slot1Parent.getLosingPlayer();
         }
         if (this.slot2Parent && this.slot2Parent.isDecided()) {
+            console.log('updating player1 of match ' + this.id + ' because parent match ' + this.slot2Parent.id + ' isDecided(): ' + this.slot2Parent.isDecided());
             this.player2 = this.slot2PreviouslyWinner ? this.slot2Parent.getWinningPlayer() : this.slot2Parent.getLosingPlayer();
         }
 
         // if the parent match exist and has not been decided, then make the player of this match null
         if (this.slot1Parent && !this.slot1Parent.isDecided()) {
+            this.winner = -1;
             this.player1 = null;
         }
         if (this.slot2Parent && !this.slot2Parent.isDecided()) {
+            this.winner = -1;
             this.player2 = null;
         }
 
