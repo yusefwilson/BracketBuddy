@@ -105,6 +105,9 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
     // separate final from winners bracket and add final rematch
     const { final, finalRematch } = separateFinalsFromBrackets(winnersBracket, losersBracket);
 
+    // number matches
+    numberMatches(competitorNames.length, winnersBracket, losersBracket, final, finalRematch);
+
     return { winnersBracket, losersBracket, final, finalRematch };
 }
 
@@ -209,11 +212,60 @@ const putMatchesIntoMatrix = (matches: Match[]): Match[][] => {
     return matchesMatrix;
 }
 
-const numberMatches = (matches: Match[]): void => {
+const numberRound = (round: Match[], currentMatchNumber: number): number => {
+    console.log('numbering round: ', round);
+    round.forEach(match => match.number = currentMatchNumber++);
+    return currentMatchNumber;
+}
+const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match): void => {
+
+    let currentMatchNumber = 1, currentWinnerRound = 0, currentLoserRound = 0;
 
     // if power of 2, then first complete first winner round. otherwise, complete first 2 winner rounds
+    currentMatchNumber = numberRound(winnersBracket[currentWinnerRound], currentMatchNumber);
+    currentWinnerRound++;
+
+    let numberOfInitialLoserMatches = winnersBracket[0].length;
+
+    if (!isPowerOfTwo(numberOfCompetitors)) {
+        currentMatchNumber = numberRound(winnersBracket[currentWinnerRound], currentMatchNumber);
+        currentWinnerRound++;
+        numberOfInitialLoserMatches += winnersBracket[1].length;
+    }
+
     // if initial amount of losers is power of 2, then complete first loser round. otherwise, complete first 2 loser rounds
-    // then, 
+    currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+    currentLoserRound++;
+
+    if (!isPowerOfTwo(numberOfInitialLoserMatches)) {
+        currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+        currentLoserRound++;
+    }
+    // now we have a currentLoserRound and a currentWinnerRound, follow the following algorithm:
+    // while current winner round size not equal to 1
+    while (currentWinnerRound < winnersBracket.length - 1) {
+        // execute winner round
+        currentMatchNumber = numberRound(winnersBracket[currentWinnerRound], currentMatchNumber);
+        currentWinnerRound++;
+
+        // while current loser round size not equal to current winner round size, execute loser round
+        console.log('current winner round: ', currentWinnerRound);
+        console.log('current winner round value: ', winnersBracket[currentWinnerRound]);
+
+        while (losersBracket[currentLoserRound].length !== winnersBracket[currentWinnerRound].length) {
+            currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+            currentLoserRound++;
+        }
+
+        // execute loser round one more time
+        currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+        currentLoserRound++;
+    }
+
+    // number final
+    final.number = currentMatchNumber++;
+    // number final rematch
+    finalRematch.number = currentMatchNumber++;
 }
 
 const linkMatches = (matches: Match[]): void => {
@@ -362,6 +414,11 @@ const separateFinalsFromBrackets = (winnersBracket: Match[][], losersBracket: Ma
 
     return { final, finalRematch };
 }
+
+
+const competitorNames = ['A', 'B', 'C', 'D', 'E'];
+const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(competitorNames);
+console.log('matches', winnersBracket, losersBracket, final, finalRematch);
 
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
