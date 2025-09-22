@@ -232,8 +232,10 @@ class Bracket {
     }
 
     getLowestUnfilledMatchNumber(): number {
-        const matches = this.getMatches().sort((a, b) => a.number - b.number);
-        for (let match of matches) {
+        const matches = this.getMatches();
+        console.log('matches: ', matches);
+        const sortedMatches = matches.sort((a, b) => a.number - b.number);
+        for (let match of sortedMatches) {
             if (match.winner === -1) {
                 return match.number;
             }
@@ -270,7 +272,8 @@ class Bracket {
     }
 
     toDTO(): BracketDTO {
-        return {
+
+        const DTO = {
             id: this.id,
             tournamentId: this.tournament.id,
             gender: this.gender,
@@ -283,12 +286,16 @@ class Bracket {
             started: this.started,
             final: this.final ? this.final.toDTO() : null,
             finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
-            currentMatchNumber: this.getLowestUnfilledMatchNumber(),
-            finalRematchNeeded: this.finalRematchNeeded(),
-            firstPlace: this.getFirstPlace(),
-            secondPlace: this.getSecondPlace(),
-            thirdPlace: this.getThirdPlace(),
+            currentMatchNumber: this.started ? this.getLowestUnfilledMatchNumber() : -1,
+            finalRematchNeeded: this.started ? this.finalRematchNeeded() : false,
+            firstPlace: this.started ? this.getFirstPlace() : undefined,
+            secondPlace: this.started ? this.getSecondPlace() : undefined,
+            thirdPlace: this.started ? this.getThirdPlace() : undefined,
         };
+
+        console.log('bracket started in DTO?', this.started)
+
+        return DTO;
     }
 }
 

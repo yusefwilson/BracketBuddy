@@ -241,25 +241,23 @@ const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], l
         currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
         currentLoserRound++;
     }
-    // now we have a currentLoserRound and a currentWinnerRound, follow the following algorithm:
+
     // while current winner round size not equal to 1
-    while (currentWinnerRound < winnersBracket.length - 1) {
+    while (currentWinnerRound < winnersBracket.length) {
+
         // execute winner round
         currentMatchNumber = numberRound(winnersBracket[currentWinnerRound], currentMatchNumber);
         currentWinnerRound++;
 
-        // while current loser round size not equal to current winner round size, execute loser round
-        console.log('current winner round: ', currentWinnerRound);
-        console.log('current winner round value: ', winnersBracket[currentWinnerRound]);
-
-        while (losersBracket[currentLoserRound].length !== winnersBracket[currentWinnerRound].length) {
+        // execute 2 loser rounds (if they exist)
+        if (currentLoserRound < losersBracket.length) {
             currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
             currentLoserRound++;
         }
-
-        // execute loser round one more time
-        currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
-        currentLoserRound++;
+        if (currentLoserRound < losersBracket.length) {
+            currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+            currentLoserRound++;
+        }
     }
 
     // number final
@@ -415,6 +413,7 @@ const separateFinalsFromBrackets = (winnersBracket: Match[][], losersBracket: Ma
     return { final, finalRematch };
 }
 
+console.log('in utilss')
 
 const competitorNames = ['A', 'B', 'C', 'D', 'E'];
 const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(competitorNames);
