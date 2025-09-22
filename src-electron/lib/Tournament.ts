@@ -21,6 +21,10 @@ class Tournament {
     }
 
     async addBracket(bracket: Bracket) {
+        // throw error if bracket already exists
+        if (this.brackets.find((b, index) => b.id === bracket.id)) {
+            throw new Error('Bracket with these properties already exists in tournament');
+        }
         this.brackets.push(bracket);
     }
 

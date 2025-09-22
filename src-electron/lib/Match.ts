@@ -42,11 +42,11 @@ class Match {
     }
 
     getGenericWinner() {
-        return 'Winner of ' + this.round + '-' + this.match;
+        return 'Winner of ' + this.number;
     }
 
     getGenericLoser() {
-        return 'Loser of ' + this.round + '-' + this.match;
+        return 'Loser of ' + this.number;
     }
 
     getWinningPlayer() {

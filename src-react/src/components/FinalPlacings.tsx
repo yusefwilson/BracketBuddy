@@ -5,7 +5,7 @@ export default function FinalPlacings({ first, second, third }: { first: string 
         <div className='w-full flex flex-col items-center mt-4'>
 
             <h2 className='text-white font-semibold text-lg mb-2'>Final Placings</h2>
-            <div className='flex flex-col gap-6 justify-center items-end'>
+            <div className='flex flex-col gap-6 justify-center items-center'>
 
                 {/* 1st Place */}
                 <div className='flex flex-col items-center scale-110'>

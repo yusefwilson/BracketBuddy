@@ -36,7 +36,6 @@ export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { 
                 }}
             >
                 <TrashIcon className='h-4 w-4' />
-                <span className='text-sm font-medium'>Remove</span>
             </button>
         </div>
     );
