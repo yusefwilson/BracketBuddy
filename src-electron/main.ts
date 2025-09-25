@@ -32,7 +32,7 @@ const create_window = async () => {
         }
     }
     else {
-        await window.loadFile('../src-react/dist/index.html');
+        await window.loadFile('../../build-react/index.html');
     }
 }
 
