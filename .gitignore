@@ -9,3 +9,4 @@ build-react
 
 # electron typescript build
 build-electron
+out/

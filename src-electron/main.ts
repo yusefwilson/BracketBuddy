@@ -22,17 +22,16 @@ const create_window = async () => {
         }
     });
 
-    if (DEV) {
+    if (app.isPackaged) {
+        await window.loadFile(path.join(process.resourcesPath, "build-react/index.html"));
+    }
+    else {
         try {
             await window.loadURL('http://localhost:5173');
         }
         catch (e) {
             console.log('Error loading dev server:', e);
-            console.log('hi')
         }
-    }
-    else {
-        await window.loadFile('../../build-react/index.html');
     }
 }
 
