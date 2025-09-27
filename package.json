@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.1",
+    "@types/electron-squirrel-startup": "^1.0.2",
     "flatted": "^3.3.3",
     "tournament-pairings": "^2.0.1",
     "util": "^0.12.5"

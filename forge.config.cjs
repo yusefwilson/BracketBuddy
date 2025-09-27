@@ -28,7 +28,7 @@ module.exports = {
         exe: "BracketBuddy.exe",                 // exe filename
         setupExe: "BracketBuddy-Setup.exe",      // setup filename
         setupIcon: "./assets/icon.ico",          // icon for installer & exe
-        iconUrl: "https://yusefwilson.com/icon.ico",
+        iconUrl: "https://yusefwilson.github.io/BracketBuddy/assets/icon.ico", // hacky kinda way to get free icon hosting from github
         //loadingGif: "./assets/loading.gif",      // optional loading animation for installer
         noMsi: true,                             // disables generating MSI, since Squirrel handles it
       }

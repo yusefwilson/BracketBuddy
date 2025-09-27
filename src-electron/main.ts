@@ -1,3 +1,10 @@
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+if (require('electron-squirrel-startup')) {
+    //app.quit();
+    process.exit(0);
+}
+
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,7 +14,7 @@ import { add_competitor_to_bracket, remove_competitor_from_bracket, start_bracke
 import { ensure_save_environment, get_save_data, save_key_value, get_constants } from './endpoints/misc.js';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename)
+const __dirname = dirname(__filename);
 
 const create_window = async () => {
 
