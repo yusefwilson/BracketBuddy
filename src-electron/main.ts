@@ -6,8 +6,6 @@ import { load_all_tournaments, create_tournament, delete_tournament, add_bracket
 import { add_competitor_to_bracket, remove_competitor_from_bracket, start_bracket, update_bracket } from './endpoints/bracket.js';
 import { ensure_save_environment, get_save_data, save_key_value, get_constants } from './endpoints/misc.js';
 
-import { DEV } from './constants.js';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename)
 
@@ -18,11 +16,14 @@ const create_window = async () => {
         width: 1800,
         height: 1000,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js') //keep in mind all paths like this are relative to the main.js file, which is currently in ./dist
-        }
+            preload: path.join(__dirname, 'preload.js'), //keep in mind all paths like this are relative to the main.js file
+        },
+        title: "BracketBuddy",
+        icon: path.join(process.resourcesPath, "assets/icon.ico")
     });
 
     if (app.isPackaged) {
+        // Try MSI / Squirrel / unpacked locations
         await window.loadFile(path.join(process.resourcesPath, "build-react/index.html"));
     }
     else {
