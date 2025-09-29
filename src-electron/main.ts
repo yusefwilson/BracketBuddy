@@ -1,13 +1,12 @@
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-if (require('electron-squirrel-startup')) {
-    //app.quit();
-    process.exit(0);
-}
-
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+if (require('electron-squirrel-startup')) {
+    app.quit();
+}
 
 import { load_all_tournaments, create_tournament, delete_tournament, add_bracket_to_tournament, remove_bracket_from_tournament } from './endpoints/tournament.js';
 import { add_competitor_to_bracket, remove_competitor_from_bracket, start_bracket, update_bracket } from './endpoints/bracket.js';
