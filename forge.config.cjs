@@ -25,6 +25,7 @@ module.exports = {
       config: {
         name: "BracketBuddy",                     // internal app name
         authors: "Yusef Wilson",                 // author
+        description: "Tournament management software", // description
         exe: "BracketBuddy.exe",                 // exe filename
         setupExe: "BracketBuddy-Setup.exe",      // setup filename
         setupIcon: "./assets/icon.ico",          // icon for installer & exe

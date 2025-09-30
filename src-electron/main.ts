@@ -1,13 +1,43 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import fs from 'fs';
 import path, { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
-if (require('electron-squirrel-startup')) {
-    app.quit();
+var spawn = require('child_process').spawn;
+import { app, BrowserWindow, ipcMain } from 'electron';
+function log(msg: string) {
+    const logDir = path.join("C:\\Users\\yusef", "BracketBuddy");
+    const logFile = path.join(logDir, "install.log");
+
+    // ensure directory exists
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+    }
+
+    fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${msg}\n`);
 }
 
+log('App starting...');
+log('Process argv: ' + process.argv.join(' '));
+
+var cmd = process.argv[1];
+var target = path.basename(process.execPath);
+
+var run = function (args: any, done: any) {
+    var updateExe = path.resolve(path.dirname(process.execPath), '..', 'Update.exe');
+    spawn(updateExe, args, {
+        detached: true
+    }).on('close', done);
+};
+
+if (cmd === '--squirrel-install' || cmd === '--squirrel-updated' || cmd === '--squirrel-firstrun') {
+    log('Creating shortcut...');
+    run(['--createShortcut=' + target + ''], app.quit);
+    //app.quit();
+    //process.exit(0);
+}
+
+import { fileURLToPath } from 'node:url';
 import { load_all_tournaments, create_tournament, delete_tournament, add_bracket_to_tournament, remove_bracket_from_tournament } from './endpoints/tournament.js';
 import { add_competitor_to_bracket, remove_competitor_from_bracket, start_bracket, update_bracket } from './endpoints/bracket.js';
 import { ensure_save_environment, get_save_data, save_key_value, get_constants } from './endpoints/misc.js';
