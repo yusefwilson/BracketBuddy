@@ -2,6 +2,7 @@ import { serialize, deserialize } from './utils.js';
 import Bracket from './Bracket.js';
 import Match from './Match.js';
 import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
+import { dateToLocalTimezoneString } from '@shared/utils.js';
 
 class Tournament {
 
@@ -16,7 +17,7 @@ class Tournament {
     constructor(name: string = '', date: Date = new Date()) {
         this.name = name;
         this.date = date;
-        this.id = name + date.toISOString().slice(0, 10);
+        this.id = name + dateToLocalTimezoneString(date); // TODO: better unique id generation
         this.brackets = [];
     }
 
