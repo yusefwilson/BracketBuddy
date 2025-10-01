@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import { dateToLocalTimezoneString } from '../../../src-shared/utils';
 
 export default function TournamentInputModal({ setTournamentModalOpen }: { setTournamentModalOpen: (open: boolean) => void; }) {
+    console.log('in tournament input modal');
     const [name, setName] = useState('');
+
     const [date, setDate] = useState(new Date());
     const [error, setError] = useState('');
 
@@ -13,6 +16,7 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
                 setName(event.target.value);
                 break;
             case 'date':
+                console.log('setting date', event.target.value);
                 setDate(new Date(event.target.value));
                 break;
             default:
@@ -38,6 +42,7 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
         setError('');
 
         // create and save tournament. TODO: does this update state? (probably)
+        console.log('about to create tournament with name', name, 'and date', date);
         await window.electron.createTournament(name, date, []);
 
         // close modal
@@ -76,7 +81,7 @@ export default function TournamentInputModal({ setTournamentModalOpen }: { setTo
                     type='date'
                     name='date'
                     className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
-                    value={date.toISOString().split('T')[0]}
+                    value={dateToLocalTimezoneString(date)}
                     onChange={onChange}
                 />
 

@@ -121,11 +121,19 @@ const calculateMatchPositionsFromParentStaggered = (previousRoundMatches: MatchA
     });
 }
 
+function dateToLocalTimezoneString(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     calculateInitialRoundsMatchPositions, calculateMatchPositionsFromParentAverages, calculateMatchPositionsFromParentStaggered,
     WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET, HORIZONTAL_GAP,
     INITIAL_VERTICAL_GAP, EXTRA_VERTICAL_OFFSET,
+    dateToLocalTimezoneString
 };
 
 export type { MatchAndPosition };

@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('electron', {
     loadTournament: async (tournamentId: string) => {
         return await ipcRenderer.invoke('load-tournament', tournamentId);
     },
-    createTournament: async (name: string, date: Date, brackets: BracketDTO[]) => {
+    createTournament: async (name: string, date: string, brackets: BracketDTO[]) => {
         return await ipcRenderer.invoke('create-tournament', name, date, brackets);
     },
     deleteTournament: async (tournamentName: string) => {

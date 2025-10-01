@@ -6,11 +6,13 @@
   "main": "./build-electron/src-electron/main.js",
   "type": "module",
   "scripts": {
-    "start": "electron-forge start",
-    "build": "cd src-react && npm run build && cd .. && tsc && tsc -p tsconfig.preload.json && npx electron ./build-electron/main.js",
+    "start": "concurrently \"cd src-react && npm run dev\" \"tsc --watch\" \"tsc -p tsconfig.preload.json --watch\" \"wait-on ./build-electron/src-electron/main.js && electronmon --watch ./build-electron/src-electron/main.js\"",
+    "build": "npm run build:react && npm run build:ts && npm run build:preload",
+    "build:react": "cd src-react && npx vite build",
+    "build:ts": "tsc",
+    "build:preload": "tsc -p tsconfig.preload.json",
     "package": "electron-forge package",
-    "make": "electron-forge make",
-    "custom-start": "concurrently \"cd src-react && npm run dev\" \"tsc --watch\" \"tsc -p tsconfig.preload.json --watch\" \"wait-on ./build-electron/src-electron/main.js && electronmon --watch ./build-electron/src-electron/main.js\""
+    "make": "npm run build && electron-forge make"
   },
   "author": "Yusef Wilson",
   "license": "MIT",

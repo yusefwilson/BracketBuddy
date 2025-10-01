@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 
@@ -8,7 +9,7 @@ var cmd = process.argv[1];
 var target = path.basename(process.execPath);
 
 function log(msg: string) {
-    const logDir = path.join("C:\\Users\\yusef", "BracketBuddy");
+    const logDir = path.join(os.homedir(), "BracketBuddy");
     const logFile = path.join(logDir, "install.log");
 
     // ensure directory exists
