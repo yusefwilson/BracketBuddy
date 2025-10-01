@@ -12,7 +12,7 @@ function usePrevious<T>(value: T): T | undefined {
 export default function CompetitorInput(
     { competitors, addCompetitor, removeCompetitor, }:
         { competitors: string[]; addCompetitor: (name: string) => void; removeCompetitor: (name: string) => void; }) {
-    const [newName, setNewName] = useState("");
+    const [newName, setNewName] = useState('');
 
     // This is a dummy div that we use to auto-scroll to the bottom when competitors update
     const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -20,9 +20,15 @@ export default function CompetitorInput(
 
     // Add a new competitor
     const handleAdd = () => {
-        if (newName.trim() === "") return;
-        addCompetitor(newName.trim());
-        setNewName("");
+        const competitorNameToAdd = newName.trim()
+        // prevent empty names
+        if (competitorNameToAdd === '') return;
+        // prevent duplicate competitors
+        if (competitors.includes(competitorNameToAdd)) return;
+
+        // add competitor
+        addCompetitor(competitorNameToAdd);
+        setNewName('');
     };
 
     // Auto-scroll to bottom when competitors update, but only scroll when a competitor was added
@@ -87,6 +93,9 @@ export default function CompetitorInput(
                         placeholder="New competitor name"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") handleAdd();
+                        }}
                         className="
               flex-grow
               p-2
@@ -105,7 +114,7 @@ export default function CompetitorInput(
                     />
                     <button
                         onClick={handleAdd}
-                        disabled={newName.trim() === ""}
+                        disabled={newName.trim() === ''}
                         className="
               bg-blue-500
               hover:bg-blue-600

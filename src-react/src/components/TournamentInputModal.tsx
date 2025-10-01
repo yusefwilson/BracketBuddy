@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { dateToLocalTimezoneString } from '../../../src-shared/utils';
 
 export default function TournamentInputModal({ setTournamentModalOpen }: { setTournamentModalOpen: (open: boolean) => void; }) {
-    console.log('in tournament input modal');
     const [name, setName] = useState('');
-
     const [date, setDate] = useState(new Date());
     const [error, setError] = useState('');
 

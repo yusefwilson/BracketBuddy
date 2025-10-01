@@ -1,7 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-
 import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon, } from '@heroicons/react/24/outline';
-
 import { Gender, Hand, ExperienceLevel } from '../../../src-shared/types';
 import CompetitorInput from './CompetitorInput';
 import Dropdown from './Dropdown';
@@ -59,7 +57,7 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
 
     return (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-            <div className='bg-slate-700 w-full max-w-lg p-6 rounded-xl shadow-lg flex flex-col gap-6'>
+            <div className='bg-slate-700 w-full max-w-lg p-6 rounded-xl shadow-lg flex flex-col gap-6 h-3/4 overflow-y-auto'>
 
                 <h1 className='text-xl font-semibold text-white text-center'>Enter Bracket Info</h1>
 

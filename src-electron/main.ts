@@ -30,6 +30,7 @@ const create_window = async () => {
     }
     else {
         try {
+            console.log('loading dev server');
             await window.loadURL('http://localhost:5173');
         }
         catch (e) {
