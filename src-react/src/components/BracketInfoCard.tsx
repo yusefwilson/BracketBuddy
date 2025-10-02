@@ -4,7 +4,7 @@ import { BracketDTO } from '../../../src-shared/BracketDTO';
 export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { bracket: BracketDTO; onClick: () => void; onRemoveClick: () => void; }) {
     return (
         <div
-            className='bg-slate-500 hover:bg-slate-600 transition cursor-pointer p-4 rounded-xl flex gap-6 shadow-sm items-center'
+            className='bg-slate-500 hover:bg-slate-600 transition cursor-pointer p-4 rounded-xl flex flex-wrap justify-between items-center shadow-sm'
             onClick={onClick}
         >
             {/* Bracket Info with Icons */}
