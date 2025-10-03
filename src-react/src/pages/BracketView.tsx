@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
@@ -14,6 +14,12 @@ import {
 import FinalPlacings from '../components/FinalPlacings';
 
 export default function BracketView() {
+
+  // ref to final rematch
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [finalRematchJustSpawned, setFinalRematchJustSpawned] = useState(false);
+
   // state
   const state = useContext(CURRENT_STATE);
   const { bracketIndex, tournament, setTournament = () => { } } = state || {};
@@ -35,6 +41,16 @@ export default function BracketView() {
     );
   }
 
+  useEffect(() => {
+    if (finalRematchJustSpawned) {
+      console.log('about to scroll final rematch into view')
+      containerRef.current?.scrollTo({
+        left: containerRef.current.scrollWidth, // max scroll
+        behavior: "smooth",
+      });
+    }
+  }, [finalRematchJustSpawned]);
+
   console.log('bracket: ', bracket);
   console.log('bracket.competitorNames: ', bracket.competitorNames);
 
@@ -46,6 +62,11 @@ export default function BracketView() {
   const updateMatch = async (matchId: string, winner: number): Promise<void> => {
 
     const newTournament = await window.electron.enterResult(bracket.tournamentId, bracket.id, matchId.toString(), winner);
+
+    const finalRematchInExistenceAfter = newTournament.brackets[bracketIndex].finalRematchNeeded;
+
+    // if final rematch just spawned, indicate that so scrolling happens
+    setFinalRematchJustSpawned(!bracket.finalRematchNeeded && finalRematchInExistenceAfter);
 
     // hacky way to trigger refresh, and also to trigger tournament save in App useEffect
     setTournament(newTournament);
@@ -133,7 +154,7 @@ export default function BracketView() {
 
   //console.log('current match id: ', bracket.getLowestIdUnfilledMatch());
   return (
-    <div className='h-full flex gap-6 p-4 bg-slate-800 rounded-lg shadow-inner'>
+    <div className='h-full flex gap-6 p-4 bg-slate-800 shadow-inner'>
 
       {/* Controls Panel */}
       <div className='bg-slate-700 rounded-lg p-4 shadow-md flex flex-col gap-4 overflow-y-auto'>
@@ -169,7 +190,7 @@ export default function BracketView() {
       </div>
 
       {/* Bracket Display */}
-      <div className='flex-1 bg-slate-700 rounded-lg p-4 shadow-md relative overflow-auto'>
+      <div className='flex-1 bg-slate-700 rounded-lg p-4 shadow-md relative overflow-auto' ref={containerRef}>
         {bracket.competitorNames && bracket.competitorNames.length < 2 ? (
           <div className='text-white text-center font-semibold text-lg py-12'>
             Not enough competitors yet.
@@ -209,7 +230,6 @@ export default function BracketView() {
             {/* Final and Rematch */}
             {final.match && (
               <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={bracket.currentMatchNumber} />
-
             )}
             {finalRematch.match &&
               bracket.finalRematchNeeded && (

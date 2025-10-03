@@ -54,12 +54,13 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
             bottomRef.current?.scrollIntoView({ behavior: "smooth" });
         }
     }, [competitors.length, prevLength]);
+    
     return (
         <div className="flex flex-col h-full justify-between">
             <div className="overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64">
 
                 <div className="flex items-center space-x-3 mb-3">
-                    <h2 className="text-md font-semibold text-white mb-4">
+                    <h2 className="text-lg font-semibold text-white">
                         Enter Competitor Names ({competitors.length})
                     </h2>
                     <button
