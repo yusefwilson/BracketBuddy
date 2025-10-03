@@ -88,19 +88,19 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
 
     // generate pairings using external library
     const matches = DoubleElimination(competitorNames) as ExternalMatch[];
-    console.log('1. matches', matches);
+    //console.log('1. matches', matches);
 
     // convert to internal matches
     const convertedMatches = convertExternalMatchesToInternalMatches(matches);
-    console.log('2. convertedMatches', convertedMatches);
+    //console.log('2. convertedMatches', convertedMatches);
 
     // link matches
     linkMatches(convertedMatches);
-    console.log('3. linked matches', convertedMatches);
+    //console.log('3. linked matches', convertedMatches);
 
     // separate into winnersBracket and losersBracket
     const { winnersBracket, losersBracket } = separateBrackets(convertedMatches);
-    console.log('4. separatedBrackets', { winnersBracket, losersBracket });
+    //console.log('4. separatedBrackets', { winnersBracket, losersBracket });
 
     // separate final from winners bracket and add final rematch
     const { final, finalRematch } = separateFinalsFromBrackets(winnersBracket, losersBracket);
@@ -213,7 +213,7 @@ const putMatchesIntoMatrix = (matches: Match[]): Match[][] => {
 }
 
 const numberRound = (round: Match[], currentMatchNumber: number): number => {
-    console.log('numbering round: ', round);
+    //console.log('numbering round: ', round);
     round.forEach(match => match.number = currentMatchNumber++);
     return currentMatchNumber;
 }
@@ -346,7 +346,7 @@ const separateBrackets = (matches: Match[]): { winnersBracket: Match[][]; losers
     for (const match of matches) {
         if (match.win) {
             const key = `${match.round}-${match.match}`;
-            console.log('key: ', key);
+            //console.log('key: ', key);
             if (loserBracketMatchIds.get(key)) {
 
                 // get win child matchs

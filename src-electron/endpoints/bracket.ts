@@ -100,6 +100,7 @@ const randomize_competitors = async (_: Electron.IpcMainInvokeEvent, tournamentI
     }
 
     bracket.randomizeCompetitors();
+    bracket.initialize();
 
     await save_tournament(_, tournament);
 

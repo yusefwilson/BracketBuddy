@@ -62,6 +62,8 @@ class Bracket {
             //  might need special logic heres
         }
 
+        console.log('about to initialize bracket with competitor names: ', this.competitorNames);
+
         const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(this.competitorNames);
 
         this.winnersBracket = winnersBracket;
@@ -237,7 +239,6 @@ class Bracket {
 
     getLowestUnfilledMatchNumber(): number {
         const matches = this.getMatches();
-        console.log('matches: ', matches);
         const sortedMatches = matches.sort((a, b) => a.number - b.number);
         for (let match of sortedMatches) {
             if (match.winner === -1) {
