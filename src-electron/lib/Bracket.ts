@@ -1,4 +1,4 @@
-import { serialize, deserialize, prepareMatches, } from './utils.js';
+import { serialize, deserialize, prepareMatches, shuffle } from './utils.js';
 import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
 import Match from './Match.js';
 import Tournament from './Tournament.js';
@@ -95,6 +95,10 @@ class Bracket {
 
     removeCompetitor(competitorName: string) {
         this.setCompetitorNames(this.competitorNames.filter(c => c !== competitorName));
+    }
+
+    randomizeCompetitors() {
+        shuffle(this.competitorNames);
     }
 
     updateMatchById(matchId: string, winner: number) {

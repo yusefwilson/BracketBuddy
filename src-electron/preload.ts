@@ -45,6 +45,9 @@ contextBridge.exposeInMainWorld('electron', {
     startBracket: async (tournamentId: string, bracketId: string) => {
         return await ipcRenderer.invoke('start-bracket', tournamentId, bracketId);
     },
+    randomizeCompetitors: async (tournamentId: string, bracketId: string) => {
+        return await ipcRenderer.invoke('randomize-competitors', tournamentId, bracketId);
+    },
 
     // misc
     getSaveData: async () => {

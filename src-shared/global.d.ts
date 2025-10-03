@@ -37,6 +37,7 @@ declare global {
             ) => Promise<TournamentDTO>;
             startBracket: (tournamentId: string, bracketId: string) => Promise<TournamentDTO>;
             enterResult: (tournamentId: string, bracketId: string, matchId: string, winner: number) => Promise<TournamentDTO>;
+            randomizeCompetitors: (tournamentId: string, bracketId: string) => Promise<TournamentDTO>;
 
             // misc
             getSaveData: () => Promise<Record<string, any>>;

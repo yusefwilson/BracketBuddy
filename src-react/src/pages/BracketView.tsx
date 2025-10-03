@@ -136,7 +136,7 @@ export default function BracketView() {
     <div className='h-full flex gap-6 p-4 bg-slate-800 rounded-lg shadow-inner'>
 
       {/* Controls Panel */}
-      <div className='bg-slate-700 rounded-lg p-4 shadow-md flex flex-col gap-4'>
+      <div className='bg-slate-700 rounded-lg p-4 shadow-md flex flex-col gap-4 overflow-y-auto'>
 
         {/* Bracket Details (Gender, Hand, Experience Level, etc.) */}
         <p className='self-center text-lg font-bold'>{bracket.gender + ' | ' + bracket.hand + ' | ' + bracket.experienceLevel + ' | ' + bracket.weightLimit}</p>

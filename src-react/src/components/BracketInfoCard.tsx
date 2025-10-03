@@ -1,4 +1,4 @@
-import { UserIcon, AcademicCapIcon, ScaleIcon, TrashIcon, HandRaisedIcon } from '@heroicons/react/24/outline';
+import { UserIcon, AcademicCapIcon, ScaleIcon, TrashIcon, HandRaisedIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { BracketDTO } from '../../../src-shared/BracketDTO';
 
 export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { bracket: BracketDTO; onClick: () => void; onRemoveClick: () => void; }) {
@@ -24,6 +24,10 @@ export default function BracketInfoCard({ bracket, onClick, onRemoveClick, }: { 
                 <div className='flex items-center gap-2'>
                     <HandRaisedIcon className='h-5 w-5 text-yellow-300' />
                     <span>{bracket.hand}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <UsersIcon className="h-5 w-5 text-pink-300" />
+                    <span>{bracket.competitorNames?.length ?? 0} Competitors</span>
                 </div>
             </div>
 

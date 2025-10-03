@@ -217,6 +217,7 @@ const numberRound = (round: Match[], currentMatchNumber: number): number => {
     round.forEach(match => match.number = currentMatchNumber++);
     return currentMatchNumber;
 }
+
 const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match): void => {
 
     let currentMatchNumber = 1, currentWinnerRound = 0, currentLoserRound = 0;
@@ -413,15 +414,27 @@ const separateFinalsFromBrackets = (winnersBracket: Match[][], losersBracket: Ma
     return { final, finalRematch };
 }
 
-console.log('in utilss')
+/* SHUFFLE */
+function shuffle<T>(array: T[]) {
+    let currentIndex = array.length;
 
-const competitorNames = ['A', 'B', 'C', 'D', 'E'];
-const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(competitorNames);
-console.log('matches', winnersBracket, losersBracket, final, finalRematch);
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+
+        // Pick a remaining element...
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+    }
+}
 
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     getSaveData, saveKeyValue,
     serialize, deserialize,
-    prepareMatches
+    prepareMatches,
+    shuffle
 }

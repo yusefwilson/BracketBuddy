@@ -87,10 +87,30 @@ const start_bracket = async (_: Electron.IpcMainInvokeEvent, tournamentId: strin
     return tournament.toDTO();
 }
 
+const randomize_competitors = async (_: Electron.IpcMainInvokeEvent, tournamentId: string, bracketId: string): Promise<TournamentDTO> => {
+    console.log('randomizing competitors');
+    console.log('tournamentId: ', tournamentId);
+    console.log('bracketId: ', bracketId);
+
+    const tournament = await load_tournament(_, tournamentId);
+    const bracket = tournament.getBracket(bracketId);
+
+    if (!bracket) {
+        throw new Error('Bracket not found');
+    }
+
+    bracket.randomizeCompetitors();
+
+    await save_tournament(_, tournament);
+
+    return tournament.toDTO();
+}
+
 
 export {
     update_bracket,
     add_competitor_to_bracket,
     remove_competitor_from_bracket,
-    start_bracket
+    start_bracket,
+    randomize_competitors
 }
