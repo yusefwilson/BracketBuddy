@@ -121,6 +121,89 @@ const calculateMatchPositionsFromParentStaggered = (previousRoundMatches: MatchA
     });
 }
 
+const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: MatchAndPosition[], loserMatches: MatchAndPosition[], final: MatchAndPosition, finalRematch: MatchAndPosition, WINNERS_BOTTOM: number, LAST_WINNER_Y: number, WINNERS_RIGHTMOST: number } => {
+
+    let winnerMatches: MatchAndPosition[] = [], loserMatches: MatchAndPosition[] = [], WINNERS_BOTTOM = 0, LAST_WINNER_Y = 0, WINNERS_RIGHTMOST = 0;
+
+    if (bracket.competitorNames && bracket.competitorNames.length >= 2) {
+        // {match, x, y}[][]
+        const winnerRounds = calculateInitialRoundsMatchPositions(bracket as BracketDTO, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+        const initialWinnerMatches = winnerRounds.slice();
+
+        // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
+        for (
+            let roundIndex = isPowerOfTwo(bracket.competitorNames.length) ? 1 : 2;
+            roundIndex < (bracket.winnersBracket.length || 0);
+            roundIndex++
+        ) {
+            const previousRound = winnerRounds[roundIndex - 1];
+
+            if (!previousRound || previousRound.length === 0) {
+                console.warn(`No matches found for round index ${roundIndex - 1}`);
+                continue;
+            }
+            const nextRound = calculateMatchPositionsFromParentAverages(previousRound, bracket.winnersBracket[roundIndex] || [], roundIndex);
+
+            winnerRounds.push(nextRound);
+        }
+
+        // flatten the winnerMatches array
+        winnerMatches = winnerRounds.flat();
+        // find max y value (lowest point) to use as reference point for losers bracket
+        // find max x value (rightmost point) to use as reference point for the finals matches
+        WINNERS_BOTTOM = Math.max(...winnerMatches.map((m) => m?.y || 0)) + 100;
+        WINNERS_RIGHTMOST = Math.max(...winnerMatches.map((m) => m?.x || 0));
+        LAST_WINNER_Y = winnerMatches[winnerMatches.length - 1]?.y || 0;
+
+        // **** RENDER LOSERS BRACKET ****
+        // {match, x, y}[][]
+        const loserRounds = calculateInitialRoundsMatchPositions(
+            bracket as BracketDTO,
+            'loser',
+            LOSER_HORIZONTAL_OFFSET,
+            WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET
+        );
+        const initialLoserRounds = loserRounds.slice();
+
+        // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
+        let halving: boolean;
+        if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(bracket.competitorNames.length)) {
+            halving = true;
+        } else {
+            halving = false;
+        }
+
+        for (let roundIndex = loserRounds.length === 1 ? 1 : 2; roundIndex < (bracket.losersBracket.length || 0); roundIndex++) {
+            const previousRoundMatches = loserRounds[roundIndex - 1];
+            // if previous round somehow didn't exist or is empty
+            if (!previousRoundMatches || previousRoundMatches.length === 0) continue;
+
+            const nextRound = halving
+                ? calculateMatchPositionsFromParentAverages(previousRoundMatches, bracket.losersBracket[roundIndex] || [], roundIndex)
+                : calculateMatchPositionsFromParentStaggered(previousRoundMatches, bracket.losersBracket[roundIndex] || [], roundIndex);
+
+            loserRounds.push(nextRound);
+            halving = !halving;
+        }
+
+        loserMatches = loserRounds.flat();
+    }
+
+    const final = {
+        match: bracket.final,
+        x: WINNERS_RIGHTMOST + HORIZONTAL_GAP,
+        y: LAST_WINNER_Y,
+    } as MatchAndPosition;
+
+    const finalRematch = {
+        match: bracket.finalRematch,
+        x: WINNERS_RIGHTMOST + 2 * HORIZONTAL_GAP,
+        y: LAST_WINNER_Y,
+    } as MatchAndPosition;
+
+    return { winnerMatches, loserMatches, final, finalRematch, WINNERS_BOTTOM, LAST_WINNER_Y, WINNERS_RIGHTMOST };
+}
+
 function dateToLocalTimezoneString(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -130,7 +213,7 @@ function dateToLocalTimezoneString(date: Date): string {
 
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
-    calculateInitialRoundsMatchPositions, calculateMatchPositionsFromParentAverages, calculateMatchPositionsFromParentStaggered,
+    calculateAllMatchPositions,
     WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET, HORIZONTAL_GAP,
     INITIAL_VERTICAL_GAP, EXTRA_VERTICAL_OFFSET,
     dateToLocalTimezoneString
