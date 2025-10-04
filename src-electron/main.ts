@@ -20,13 +20,13 @@ const create_window = async () => {
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'), //keep in mind all paths like this are relative to the main.js file
         },
-        title: "BracketBuddy",
-        icon: path.join(process.resourcesPath, "assets/icon.ico")
+        title: 'BracketBuddy',
+        icon: path.join(process.resourcesPath, 'assets/icon.ico')
     });
 
     if (app.isPackaged) {
         // Try MSI / Squirrel / unpacked locations
-        await window.loadFile(path.join(process.resourcesPath, "build-react/index.html"));
+        await window.loadFile(path.join(process.resourcesPath, 'build-react/index.html'));
     }
     else {
         try {

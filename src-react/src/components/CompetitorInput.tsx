@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useContext } from "react";
-import { TrashIcon, PlusIcon, ArrowPathRoundedSquareIcon } from "@heroicons/react/24/solid";
+import { useEffect, useRef, useState, useContext } from 'react';
+import { TrashIcon, PlusIcon, ArrowPathRoundedSquareIcon } from '@heroicons/react/24/solid';
 import { CURRENT_STATE } from './App';
 
 function usePrevious<T>(value: T): T | undefined {
@@ -17,7 +17,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
 
     if (!tournament || bracketIndex === null || bracketIndex === undefined) {
         return (
-            <div className="h-full flex items-center justify-center text-white">
+            <div className='h-full flex items-center justify-center text-white'>
                 ERROR NO TOURNAMENT
             </div>
         );
@@ -51,22 +51,22 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
     // Auto-scroll to bottom when competitors update, but only scroll when a competitor was added
     useEffect(() => {
         if (prevLength !== undefined && competitors.length > prevLength) {
-            bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     }, [competitors.length, prevLength]);
     
     return (
-        <div className="flex flex-col h-full justify-between">
-            <div className="overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64">
+        <div className='flex flex-col h-full justify-between'>
+            <div className='overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64'>
 
-                <div className="flex items-center space-x-3 mb-3">
-                    <h2 className="text-lg font-semibold text-white">
+                <div className='flex items-center space-x-3 mb-3'>
+                    <h2 className='text-lg font-semibold text-white'>
                         Enter Competitor Names ({competitors.length})
                     </h2>
                     <button
                         onClick={handleShuffle}
                         disabled={competitors.length < 2}
-                        className="
+                        className='
                 mt-3
                 bg-purple-500
                 hover:bg-purple-600
@@ -79,25 +79,25 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                 transition
                 duration-200
                 ease-in-out
-                "
-                        type="button"
+                '
+                        type='button'
                     >
-                        <ArrowPathRoundedSquareIcon className="h-5 w-5" />
+                        <ArrowPathRoundedSquareIcon className='h-5 w-5' />
                     </button>
                 </div>
 
 
                 {competitors.length === 0 && (
-                    <p className="text-gray-400 italic">No competitors added yet.</p>
+                    <p className='text-gray-400 italic'>No competitors added yet.</p>
                 )}
 
                 {competitors.map((name, index) => (
-                    <div key={index} className="flex items-center space-x-3 mb-3">
+                    <div key={index} className='flex items-center space-x-3 mb-3'>
                         <input
-                            type="text"
+                            type='text'
                             value={name}
                             disabled
-                            className="
+                            className='
                 flex-grow
                 p-2
                 rounded-md
@@ -107,11 +107,11 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                 text-white
                 opacity-80
                 cursor-not-allowed
-              "
+              '
                         />
                         <button
                             onClick={() => removeCompetitor(name)}
-                            className="
+                            className='
                 bg-red-600
                 hover:bg-red-700
                 text-white
@@ -121,25 +121,25 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                 transition
                 duration-200
                 ease-in-out
-              "
-                            type="button"
+              '
+                            type='button'
                         >
-                            <TrashIcon className="h-5 w-5" />
+                            <TrashIcon className='h-5 w-5' />
                         </button>
                     </div>
                 ))}
 
                 {/* Ghost input always at the bottom */}
-                <div className="flex items-center space-x-3 mt-3">
+                <div className='flex items-center space-x-3 mt-3'>
                     <input
-                        type="text"
-                        placeholder="New competitor name"
+                        type='text'
+                        placeholder='New competitor name'
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         onKeyDown={(e) => {
-                            if (e.key === "Enter") handleAdd();
+                            if (e.key === 'Enter') handleAdd();
                         }}
-                        className="
+                        className='
               flex-grow
               p-2
               rounded-md
@@ -153,12 +153,12 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
               transition
               duration-200
               ease-in-out
-            "
+            '
                     />
                     <button
                         onClick={handleAdd}
                         disabled={newName.trim() === ''}
-                        className="
+                        className='
               bg-blue-500
               hover:bg-blue-600
               disabled:opacity-50
@@ -170,10 +170,10 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
               transition
               duration-200
               ease-in-out
-            "
-                        type="button"
+            '
+                        type='button'
                     >
-                        <PlusIcon className="h-5 w-5" />
+                        <PlusIcon className='h-5 w-5' />
                     </button>
                 </div>
 

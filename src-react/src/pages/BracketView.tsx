@@ -23,14 +23,14 @@ export default function BracketView() {
       console.log('about to scroll final rematch into view')
       containerRef.current?.scrollTo({
         left: containerRef.current.scrollWidth, // max scroll
-        behavior: "smooth",
+        behavior: 'smooth',
       });
     }
   }, [finalRematchJustSpawned]);
 
   if (!tournament || bracketIndex === null || bracketIndex === undefined) {
     return (
-      <div className="h-full flex items-center justify-center text-white">
+      <div className='h-full flex items-center justify-center text-white'>
         Loading bracket...
       </div>
     );
@@ -39,7 +39,7 @@ export default function BracketView() {
   const bracket = tournament.brackets[bracketIndex];
   if (!bracket) {
     return (
-      <div className="h-full flex items-center justify-center text-white">
+      <div className='h-full flex items-center justify-center text-white'>
         Bracket not found
       </div>
     );
