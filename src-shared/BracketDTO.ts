@@ -10,7 +10,7 @@ interface BracketDTO {
     gender: Gender
     experienceLevel: ExperienceLevel
     hand: Hand
-    weightLimit: number // in lbs, -1 for no limit
+    weightLimit: number | 'Superheavyweight' // in lbs, -1 for no limit
 
     started: boolean
 

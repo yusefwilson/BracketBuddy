@@ -3,9 +3,9 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
+import FinalPlacings from '../components/FinalPlacings';
 
 import { calculateAllMatchPositions } from '../../../src-shared/utils';
-import FinalPlacings from '../components/FinalPlacings';
 
 export default function BracketView() {
 
@@ -81,6 +81,10 @@ export default function BracketView() {
             }}
             removeCompetitor={async (name) => {
               const newTournament = await window.electron.removeCompetitorFromBracket(bracket.tournamentId, bracket.id, name);
+              setTournament(newTournament);
+            }}
+            randomizeCompetitors={async () => {
+              const newTournament = await window.electron.randomizeCompetitors(bracket.tournamentId, bracket.id);
               setTournament(newTournament);
             }}
           />}

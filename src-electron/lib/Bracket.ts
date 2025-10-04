@@ -1,5 +1,5 @@
 import { serialize, deserialize, prepareMatches, shuffle } from './utils.js';
-import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
 import Match from './Match.js';
 import Tournament from './Tournament.js';
 import { BracketDTO } from '../../src-shared/BracketDTO.js';
@@ -15,7 +15,7 @@ class Bracket {
     gender: Gender
     experienceLevel: ExperienceLevel
     hand: Hand
-    weightLimit: number // in lbs, -1 for no limit
+    weightLimit: WeightLimit
 
     started: boolean
 
@@ -27,7 +27,7 @@ class Bracket {
     final: Match | null
     finalRematch: Match | null
 
-    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: number = 0, competitorNames: string[] = []) {
+    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitorNames: string[] = []) {
 
         // tournament.id-gender-experienceLevel-hand-weightLimit
         this.id = tournament?.id + [gender, experienceLevel, hand, weightLimit].join('-');

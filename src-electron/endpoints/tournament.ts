@@ -6,7 +6,7 @@ import Bracket from '../lib/Bracket.js';
 import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
 
 import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
-import { Gender, Hand, ExperienceLevel } from '../../src-shared/types.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
 
 /* TOURNAMENT */
 
@@ -57,7 +57,7 @@ const add_bracket_to_tournament = async (_: Electron.IpcMainInvokeEvent, tournam
     gender: Gender,
     experienceLevel: ExperienceLevel,
     hand: Hand,
-    weightLimit: number, // in lbs, -1 for no limit
+    weightLimit: WeightLimit, // in lbs, -1 for no limit
     competitorNames: string[]
 ) => {
 

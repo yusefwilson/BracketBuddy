@@ -4,6 +4,8 @@ type Hand = 'Left' | 'Right';
 
 type ExperienceLevel = 'Youth' | 'Novice' | 'Amateur' | 'Semipro' | 'Pro' | 'Master' | 'Grandmaster' | 'Senior Grandmaster';
 
+type WeightLimit = number | 'Superheavyweight';
+
 type ExternalMatch = {
     round: number,
     match: number,
@@ -25,4 +27,4 @@ type SlotCoordinates = {
     slot: 1 | 2
 }
 
-export type { Gender, Hand, ExperienceLevel, ExternalMatch, SlotCoordinates };
+export type { Gender, Hand, ExperienceLevel, WeightLimit, ExternalMatch, SlotCoordinates };

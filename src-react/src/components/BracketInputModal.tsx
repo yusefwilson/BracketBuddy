@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon, } from '@heroicons/react/24/outline';
-import { Gender, Hand, ExperienceLevel } from '../../../src-shared/types';
+import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
 import CompetitorInput from './CompetitorInput';
 import Dropdown from './Dropdown';
 import { CURRENT_STATE } from './App';
@@ -10,7 +10,7 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
     const [gender, setGender] = useState<Gender>('Male');
     const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>('Novice');
     const [hand, setHand] = useState<Hand>('Right');
-    const [weightLimit, setWeightLimit] = useState<number>(0);
+    const [weightLimit, setWeightLimit] = useState<WeightLimit>(0);
     const [competitorNames, setCompetitorNames] = useState<string[]>([]);
 
     const state = useContext(CURRENT_STATE);
@@ -113,12 +113,43 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
                 <div className='flex items-center gap-4'>
                     <ScaleIcon className='h-6 w-6 text-purple-400 flex-shrink-0' />
                     <input
-                        className='bg-slate-600 text-white px-4 py-2 rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-400'
-                        placeholder='Weight Limit'
+                        className={`block w-64 appearance-none bg-slate-700 text-white px-4 py-2 rounded-md border border-gray-600 shadow-sm
+                                    focus:outline-none transition duration-200 ease-in-out
+                                    ${weightLimit !== 'Superheavyweight' ?
+                                'focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400' : 'cursor-not-allowed opacity-70'}
+                        `}
+                        placeholder={weightLimit === 'Superheavyweight' ? 'Superheavyweight' : 'Weight Limit'}
                         name='weightLimit'
                         type='number'
+                        inputMode='numeric' // mobile shows number keypad
+                        pattern='\d*'       // restrict to digits
+                        maxLength={3}       // hard cap 3 chars
                         onChange={(e) => setWeightLimit(parseInt(e.target.value))}
+                        onInput={(e) => {
+                            const val = e.currentTarget.value.replace(/\D/g, '').slice(0, 3);
+                            e.currentTarget.value = val;
+                            setWeightLimit(val ? parseInt(val, 10) : 0);
+                        }}
+                        disabled={weightLimit === 'Superheavyweight'}
+                        aria-disabled={weightLimit === 'Superheavyweight'}
                     />
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (weightLimit === 'Superheavyweight') {
+                                setWeightLimit(0);
+                            } else {
+                                setWeightLimit('Superheavyweight');
+                            }
+                        }}
+                        className={`p-1 rounded-md font-semibold transition  text-2xl
+                                ${weightLimit === 'Superheavyweight'
+                                ? 'bg-purple-600 text-white hover:bg-purple-700'
+                                : 'bg-gray-300 text-gray-800 hover:bg-gray-400'}`}
+                    >
+                        🥞
+                    </button>
                 </div>
 
 
@@ -127,6 +158,10 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
                     competitors={competitorNames}
                     addCompetitor={addCompetitor}
                     removeCompetitor={removeCompetitor}
+                    randomizeCompetitors={async () => {
+                        const shuffled = [...competitorNames].sort(() => Math.random() - 0.5);
+                        setCompetitorNames(shuffled);
+                    }}
                 />
 
                 {/* Action Buttons */}

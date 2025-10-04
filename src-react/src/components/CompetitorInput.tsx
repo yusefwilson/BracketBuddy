@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, useContext } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TrashIcon, PlusIcon, ArrowPathRoundedSquareIcon } from '@heroicons/react/24/solid';
-import { CURRENT_STATE } from './App';
 
 function usePrevious<T>(value: T): T | undefined {
     const ref = useRef<T>();
@@ -10,19 +9,7 @@ function usePrevious<T>(value: T): T | undefined {
     return ref.current;
 }
 
-export default function CompetitorInput({ competitors, addCompetitor, removeCompetitor, }: { competitors: string[]; addCompetitor: (name: string) => Promise<void>; removeCompetitor: (name: string) => Promise<void>; }) {
-
-    const state = useContext(CURRENT_STATE);
-    const { tournament, setTournament = () => { }, bracketIndex } = state || {};
-
-    if (!tournament || bracketIndex === null || bracketIndex === undefined) {
-        return (
-            <div className='h-full flex items-center justify-center text-white'>
-                ERROR NO TOURNAMENT
-            </div>
-        );
-    }
-
+export default function CompetitorInput({ competitors, addCompetitor, removeCompetitor, randomizeCompetitors, }: { competitors: string[]; addCompetitor: (name: string) => Promise<void>; removeCompetitor: (name: string) => Promise<void>; randomizeCompetitors: () => Promise<void>; }) {
     const [newName, setNewName] = useState('');
 
     // This is a dummy div that we use to auto-scroll to the bottom when competitors update
@@ -42,10 +29,8 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
         setNewName('');
     };
 
-    const handleShuffle = async () => {
-        const bracket = tournament.brackets[bracketIndex];
-        const newTournament = await window.electron.randomizeCompetitors(tournament.id, bracket.id);
-        setTournament(newTournament);
+    const handleRandomize = async () => {
+        await randomizeCompetitors();
     };
 
     // Auto-scroll to bottom when competitors update, but only scroll when a competitor was added
@@ -54,17 +39,17 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
             bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     }, [competitors.length, prevLength]);
-    
+
     return (
         <div className='flex flex-col h-full justify-between'>
             <div className='overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64'>
 
-                <div className='flex items-center space-x-3 mb-3'>
+                <div className='flex items-center space-x-3 mb-3 justify-between'>
                     <h2 className='text-lg font-semibold text-white'>
                         Enter Competitor Names ({competitors.length})
                     </h2>
                     <button
-                        onClick={handleShuffle}
+                        onClick={handleRandomize}
                         disabled={competitors.length < 2}
                         className='
                 mt-3

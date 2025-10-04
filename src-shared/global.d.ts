@@ -2,7 +2,7 @@ export { };
 
 import { BracketDTO } from './BracketDTO';
 import { TournamentDTO } from './TournamentDTO';
-import { Gender, Hand, ExperienceLevel } from './types';
+import { Gender, Hand, ExperienceLevel, WeightLimit } from './types';
 
 declare global {
     interface Window {
@@ -16,7 +16,7 @@ declare global {
                 gender: Gender,
                 experienceLevel: ExperienceLevel,
                 hand: Hand,
-                weightLimit: number,
+                weightLimit: WeightLimit,
                 competitorNames: string[]
             ) => Promise<TournamentDTO>;
             removeBracketFromTournament: (
