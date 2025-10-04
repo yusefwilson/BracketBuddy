@@ -15,7 +15,7 @@ export default function BracketView() {
 
   const [finalRematchJustSpawned, setFinalRematchJustSpawned] = useState(false);
 
-  // ref to final rematch
+  // ref to bracket container (used to scroll final rematch into view)
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,13 +45,6 @@ export default function BracketView() {
     );
   }
 
-  console.log('bracket: ', bracket);
-  console.log('bracket.competitorNames: ', bracket.competitorNames);
-
-  if (!bracket) {
-    throw new Error('Bracket not found');
-  }
-
   // update the winner of a match (this calls a recursive method on the Match class which updates all dependent matches)
   const updateMatch = async (matchId: string, winner: number): Promise<void> => {
 
@@ -68,9 +61,6 @@ export default function BracketView() {
 
   const { winnerMatches, loserMatches, final, finalRematch } = calculateAllMatchPositions(bracket);
 
-  //import YGuideLines from '../components/YGuideLines';
-
-  //console.log('current match id: ', bracket.getLowestIdUnfilledMatch());
   return (
     <div className='h-full flex gap-6 p-4 bg-slate-800 shadow-inner'>
 
@@ -81,6 +71,7 @@ export default function BracketView() {
         <p className='self-center text-lg font-bold'>{bracket.gender + ' | ' + bracket.hand + ' | ' + bracket.experienceLevel + ' | ' + bracket.weightLimit}</p>
 
         <h2 className='text-white text-lg font-semibold text-center'>Competitors</h2>
+
         <div className='h-[45%]'>
           {<CompetitorInput
             competitors={bracket.competitorNames ?? []}
@@ -94,6 +85,7 @@ export default function BracketView() {
             }}
           />}
         </div>
+
         {/* Final Placings */}
         {
           <FinalPlacings first={bracket.firstPlace} second={bracket.secondPlace} third={bracket.thirdPlace} />
@@ -118,27 +110,10 @@ export default function BracketView() {
         ) : (
           <>
 
-            {/* <YGuideLines
-              yLevels={[
-                50, 100, 150, 200, 250, 300, 350, 400, 450,
-                500, 550, 600, 650, 700, 750, 800, 850, 900,
-              ]}
-            /> */}
-
             {/* Winner Matches */}
             {winnerMatches?.map(({ match, x, y }) => (
               <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket.currentMatchNumber} />
             ))}
-
-            {/* Separators */}
-            {/* <div
-              className='absolute left-0 w-full border-t border-red-400'
-              style={{ top: WINNERS_BOTTOM }}
-            />
-            <div
-              className='absolute top-0 h-full border-l border-red-400'
-              style={{ left: WINNERS_RIGHTMOST + 200 }}
-            /> */}
 
             {/* Loser Matches */}
             {loserMatches?.map(({ match, x, y }) => (
