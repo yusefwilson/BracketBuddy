@@ -27,4 +27,76 @@ type SlotCoordinates = {
     slot: 1 | 2
 }
 
-export type { Gender, Hand, ExperienceLevel, WeightLimit, ExternalMatch, SlotCoordinates };
+// endpoint input types
+
+// bracket
+interface UpdateBracketInput {
+    tournamentId: string;
+    bracketId: string;
+    matchId: string;
+    winner: number;
+}
+
+interface AddCompetitorToBracketInput {
+    tournamentId: string;
+    bracketId: string;
+    competitorName: string;
+}
+
+interface RemoveCompetitorFromBracketInput {
+    tournamentId: string;
+    bracketId: string;
+    competitorName: string;
+}
+
+interface StartBracketInput {
+    tournamentId: string;
+    bracketId: string;
+}
+
+interface RandomizeCompetitorsInput {
+    tournamentId: string;
+    bracketId: string;
+}
+
+// tournament
+
+interface CreateTournamentInput {
+    name: string;
+    date: Date;
+}
+
+interface DeleteTournamentInput {
+    tournamentId: string;
+}
+
+interface AddBracketsToTournamentInput {
+    tournamentId: string;
+    brackets: {
+        gender: Gender;
+        experienceLevel: ExperienceLevel;
+        hand: Hand;
+        weightLimit: WeightLimit;
+        competitorNames: string[];
+    }[];
+}
+
+interface RemoveBracketFromTournamentInput {
+    tournamentId: string;
+    bracketId: string;
+}
+
+
+// misc
+
+interface SaveKeyValueInput {
+    key: string;
+    value: any;
+}
+export type {
+    Gender, Hand, ExperienceLevel, WeightLimit,
+    ExternalMatch, SlotCoordinates,
+    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, StartBracketInput, RandomizeCompetitorsInput,
+    CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
+    SaveKeyValueInput
+};
