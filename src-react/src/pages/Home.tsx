@@ -31,14 +31,14 @@ export default function Home() {
 
   if (!allTournaments) {
     return (
-      <div className='flex justify-center items-center h-screen bg-slate-800 text-white text-2xl'>
+      <div className='flex justify-center items-center h-screen bg-inherit text-white text-2xl'>
         Loading...
       </div>
     );
   }
 
   return (
-    <div className='bg-slate-800 min-h-screen w-full text-white p-6 flex flex-col items-center'>
+    <div className='bg-inherit w-full text-white p-6 flex flex-col items-center'>
 
       {/* Create Button */}
       <div className='w-full max-w-3xl flex justify-end mb-4'>

@@ -52,13 +52,15 @@ export default function App() {
   return (
     <CURRENT_STATE.Provider value={{ tournament: currentTournament, bracketIndex: currentBracketIndex, setTournament: setCurrentTournament, setBracketIndex: setCurrentBracketIndex }}>
       <Router>
-        <div className='h-screen flex flex-col text-white'>
+        <div className="flex flex-col text-white min-h-screen bg-slate-800">
           <Navbar />
-          <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/tournament' element={<TournamentView />} />
-            <Route path='/bracket' element={<BracketView />} />
-          </Routes>
+          <main className="flex-1">
+            <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/tournament' element={<TournamentView />} />
+              <Route path='/bracket' element={<BracketView />} />
+            </Routes>
+          </main>
         </div>
       </Router>
     </CURRENT_STATE.Provider>

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeftIcon, HomeIcon } from '@heroicons/react/16/solid';
+import { ChevronLeftIcon, HomeIcon, HeartIcon } from '@heroicons/react/24/solid';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -26,6 +26,18 @@ export default function Navbar() {
       </div>
 
       <p className='font-extrabold text-2xl select-none'>BracketBuddy</p>
+
+      {/* Heart Donation Button */}
+      <div className='flex items-center gap-4'>
+        <button
+          onClick={() => window.open('https://yusefwilson.com', '_blank')}
+          aria-label='Donate with heart'
+          className='bg-red-500 hover:bg-red-600 rounded-md p-1.5 transition flex items-center gap-1'
+          type='button'
+        >
+          <HeartIcon className='h-6 w-6' />
+        </button>
+      </div>
     </nav>
   );
 }
