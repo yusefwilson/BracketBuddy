@@ -9,7 +9,15 @@ function usePrevious<T>(value: T): T | undefined {
     return ref.current;
 }
 
-export default function CompetitorInput({ competitors, addCompetitor, removeCompetitor, randomizeCompetitors, }: { competitors: string[]; addCompetitor: (name: string) => Promise<void>; removeCompetitor: (name: string) => Promise<void>; randomizeCompetitors: () => Promise<void>; }) {
+interface CompetitorInputProps {
+    competitors: string[];
+    addCompetitor: (name: string) => Promise<void>;
+    removeCompetitor: (name: string) => Promise<void>;
+    randomizeCompetitors: () => Promise<void>;
+}
+
+// ✅ Use the props interface in the component definition
+export default function CompetitorInput({ competitors, addCompetitor, removeCompetitor, randomizeCompetitors, }: CompetitorInputProps) {
     const [newName, setNewName] = useState('');
 
     // This is a dummy div that we use to auto-scroll to the bottom when competitors update

@@ -116,7 +116,7 @@ const calculateMatchPositionsFromParentStaggered = (previousRoundMatches: MatchA
             return { match, x: 0, y: 0 }; // fallback
         }
 
-        const [x, y] = calculateMatchPositionFromSingleParent(roundIndex, true, correspondingMatch.y, LOSER_HORIZONTAL_OFFSET);
+        const [x, y] = calculateMatchPositionFromSingleParent(roundIndex, previousRoundMatches.length !== 1, correspondingMatch.y, LOSER_HORIZONTAL_OFFSET);
         return { match, x, y };
     });
 }

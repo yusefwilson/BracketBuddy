@@ -20,13 +20,15 @@ contextBridge.exposeInMainWorld('electron', {
 
     addBracketToTournament: async (
         tournamentId: string,
-        gender: Gender,
-        experienceLevel: ExperienceLevel,
-        hand: Hand,
-        weightLimit: number,
-        competitorNames: string[]
+        brackets: {
+            gender: Gender,
+            experienceLevel: ExperienceLevel,
+            hand: Hand,
+            weightLimit: number,
+            competitorNames: string[]
+        }[]
     ) => {
-        return await ipcRenderer.invoke('add-bracket-to-tournament', tournamentId, gender, experienceLevel, hand, weightLimit, competitorNames);
+        return await ipcRenderer.invoke('add-bracket-to-tournament', tournamentId, brackets);
     },
     removeBracketFromTournament: async (tournamentId: string, bracketId: string) => {
         return await ipcRenderer.invoke('remove-bracket-from-tournament', tournamentId, bracketId);

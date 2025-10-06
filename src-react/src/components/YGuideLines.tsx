@@ -1,4 +1,9 @@
-export default function YGuideLines({ yLevels }: { yLevels: number[] }) {
+interface YGuideLinesProps {
+    yLevels: number[];
+}
+
+// ✅ Use the props interface in the component
+export default function YGuideLines({ yLevels }: YGuideLinesProps) {
     return (
         yLevels.map((y, idx) => (
             <div

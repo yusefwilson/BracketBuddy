@@ -53,20 +53,24 @@ const delete_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: s
     console.log('Deleted tournament ' + tournamentId);
 }
 
-const add_bracket_to_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string,
-    gender: Gender,
-    experienceLevel: ExperienceLevel,
-    hand: Hand,
-    weightLimit: WeightLimit, // in lbs, -1 for no limit
-    competitorNames: string[]
+const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string,
+    brackets: {
+        gender: Gender,
+        experienceLevel: ExperienceLevel,
+        hand: Hand,
+        weightLimit: WeightLimit,
+        competitorNames: string[]
+    }[]
 ) => {
 
     const tournament = await load_tournament(_, tournamentId);
 
-    // manually add competitors here to sync competitorNames and externalBracket.players - ugly
-    const bracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit);
-    competitorNames.forEach(competitorName => bracket.addCompetitor(competitorName));
-    tournament.addBracket(bracket);
+    for (const bracketData of brackets) {
+        const { gender, experienceLevel, hand, weightLimit, competitorNames } = bracketData;
+        const bracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit);
+        competitorNames.forEach(competitorName => bracket.addCompetitor(competitorName));
+        tournament.addBracket(bracket);
+    }
 
     console.log('Added bracket to tournament ' + tournamentId);
 
@@ -115,7 +119,7 @@ export {
     load_all_tournaments,
     create_tournament,
     delete_tournament,
-    add_bracket_to_tournament,
+    add_brackets_to_tournament,
     remove_bracket_from_tournament,
 
     load_tournament,

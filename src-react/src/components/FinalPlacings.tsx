@@ -1,6 +1,12 @@
 import { TrophyIcon } from '@heroicons/react/24/solid';
 
-export default function FinalPlacings({ first, second, third }: { first: string | undefined; second: string | undefined; third: string | undefined; }) {
+interface FinalPlacingsProps {
+    first?: string;
+    second?: string;
+    third?: string;
+}
+
+export default function FinalPlacings({ first, second, third }: FinalPlacingsProps) {
     return (
         <div className='w-full flex flex-col items-center mt-4'>
 

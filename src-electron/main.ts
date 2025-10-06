@@ -4,7 +4,7 @@ check();
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { app, BrowserWindow, ipcMain } from 'electron';
-import { load_all_tournaments, create_tournament, delete_tournament, add_bracket_to_tournament, remove_bracket_from_tournament } from './endpoints/tournament.js';
+import { load_all_tournaments, create_tournament, delete_tournament, add_brackets_to_tournament, remove_bracket_from_tournament } from './endpoints/tournament.js';
 import { add_competitor_to_bracket, remove_competitor_from_bracket, start_bracket, update_bracket, randomize_competitors } from './endpoints/bracket.js';
 import { ensure_save_environment, get_save_data, save_key_value, get_constants } from './endpoints/misc.js';
 
@@ -43,7 +43,7 @@ const create_window = async () => {
 ipcMain.handle('load-all-tournaments', load_all_tournaments);
 ipcMain.handle('create-tournament', create_tournament);
 ipcMain.handle('delete-tournament', delete_tournament);
-ipcMain.handle('add-bracket-to-tournament', add_bracket_to_tournament);
+ipcMain.handle('add-bracket-to-tournament', add_brackets_to_tournament);
 ipcMain.handle('remove-bracket-from-tournament', remove_bracket_from_tournament);
 
 // bracket

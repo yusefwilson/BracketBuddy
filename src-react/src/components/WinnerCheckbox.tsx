@@ -1,4 +1,10 @@
-export default function WinnerCheckbox({ toggleWinner, checked }: { toggleWinner: () => void, checked: boolean }) {
+interface WinnerCheckboxProps {
+  toggleWinner: () => void;
+  checked: boolean;
+}
+
+// ✅ Use the props interface in the component
+export default function WinnerCheckbox({ toggleWinner, checked }: WinnerCheckboxProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();

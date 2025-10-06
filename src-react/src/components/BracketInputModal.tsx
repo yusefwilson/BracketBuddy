@@ -5,7 +5,11 @@ import CompetitorInput from './CompetitorInput';
 import Dropdown from './Dropdown';
 import { CURRENT_STATE } from './App';
 
-export default function BracketInputModal({ setBracketModalOpen, }: { setBracketModalOpen: (open: boolean) => void; }) {
+interface BracketInputModalProps {
+    setBracketModalOpen: (open: boolean) => void;
+}
+
+export default function BracketInputModal({ setBracketModalOpen }: BracketInputModalProps) {
 
     const [gender, setGender] = useState<Gender>('Male');
     const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>('Novice');
@@ -29,7 +33,7 @@ export default function BracketInputModal({ setBracketModalOpen, }: { setBracket
         if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
 
         // add bracket to tournament
-        const newTournament = await window.electron.addBracketToTournament(tournament.id, gender, experienceLevel, hand, weightLimit, competitorNames);
+        const newTournament = await window.electron.addBracketToTournament(tournament.id, [{ gender, experienceLevel, hand, weightLimit, competitorNames }]);
 
         // trigger refresh
         setTournament(newTournament);

@@ -31,7 +31,7 @@ export default function TournamentView() {
 
       {bracketModalOpen && <BracketInputModal setBracketModalOpen={setBracketModalOpen} />}
 
-      <div className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 gap-6 mt-6'>
+      <div className='w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6'>
         {tournament?.brackets.length ? (
           tournament.brackets.map((bracket, index) => (
             <BracketInfoCard key={index} bracket={bracket}

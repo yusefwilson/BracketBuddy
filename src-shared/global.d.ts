@@ -13,11 +13,13 @@ declare global {
             deleteTournament: (tournamentId: string) => Promise<void>;
             addBracketToTournament: (
                 tournamentId: string,
-                gender: Gender,
-                experienceLevel: ExperienceLevel,
-                hand: Hand,
-                weightLimit: WeightLimit,
-                competitorNames: string[]
+                brackets: {
+                    gender: Gender,
+                    experienceLevel: ExperienceLevel,
+                    hand: Hand,
+                    weightLimit: WeightLimit,
+                    competitorNames: string[]
+                }[]
             ) => Promise<TournamentDTO>;
             removeBracketFromTournament: (
                 tournamentId: string,

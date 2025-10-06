@@ -1,9 +1,15 @@
 import WinnerCheckbox from './WinnerCheckbox';
 import { MatchDTO } from '../../../src-shared/MatchDTO';
 
-export default function MatchView({ match, updateMatch, x, y, currentMatchId }:
-    { match: MatchDTO, updateMatch: (matchId: string, winner: number) => void, x: number, y: number, currentMatchId: number | undefined }) {
+interface MatchViewProps {
+    match: MatchDTO;
+    updateMatch: (matchId: string, winner: number) => void;
+    x: number;
+    y: number;
+    currentMatchId?: number;
+}
 
+export default function MatchView({ match, updateMatch, x, y, currentMatchId, }: MatchViewProps) {
     const toggleWinner = (newWinner: number) => {
         const updatedWinner = match.winner === newWinner ? -1 : newWinner;
         updateMatch(match.id, updatedWinner);

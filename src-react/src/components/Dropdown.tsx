@@ -1,8 +1,13 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
-export default function Dropdown<T extends string>({ options, label, value, onChange, }: { options: T[]; label?: string; value: T; onChange: (value: T) => void; 
+interface DropdownProps<T extends string> {
+    options: T[];
+    label?: string;
+    value: T;
+    onChange: (value: T) => void;
+}
 
-}) {
+export default function Dropdown<T extends string>({ options, label, value, onChange, }: DropdownProps<T>) {
     return (
         <div className='w-full'>
             {label && (
