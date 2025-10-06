@@ -64,7 +64,7 @@ export default function Home() {
               onClick={async () => {
                 state?.setTournament(tournament);
                 // record this change in the save file
-                await window.electron.saveKeyValue('lastTournamentIndex', index);
+                await window.electron.saveKeyValue({ key: 'lastTournamentIndex', value: index });
                 navigate('/tournament');
               }}
               onRemoveClick={() => {

@@ -33,7 +33,7 @@ export default function BracketInputModal({ setBracketModalOpen }: BracketInputM
         if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
 
         // add bracket to tournament
-        const newTournament = await window.electron.addBracketToTournament(tournament.id, [{ gender, experienceLevel, hand, weightLimit, competitorNames }]);
+        const newTournament = await window.electron.addBracketToTournament({ tournamentId: tournament.id, brackets: [{ gender, experienceLevel, hand, weightLimit, competitorNames }] });
 
         // trigger refresh
         setTournament(newTournament);

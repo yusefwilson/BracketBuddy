@@ -45,7 +45,7 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
 
         // create and save tournament. TODO: does this update state? (probably)
         console.log('about to create tournament with name', name, 'and date', date);
-        await window.electron.createTournament(name, date, []);
+        await window.electron.createTournament({ name, date });
 
         // close modal
         setTournamentModalOpen(false);

@@ -48,7 +48,10 @@ export default function BracketView() {
   // update the winner of a match (this calls a recursive method on the Match class which updates all dependent matches)
   const updateMatch = async (matchId: string, winner: number): Promise<void> => {
 
-    const newTournament = await window.electron.enterResult(bracket.tournamentId, bracket.id, matchId.toString(), winner);
+    const newTournament = await window.electron.enterResult({
+      tournamentId: bracket.tournamentId,
+      bracketId: bracket.id, matchId: matchId.toString(), winner
+    });
 
     const finalRematchInExistenceAfter = newTournament.brackets[bracketIndex].finalRematchNeeded;
 
@@ -76,15 +79,15 @@ export default function BracketView() {
           {<CompetitorInput
             competitors={bracket.competitorNames ?? []}
             addCompetitor={async (name) => {
-              const newTournament = await window.electron.addCompetitorToBracket(bracket.tournamentId, bracket.id, name);
+              const newTournament = await window.electron.addCompetitorToBracket({ tournamentId: bracket.tournamentId, bracketId: bracket.id, competitorName: name });
               setTournament(newTournament);
             }}
             removeCompetitor={async (name) => {
-              const newTournament = await window.electron.removeCompetitorFromBracket(bracket.tournamentId, bracket.id, name);
+              const newTournament = await window.electron.removeCompetitorFromBracket({ tournamentId: bracket.tournamentId, bracketId: bracket.id, competitorName: name });
               setTournament(newTournament);
             }}
             randomizeCompetitors={async () => {
-              const newTournament = await window.electron.randomizeCompetitors(bracket.tournamentId, bracket.id);
+              const newTournament = await window.electron.randomizeCompetitors({ tournamentId: bracket.tournamentId, bracketId: bracket.id });
               setTournament(newTournament);
             }}
           />}
@@ -97,7 +100,7 @@ export default function BracketView() {
 
         {/* Start Bracket Button  */}
         <button onClick={async () => {
-          const newTournament = await window.electron.startBracket(bracket.tournamentId, bracket.id);
+          const newTournament = await window.electron.startBracket({ tournamentId: bracket.tournamentId, bracketId: bracket.id });
           setTournament(newTournament);
         }} className='bg-slate-800 text-white rounded-lg p-4 shadow-md'>Start Bracket</button>
 

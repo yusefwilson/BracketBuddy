@@ -28,7 +28,7 @@ export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, to
     // delete tournament from disk, clear state if necessary, and close modal
     const onDelete = async () => {
 
-        await window.electron.deleteTournament(tournamentToDelete?.id || '');
+        await window.electron.deleteTournament({ tournamentId: tournamentToDelete?.id || '' });
 
         // clear state
         if (tournament?.id === tournamentToDelete?.id) {

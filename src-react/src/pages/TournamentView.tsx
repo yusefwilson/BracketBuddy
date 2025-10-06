@@ -37,11 +37,11 @@ export default function TournamentView() {
             <BracketInfoCard key={index} bracket={bracket}
               onClick={async () => {
                 setBracketIndex(index);
-                await window.electron.saveKeyValue('lastBracketIndex', index);
+                await window.electron.saveKeyValue({ key: 'lastBracketIndex', value: index });
                 navigate('/bracket');
               }}
               onRemoveClick={async () => {
-                const newTournament = await window.electron.removeBracketFromTournament(tournament.id, bracket.id);
+                const newTournament = await window.electron.removeBracketFromTournament({tournamentId: tournament.id, bracketId: bracket.id});
                 setTournament(newTournament);
                 setRefreshTick(refreshTick + 1);
               }}
