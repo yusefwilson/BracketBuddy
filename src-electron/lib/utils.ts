@@ -16,7 +16,7 @@ async function getSaveData(): Promise<Record<string, any>> {
 }
 
 async function saveKeyValue(key: string, value: any): Promise<void> {
-    await window.electron.saveKeyValue(key, value);
+    await window.electron.saveKeyValue({ key, value });
 }
 
 /* SERIALIZATION AND DESERIALIZATION */
