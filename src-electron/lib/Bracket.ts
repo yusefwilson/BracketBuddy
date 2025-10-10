@@ -1,5 +1,5 @@
 import { serialize, deserialize, prepareMatches, shuffle } from './utils.js';
-import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit, SlotCoordinates } from '../../src-shared/types.js';
 import Match from './Match.js';
 import Tournament from './Tournament.js';
 import { BracketDTO } from '../../src-shared/BracketDTO.js';
@@ -59,7 +59,16 @@ class Bracket {
 
         // if there are two competitors, then create a bracket with a single winner round, final, and final rematch
         if (this.competitorNames.length === 2) {
-            //  might need special logic heres
+            const match1 = new Match('1-1', 1, 1, 1, this.competitorNames[0], this.competitorNames[1], -1,
+                { round: 2, match: 1, slot: 1 }, { round: 2, match: 1, slot: 2 });
+
+            // set up parent and child links
+            const final = new Match('2-1', 2, 2, 1, null, null, -1,
+                { round: 3, match: 1, slot: 1 }, { round: 3, match: 1, slot: 2 });
+
+            // set up parent child links
+            const finalRematch = new Match('3-1', 3, 3, 1, null, null, -1,
+                { round: 3, match: 1, slot: 1 }, { round: 3, match: 1, slot: 2 });
         }
 
         console.log('about to initialize bracket with competitor names: ', this.competitorNames);

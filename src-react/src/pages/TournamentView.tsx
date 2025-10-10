@@ -1,9 +1,12 @@
-import BracketInfoCard from '../components/BracketInfoCard';
-import { CURRENT_STATE } from '../components/App';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import BracketInfoCard from '../components/BracketInfoCard';
+import { CURRENT_STATE } from '../components/App';
+
 import BracketInputModal from '../components/BracketInputModal';
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
+import { dateToLocalTimezoneString } from '../../../src-shared/utils';
 
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
@@ -14,13 +17,21 @@ export default function TournamentView() {
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
 
+  if (!tournament) {
+    return (
+      <div>
+        No tournament! Uh oh.
+      </div>
+    )
+  }
+
   return (
     <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto min-h-screen">
       <h1 className="text-3xl font-bold text-white">
         Tournament: <span className="text-blue-400">{tournament?.name}</span>
       </h1>
       <h2 className="text-lg text-gray-300">
-        Date: <span className="font-semibold">{tournament?.date.toDateString()}</span>
+        Date: <span className="font-semibold">{dateToLocalTimezoneString(tournament?.date)}</span>
       </h2>
 
       {/* Buttons to open modals */}
