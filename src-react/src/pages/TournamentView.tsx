@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import BracketInfoCard from '../components/BracketInfoCard';
 import { CURRENT_STATE } from '../components/App';
 
-import BracketInputModal from '../components/BracketInputModal';
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
 import { dateToLocalTimezoneString } from '../../../src-shared/utils';
 
@@ -13,7 +12,6 @@ export default function TournamentView() {
   const { tournament, setBracketIndex = () => { }, setTournament = () => { } } = state || {};
   const navigate = useNavigate();
 
-  const [bracketModalOpen, setBracketModalOpen] = useState(false);
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
 
@@ -37,25 +35,15 @@ export default function TournamentView() {
       {/* Buttons to open modals */}
       <div className="flex gap-4">
         <button
-          onClick={() => setBracketModalOpen(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-black font-semibold px-6 py-3 rounded-md shadow-md transition"
-          type="button"
-        >
-          Add Bracket
-        </button>
-        <button
           onClick={() => setBulkBracketModalOpen(true)}
-          className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
           type="button"
         >
-          Add Bulk Brackets
+          Add Brackets
         </button>
       </div>
 
       {/* Modals */}
-      {bracketModalOpen && (
-        <BracketInputModal setBracketModalOpen={setBracketModalOpen} />
-      )}
       {bulkBracketModalOpen && (
         <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
       )}

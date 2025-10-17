@@ -21,8 +21,8 @@ export default function App() {
 
   //localStorage.clear(); // for when some old storage is messing things up
 
-  const [currentTournament, setCurrentTournament] = useState<TournamentDTO | null>(null);
-  const [currentBracketIndex, setCurrentBracketIndex] = useState<number | null>(null);
+  const [tournament, setTournament] = useState<TournamentDTO | null>(null);
+  const [bracketIndex, setBracketIndex] = useState<number | null>(null);
 
   // Load latest tournament on mount
   useEffect(() => {
@@ -42,27 +42,26 @@ export default function App() {
 
       const latestTournament = tournaments[lastTournamentIndex] || null;
 
-      setCurrentTournament(latestTournament);
-      setCurrentBracketIndex(lastBracketIndex);
+      setTournament(latestTournament);
+      setBracketIndex(lastBracketIndex);
     };
     console.log('App mounted');
     loadLatest();
   }, []);
 
   return (
-    <CURRENT_STATE.Provider value={{ tournament: currentTournament, bracketIndex: currentBracketIndex, setTournament: setCurrentTournament, setBracketIndex: setCurrentBracketIndex }}>
+    <CURRENT_STATE.Provider value={{ tournament, bracketIndex, setTournament, setBracketIndex }}>
       <Router>
-        <div className="flex flex-col text-white min-h-screen bg-slate-800">
-          <Navbar />
-          <main className="flex-1">
-            <Routes>
-              <Route path='/' element={<Home />} />
-              <Route path='/tournament' element={<TournamentView />} />
-              <Route path='/bracket' element={<BracketView />} />
-            </Routes>
-          </main>
+        <Navbar />
+        <div className="flex flex-col text-white h-screen-navbar bg-slate-800">
+          <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/tournament' element={<TournamentView />} />
+            <Route path='/bracket' element={<BracketView />} />
+          </Routes>
         </div>
       </Router>
-    </CURRENT_STATE.Provider>
+
+    </CURRENT_STATE.Provider >
   );
 }

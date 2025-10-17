@@ -57,23 +57,32 @@ export default function BracketView() {
   const { winnerMatches, loserMatches, final, finalRematch } = calculateAllMatchPositions(bracket);
 
   return (
-    <div className='h-full flex flex-col gap-4 p-4 bg-slate-800 shadow-inner'>
+    <div className='flex flex-col h-full gap-4 p-8 bg-slate-800 shadow-inner'>
+
+      {/* Toggle Button */}
+      <button
+        onClick={() => setControlsOpen(!controlsOpen)}
+        className='absolute left-4 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 shadow-md transition'
+        title={controlsOpen ? 'Collapse panel' : 'Expand panel'}
+      >
+        {controlsOpen ? <ChevronLeftIcon className='h-4 w-4' strokeWidth={4} /> : <ChevronRightIcon className='h-4 w-4' strokeWidth={4} />}
+      </button>
 
       {/* Top: Controls + Bracket Display */}
-      <div className='flex gap-6 relative'>
+      <div className='flex flex-1 gap-6 relative overflow-hidden'>
 
         {/* Controls Panel */}
         <div
-          className={`bg-slate-700 rounded-lg p-4 shadow-md flex flex-col gap-4 overflow-y-auto h-full transition-all duration-300
-            ${controlsOpen ? 'w-80 opacity-100' : 'w-0 opacity-0'}`}
+          className={`flex flex-col bg-slate-700 rounded-lg p-4 shadow-md gap-4 overflow-y-auto items-center
+            ${controlsOpen ? '' : 'w-0 opacity-0 h-0'}`}
         >
-          <p className='self-center text-lg font-bold'>
+          <p className='text-lg font-bold'>
             {bracket.gender + ' | ' + bracket.hand + ' | ' + bracket.experienceLevel + ' | ' + bracket.weightLimit}
           </p>
 
           <h2 className='text-white text-lg font-semibold text-center'>Competitors</h2>
 
-          <div className='h-[45%]'>
+          <div className=''>
             <CompetitorInput
               competitors={bracket.competitorNames ?? []}
               addCompetitor={async (name) => {
@@ -118,17 +127,8 @@ export default function BracketView() {
           </button>
         </div>
 
-        {/* Toggle Button */}
-        <button
-          onClick={() => setControlsOpen(!controlsOpen)}
-          className='absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 shadow-md transition'
-          title={controlsOpen ? 'Collapse panel' : 'Expand panel'}
-        >
-          {controlsOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-        </button>
-
         {/* Bracket Display */}
-        <div className='flex-1 bg-slate-700 rounded-lg p-4 shadow-md relative overflow-auto' ref={containerRef}>
+        <div className='bg-slate-700 rounded-lg p-4 shadow-md relative overflow-auto flex-1' ref={containerRef}>
           {bracket.competitorNames && bracket.competitorNames.length < 2 ? (
             <div className='text-white text-center font-semibold text-lg py-12'>
               Not enough competitors yet.

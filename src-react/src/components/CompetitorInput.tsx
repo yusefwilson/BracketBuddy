@@ -55,7 +55,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
     }, [competitors.length, prevLength]);
 
     return (
-        <div className='flex flex-col h-full justify-between'>
+        <div className='flex flex-col justify-between'>
             <div className='overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64' ref={scrollContainerRef}>
 
                 <div className='flex items-center space-x-3 mb-3 justify-between'>
