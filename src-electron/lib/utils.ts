@@ -84,23 +84,35 @@ import Match from './Match.js';
 import { ExternalMatch } from '../../src-shared/types.js';
 import { DoubleElimination } from 'tournament-pairings';
 
+
+
 function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } {
+
+    console.log('in prepareMatches with competitorNames: ', competitorNames);
+
+    if (competitorNames.length < 2) {
+        throw new Error('Bracket must have at least 2 cometitors');
+    }
+
+    if (competitorNames.length == 2 || competitorNames.length == 3) {
+        return prepareMatchesForSpecialLowNumbers(competitorNames);
+    }
 
     // generate pairings using external library
     const matches = DoubleElimination(competitorNames) as ExternalMatch[];
-    //console.log('1. matches', matches);
+    console.log('1. matches', matches);
 
     // convert to internal matches
     const convertedMatches = convertExternalMatchesToInternalMatches(matches);
-    //console.log('2. convertedMatches', convertedMatches);
+    console.log('2. convertedMatches', convertedMatches);
 
     // link matches
     linkMatches(convertedMatches);
-    //console.log('3. linked matches', convertedMatches);
+    console.log('3. linked matches', convertedMatches);
 
     // separate into winnersBracket and losersBracket
     const { winnersBracket, losersBracket } = separateBrackets(convertedMatches);
-    //console.log('4. separatedBrackets', { winnersBracket, losersBracket });
+    console.log('4. separated brackets. winnersBracjet: ', winnersBracket, 'losersBracket: ', losersBracket);
 
     // separate final from winners bracket and add final rematch
     const { final, finalRematch } = separateFinalsFromBrackets(winnersBracket, losersBracket);
@@ -112,6 +124,84 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
 }
 
 // helper functions
+
+// brute force matches creation for <= 3 competitors
+const prepareMatchesForSpecialLowNumbers = (competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } => {
+
+    if (competitorNames.length === 2) {
+        const match1 = new Match('1-1', 1, 1, 1, competitorNames[0], competitorNames[1], -1,
+            { round: 2, match: 1, slot: 1 }, { round: 2, match: 1, slot: 2 });
+
+        const final = new Match('2-1', 2, 2, 1, null, null, -1,
+            { round: 3, match: 1, slot: 1 }, { round: 3, match: 1, slot: 2 });
+
+        const finalRematch = new Match('3-1', 3, 3, 1, null, null, -1);
+
+        // set up parent child links
+        finalRematch.slot1Parent = final;
+        finalRematch.slot1PreviouslyWinner = true;
+        finalRematch.slot2Parent = final;
+        finalRematch.slot2PreviouslyWinner = false;
+        final.winChild = finalRematch;
+        final.lossChild = finalRematch;
+
+        final.slot1Parent = match1;
+        final.slot1PreviouslyWinner = true;
+        final.slot2Parent = match1;
+        final.slot2PreviouslyWinner = false;
+        match1.winChild = final;
+        match1.lossChild = final;
+
+        return { winnersBracket: [[match1]], losersBracket: [], final, finalRematch };
+    }
+
+    else if (competitorNames.length === 3) {
+        const match1 = new Match('1-1', 1, 1, 1, competitorNames[0], competitorNames[1], -1,
+            { round: 2, match: 1, slot: 1 }, { round: 4, match: 1, slot: 1 });
+
+        const match2 = new Match('2-1', 2, 2, 1, competitorNames[2], null, -1,
+            { round: 3, match: 1, slot: 1 }, { round: 4, match: 1, slot: 2 });
+
+        const match3 = new Match('4-1', 3, 4, 1, null, null, -1,
+            { round: 3, match: 1, slot: 2 });
+
+        const final = new Match('3-1', 4, 3, 1, null, null, -1,
+            { round: 5, match: 1, slot: 1 }, { round: 5, match: 1, slot: 2 });
+
+        const finalRematch = new Match('5-1', 5, 5, 1, null, null, -1);
+
+        // set up parent child links
+        finalRematch.slot1Parent = final;
+        finalRematch.slot1PreviouslyWinner = true;
+        finalRematch.slot2Parent = final;
+        finalRematch.slot2PreviouslyWinner = false;
+        final.winChild = finalRematch;
+        final.lossChild = finalRematch;
+
+        final.slot1Parent = match2;
+        final.slot1PreviouslyWinner = true;
+        final.slot2Parent = match3;
+        final.slot2PreviouslyWinner = true;
+        match2.winChild = final;
+        match3.winChild = final;
+
+        match3.slot1Parent = match1;
+        match3.slot1PreviouslyWinner = false;
+        match3.slot2Parent = match2;
+        match3.slot2PreviouslyWinner = false;
+        match1.lossChild = match3;
+        match2.lossChild = match3;
+
+        match2.slot2Parent = match1;
+        match2.slot2PreviouslyWinner = true;
+        match1.winChild = match2;
+
+
+        return { winnersBracket: [[match1], [match2]], losersBracket: [[match3]], final, finalRematch };
+    }
+
+    throw new Error('Invalid number of competitors: ' + competitorNames.length);
+}
 
 // function to create internal Match class objet from ExternalMatch object and slot information
 const createInternalMatch = (match: ExternalMatch, winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined): Match => {
@@ -219,6 +309,8 @@ const numberRound = (round: Match[], currentMatchNumber: number): number => {
 }
 
 const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match): void => {
+
+    console.log('numbering matches with numberOfCompetitors: ', numberOfCompetitors, 'winnersBracket: ', winnersBracket, 'losersBracket: ', losersBracket, 'final: ', final, 'finalRematch: ', finalRematch);
 
     let currentMatchNumber = 1, currentWinnerRound = 0, currentLoserRound = 0;
 

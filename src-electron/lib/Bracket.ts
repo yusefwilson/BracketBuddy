@@ -17,8 +17,6 @@ class Bracket {
     hand: Hand
     weightLimit: WeightLimit
 
-    started: boolean
-
     competitorNames: string[]
 
     winnersBracket: Match[][]
@@ -45,8 +43,6 @@ class Bracket {
 
         this.final = null;
         this.finalRematch = null;
-
-        this.started = false;
     }
 
     // create the initial bracket structure
@@ -54,21 +50,11 @@ class Bracket {
 
         // if there is only one competitor, there is no need to create a bracket
         if (this.competitorNames.length <= 1) {
+            this.winnersBracket = [];
+            this.losersBracket = [];
+            this.final = null;
+            this.finalRematch = null;
             return;
-        }
-
-        // if there are two competitors, then create a bracket with a single winner round, final, and final rematch
-        if (this.competitorNames.length === 2) {
-            const match1 = new Match('1-1', 1, 1, 1, this.competitorNames[0], this.competitorNames[1], -1,
-                { round: 2, match: 1, slot: 1 }, { round: 2, match: 1, slot: 2 });
-
-            // set up parent and child links
-            const final = new Match('2-1', 2, 2, 1, null, null, -1,
-                { round: 3, match: 1, slot: 1 }, { round: 3, match: 1, slot: 2 });
-
-            // set up parent child links
-            const finalRematch = new Match('3-1', 3, 3, 1, null, null, -1,
-                { round: 3, match: 1, slot: 1 }, { round: 3, match: 1, slot: 2 });
         }
 
         console.log('about to initialize bracket with competitor names: ', this.competitorNames);
@@ -79,20 +65,15 @@ class Bracket {
         this.losersBracket = losersBracket;
         this.final = final;
         this.finalRematch = finalRematch;
-
-        this.started = true;
     }
 
     setCompetitorNames(competitorNames: string[]) {
 
         //console.log('setting competitor names');
-
         this.competitorNames = competitorNames;
 
-        // reinitialize bracket if it was already started
-        if (this.started) {
-            this.initialize();
-        }
+        // reinitialize bracket
+        this.initialize();
     }
 
     addCompetitor(competitorName: string) {
@@ -188,7 +169,7 @@ class Bracket {
 
     canGetWinnerFromFinal(): boolean {
         if (!this.final) {
-            throw new Error('Bracket has no final');
+            return false;
         }
         const winnersBracketFinal = this.winnersBracket[this.winnersBracket.length - 1][0];
         // return true if winner of final is winner of winners bracket final too
@@ -198,7 +179,7 @@ class Bracket {
     getFirstPlace(): string | undefined {
 
         if (!this.final) {
-            throw new Error('Bracket has no final');
+            return undefined;
         }
         // if the final rematch has not taken place, and the final has, and the winner of the final is the winner of the last winnners bracket match
         if (this.canGetWinnerFromFinal()) {
@@ -206,7 +187,7 @@ class Bracket {
         }
 
         if (!this.finalRematch) {
-            throw new Error('Bracket has no final rematch');
+            return undefined;
         }
 
         // if the final rematch has taken place, then the first place is the winner of the final rematch
@@ -234,7 +215,11 @@ class Bracket {
     getThirdPlace(): string | undefined {
 
         if (!this.finalRematch) {
-            throw new Error('Bracket has no final rematch');
+            return undefined;
+        }
+
+        if (this.competitorNames.length === 2) {
+            return undefined;
         }
 
         const losersBracketFinal = this.losersBracket[this.losersBracket.length - 1][0];
@@ -248,6 +233,11 @@ class Bracket {
 
     getLowestUnfilledMatchNumber(): number {
         const matches = this.getMatches();
+
+        if (matches.length === 0) {
+            return -1;
+        }
+
         const sortedMatches = matches.sort((a, b) => a.number - b.number);
         for (let match of sortedMatches) {
             if (match.winner === -1) {
@@ -297,17 +287,14 @@ class Bracket {
             competitorNames: this.competitorNames,
             winnersBracket: this.winnersBracket.map(round => round.map(match => match.toDTO())),
             losersBracket: this.losersBracket.map(round => round.map(match => match.toDTO())),
-            started: this.started,
             final: this.final ? this.final.toDTO() : null,
             finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
-            currentMatchNumber: this.started ? this.getLowestUnfilledMatchNumber() : -1,
-            finalRematchNeeded: this.started ? this.finalRematchNeeded() : false,
-            firstPlace: this.started ? this.getFirstPlace() : undefined,
-            secondPlace: this.started ? this.getSecondPlace() : undefined,
-            thirdPlace: this.started ? this.getThirdPlace() : undefined,
+            currentMatchNumber: this.getLowestUnfilledMatchNumber(),
+            finalRematchNeeded: this.finalRematchNeeded(),
+            firstPlace: this.getFirstPlace(),
+            secondPlace: this.getSecondPlace(),
+            thirdPlace: this.getThirdPlace(),
         };
-
-        console.log('bracket started in DTO?', this.started)
 
         return DTO;
     }

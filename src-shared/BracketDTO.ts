@@ -12,8 +12,6 @@ interface BracketDTO {
     hand: Hand
     weightLimit: number | 'Superheavyweight' // in lbs, -1 for no limit
 
-    started: boolean
-
     competitorNames: string[]
 
     winnersBracket: MatchDTO[][]
