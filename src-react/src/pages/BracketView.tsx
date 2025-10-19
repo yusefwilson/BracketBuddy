@@ -73,7 +73,7 @@ export default function BracketView() {
 
         {/* Controls Panel */}
         <div
-          className={`flex flex-col bg-slate-700 rounded-lg p-4 shadow-md gap-4 overflow-y-auto items-center
+          className={`flex flex-col bg-slate-700 rounded-lg p-4 shadow-md gap-4 items-center
             ${controlsOpen ? '' : 'w-0 opacity-0 h-0'}`}
         >
           <p className='text-lg font-bold'>
@@ -82,7 +82,7 @@ export default function BracketView() {
 
           <h2 className='text-white text-lg font-semibold text-center'>Competitors</h2>
 
-          <div className=''>
+          <div className='h-64'>
             <CompetitorInput
               competitors={bracket.competitorNames ?? []}
               addCompetitor={async (name) => {

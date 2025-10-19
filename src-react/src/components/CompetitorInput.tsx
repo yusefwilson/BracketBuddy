@@ -16,7 +16,6 @@ interface CompetitorInputProps {
     randomizeCompetitors: () => Promise<void>;
 }
 
-// ✅ Use the props interface in the component definition
 export default function CompetitorInput({ competitors, addCompetitor, removeCompetitor, randomizeCompetitors, }: CompetitorInputProps) {
     const [newName, setNewName] = useState('');
 
@@ -25,7 +24,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
     const prevLength = usePrevious(competitors.length);
 
     // Add a new competitor
-    const handleAdd = () => {
+    const handleAdd = async () => {
         const competitorNameToAdd = newName.trim()
         // prevent empty names
         if (competitorNameToAdd === '') return;
@@ -33,7 +32,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
         if (competitors.includes(competitorNameToAdd)) return;
 
         // add competitor
-        addCompetitor(competitorNameToAdd);
+        await addCompetitor(competitorNameToAdd);
         setNewName('');
     };
 
@@ -55,8 +54,8 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
     }, [competitors.length, prevLength]);
 
     return (
-        <div className='flex flex-col justify-between'>
-            <div className='overflow-y-scroll border border-gray-600 rounded-md p-4 bg-slate-700 h-64' ref={scrollContainerRef}>
+        <div className='flex flex-col justify-between h-full'>
+            <div className='flex flex-col overflow-y-auto h-full border border-green-600 rounded-md p-4 bg-blue-700' ref={scrollContainerRef}>
 
                 <div className='flex items-center space-x-3 mb-3 justify-between'>
                     <h2 className='text-lg font-semibold text-white'>

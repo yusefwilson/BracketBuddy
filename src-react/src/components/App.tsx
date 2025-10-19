@@ -53,7 +53,7 @@ export default function App() {
     <CURRENT_STATE.Provider value={{ tournament, bracketIndex, setTournament, setBracketIndex }}>
       <Router>
         <Navbar />
-        <div className="flex flex-col text-white h-screen-navbar bg-slate-800">
+        <div className="text-white h-screen-navbar">
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/tournament' element={<TournamentView />} />
