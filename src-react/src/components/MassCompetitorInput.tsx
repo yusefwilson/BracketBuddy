@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useContext } from 'react';
 import CompetitorInput from './CompetitorInput';
 import { CURRENT_STATE } from './App';
 
@@ -14,62 +14,43 @@ export default function MassCompetitorInput() {
         return <div>No tournament id</div>;
     }
 
-    const [loadingBracketId, setLoadingBracketId] = useState<string | null>(null);
-
     const handleAddCompetitor = async (bracketId: string, name: string) => {
-        try {
-            setLoadingBracketId(bracketId);
-            const updatedTournament = await window.electron.addCompetitorToBracket({ tournamentId: tournament.id, bracketId, competitorName: name });
-            setTournament(updatedTournament);
-        } finally {
-            setLoadingBracketId(null);
-        }
+
+        const updatedTournament = await window.electron.addCompetitorToBracket({ tournamentId: tournament.id, bracketId, competitorName: name });
+        setTournament(updatedTournament);
     };
 
     const handleRemoveCompetitor = async (bracketId: string, name: string) => {
-        try {
-            setLoadingBracketId(bracketId);
-            const updatedTournament = await window.electron.removeCompetitorFromBracket({ tournamentId: tournament.id, bracketId, competitorName: name });
-            setTournament(updatedTournament);
-        } finally {
-            setLoadingBracketId(null);
-        }
+
+        const updatedTournament = await window.electron.removeCompetitorFromBracket({ tournamentId: tournament.id, bracketId, competitorName: name });
+        setTournament(updatedTournament);
     };
 
     const handleRandomize = async (bracketId: string) => {
-        try {
-            setLoadingBracketId(bracketId);
-            const updatedTournament = await window.electron.randomizeCompetitors({ tournamentId: tournament.id, bracketId });
-            setTournament(updatedTournament);
-        } finally {
-            setLoadingBracketId(null);
-        }
+
+        const updatedTournament = await window.electron.randomizeCompetitors({ tournamentId: tournament.id, bracketId });
+        setTournament(updatedTournament);
     };
 
     const brackets = tournament.brackets;
 
     return (
-        <div className="flex flex-row p-2 h-full bg-purple-400 w-full gap-2">
+        <div className="flex flex-row p-2 w-full gap-2 flex-1 min-h-0 overflow-x-auto">
             {brackets.map((bracket) => (
                 <div
                     key={bracket.id}
-                    className="flex flex-col border border-gray-600 rounded-lg p-4 bg-yellow-800 h-full"
+                    className="flex flex-col rounded-lg p-4 bg-slate-500 h-full"
                 >
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-xl font-semibold text-white">
-                            {bracket.gender} / {bracket.experienceLevel} / {bracket.hand}{' '}
+                    <div className="flex justify-between items-center mb-3 flex-shrink-0 self-center">
+                        <h2 className="text-md font-semibold text-white">
+                            {bracket.gender} | {bracket.experienceLevel} | {bracket.hand}{' '}
                             {bracket.weightLimit !== 'Superheavyweight'
                                 ? `(${bracket.weightLimit} lbs)`
                                 : '(Superheavyweight)'}
                         </h2>
-                        {loadingBracketId === bracket.id && (
-                            <span className="text-sm text-gray-400 animate-pulse">
-                                Updating...
-                            </span>
-                        )}
                     </div>
 
-                    <div className="h-full">
+                    <div className="flex-1 min-h-0">
                         <CompetitorInput
                             competitors={bracket.competitorNames}
                             addCompetitor={(name) => handleAddCompetitor(bracket.id, name)}
@@ -77,10 +58,6 @@ export default function MassCompetitorInput() {
                             randomizeCompetitors={() => handleRandomize(bracket.id)}
                         />
                     </div>
-
-                    {/* <div className="h-full bg-pink-300">
-                        FAKE COMPETITOR INPUT
-                    </div> */}
                 </div>
             ))}
         </div>

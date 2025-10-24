@@ -55,10 +55,10 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
 
     return (
         <div className='flex flex-col justify-between h-full'>
-            <div className='flex flex-col overflow-y-auto h-full border border-green-600 rounded-md p-4 bg-blue-700' ref={scrollContainerRef}>
+            <div className='flex flex-col overflow-y-auto h-full rounded-md p-4 bg-slate-800' ref={scrollContainerRef}>
 
                 <div className='flex items-center space-x-3 mb-3 justify-between'>
-                    <h2 className='text-lg font-semibold text-white'>
+                    <h2 className='text-md font-semibold text-white'>
                         Enter Competitor Names ({competitors.length})
                     </h2>
                     <button

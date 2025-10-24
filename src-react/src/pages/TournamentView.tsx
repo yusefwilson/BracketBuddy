@@ -26,16 +26,16 @@ export default function TournamentView() {
   }
 
   return (
-    <div className="bg-red-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full">
-      <h1 className="text-3xl font-bold text-white">
+    <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full">
+      <h1 className="text-3xl font-bold text-white flex-shrink-0">
         Tournament: <span className="text-blue-400">{tournament?.name}</span>
       </h1>
-      <h2 className="text-lg text-gray-300">
+      <h2 className="text-lg text-gray-300 flex-shrink-0">
         Date: <span className="font-semibold">{dateToLocalTimezoneString(tournament?.date)}</span>
       </h2>
 
       {/* Buttons to open modals */}
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-shrink-0">
         <button
           onClick={() => setBulkBracketModalOpen(true)}
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
@@ -44,11 +44,11 @@ export default function TournamentView() {
           Add Brackets
         </button>
         <button
-          onClick={() => setCompetitorViewOpen(true)}
+          onClick={() => setCompetitorViewOpen(!competitorViewOpen)}
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
           type="button"
         >
-          Switch to Competitor View
+          Switch View
         </button>
       </div>
 
@@ -61,7 +61,7 @@ export default function TournamentView() {
         competitorViewOpen ?
           <MassCompetitorInput />
           :
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6 bg-green-400">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
             {tournament?.brackets.length ? (
               tournament.brackets.map((bracket, index) => (
                 <BracketInfoCard

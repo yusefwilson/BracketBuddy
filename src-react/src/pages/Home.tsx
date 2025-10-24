@@ -31,14 +31,12 @@ export default function Home() {
 
   if (!allTournaments) {
     return (
-      <div className='flex justify-center items-center h-screen bg-inherit text-white text-2xl'>
-        Loading...
-      </div>
+      <div className='flex justify-center items-center h-full text-white text-2xl bg-slate-700' />
     );
   }
 
   return (
-    <div className='bg-inherit w-full text-white p-6 flex flex-col items-center'>
+    <div className='bg-slate-700 w-full text-white p-6 flex flex-col items-center h-full'>
 
       {/* Create Button */}
       <div className='w-full max-w-3xl flex justify-end mb-4'>
@@ -51,7 +49,7 @@ export default function Home() {
       </div>
 
       {/* Tournament List */}
-      <div className='w-full max-w-3xl bg-slate-700 rounded-xl p-6 flex flex-col gap-4 shadow-lg'>
+      <div className='w-full max-w-3xl bg-slate-600 rounded-xl p-6 flex flex-col gap-4 shadow-lg'>
         <h1 className='text-2xl font-bold mb-2'>My Tournaments</h1>
 
         {allTournaments.length === 0 ? (
