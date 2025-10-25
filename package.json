@@ -31,6 +31,7 @@
     "electron-icon-builder": "^2.0.1",
     "electronmon": "^2.0.3",
     "typescript": "^5.7.2",
+    "vite": "^7.1.12",
     "wait-on": "^8.0.4"
   },
   "dependencies": {
