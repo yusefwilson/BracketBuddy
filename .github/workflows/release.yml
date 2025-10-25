@@ -46,3 +46,5 @@ jobs:
           name: Latest Release
           body: Automated release of BracketBuddy
           artifacts: out/make/squirrel.windows/x64/BracketBuddy-Setup.exe
+          allowUpdates: true     # ✅ allows overwriting "latest"
+          replacesArtifacts: true # ✅ updates the .exe file each time
