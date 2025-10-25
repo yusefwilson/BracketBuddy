@@ -30,7 +30,7 @@ export default function Navbar() {
       {/* Heart Donation Button */}
       <div className='flex items-center gap-4'>
         <button
-          onClick={() => window.open('https://yusefwilson.com', '_blank')}
+          onClick={() => window.electron.openUrl('https://yusefwilson.com')}
           aria-label='Donate with heart'
           className='bg-red-500 hover:bg-red-600 rounded-md p-1.5 transition flex items-center gap-1'
           type='button'

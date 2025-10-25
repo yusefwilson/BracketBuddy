@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
 import type { SaveKeyValueInput } from '../../src-shared/types.js';
+import { shell } from 'electron';
 
 /* MISC */
 
@@ -41,9 +42,14 @@ const ensure_save_environment = () => {
     }
 };
 
+const open_url = async (_: Electron.IpcMainInvokeEvent, url: string) => {
+    await shell.openExternal(url);
+};
+
 export {
     get_save_data,
     save_key_value,
     get_constants,
     ensure_save_environment,
+    open_url
 };

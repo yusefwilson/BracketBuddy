@@ -52,4 +52,6 @@ contextBridge.exposeInMainWorld('electron', {
 
     saveKeyValue: async (input: SaveKeyValueInput) =>
         ipcRenderer.invoke('save-key-value', input),
+
+    openUrl: async (url: string) => ipcRenderer.invoke('open-url', url),
 });

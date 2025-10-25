@@ -1,4 +1,4 @@
-export {};
+export { };
 
 import { BracketDTO } from './BracketDTO';
 import { TournamentDTO } from './TournamentDTO';
@@ -35,6 +35,7 @@ declare global {
       // misc
       getSaveData: () => Promise<Record<string, any>>;
       saveKeyValue: (input: SaveKeyValueInput) => Promise<Record<string, any>>;
+      openUrl: (url: string) => Promise<void>;
     };
   }
 }
