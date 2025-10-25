@@ -20,9 +20,15 @@ jobs:
         with:
           node-version: 20
 
-      # 3️⃣ Install dependencies
-      - name: Install dependencies
+      # 3️⃣ Install root dependencies
+      - name: Install root dependencies
         run: npm ci
+
+      # 4️⃣ Install React app dependencies
+      - name: Install React app dependencies
+        run: |
+          cd src-react
+          npm ci
 
       # 4️⃣ Build your EXE
       - name: Build EXE
