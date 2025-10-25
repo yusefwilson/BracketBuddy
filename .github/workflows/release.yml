@@ -5,6 +5,10 @@ on:
     branches:
       - release
 
+
+permissions:
+  contents: write   # <-- 👈 THIS LINE gives permission to publish releases
+
 jobs:
   build-and-release:
     runs-on: windows-latest
