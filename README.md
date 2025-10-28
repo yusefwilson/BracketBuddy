@@ -14,9 +14,9 @@ A desktop application for managing (primarily arm wrestling) tournament brackets
 
 ## Features
 
-- 🏆 Create and manage tournament brackets
+- 🏆 Create and manage tournament brackets with arm wrestling specific information (weight classes, hand, age, experience, gender)
 - 💻 Native desktop application
-- 🚀 Easy-to-use interface
+- 🚀 Repeat-avoidant algorithms courtesy of [`tournament-pairings`](https://github.com/slashinfty/tournament-pairings) to avoid premature rematches
 
 ## Support the Project
 
