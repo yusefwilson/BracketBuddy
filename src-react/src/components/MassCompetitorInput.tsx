@@ -1,11 +1,13 @@
 import { useContext } from 'react';
 import CompetitorInput from './CompetitorInput';
 import { CURRENT_STATE } from './App';
+import { useNavigate } from 'react-router-dom';
 
 export default function MassCompetitorInput() {
 
     const state = useContext(CURRENT_STATE);
-    const { tournament, setTournament = () => { } } = state || {};
+    const { tournament, setTournament = () => { }, setBracketIndex = () => { }, } = state || {};
+    const navigate = useNavigate();
 
     if (!tournament) {
         return <div>Loading tournament...</div>;
@@ -36,10 +38,18 @@ export default function MassCompetitorInput() {
 
     return (
         <div className="flex flex-row p-2 w-full gap-2 flex-1 min-h-0 overflow-x-auto">
-            {brackets.map((bracket) => (
+            {brackets.map((bracket, index) => (
                 <div
                     key={bracket.id}
-                    className="flex flex-col rounded-lg p-4 bg-slate-500 h-full"
+                    className="flex flex-col rounded-lg p-4 h-full bg-slate-500 transition [&:not(:has(:hover))]:hover:bg-slate-600 [&:not(:has(:hover))]:hover:cursor-pointer"
+                    onClick={async (e) => {
+                        // Only trigger if the click happened directly on this div, not a child
+                        if (e.target !== e.currentTarget) return;
+
+                        setBracketIndex(index);
+                        await window.electron.saveKeyValue({ key: 'lastBracketIndex', value: index });
+                        navigate('/bracket');
+                    }}
                 >
                     <div className="flex justify-between items-center mb-3 flex-shrink-0 self-center">
                         <h2 className="text-md font-semibold text-white">
