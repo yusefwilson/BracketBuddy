@@ -38,6 +38,12 @@ jobs:
       - name: Build EXE
         run: npm run make
 
+      # 🏷️ Update "latest" tag to current commit
+      - name: Move 'latest' tag to current commit
+        run: |
+          git tag -f latest
+          git push origin latest --force
+
       # 5️⃣ Create/update GitHub release and upload EXE
       - name: Publish Release
         uses: ncipollo/release-action@v1
