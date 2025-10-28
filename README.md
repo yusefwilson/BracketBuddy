@@ -24,10 +24,10 @@ If you find BracketBuddy helpful, consider supporting its development! Your supp
 
 ### Support Options
 
-- ☕ [**Buy Me a Coffee**](https://buymeacoffee.com/yusefwilson) - One-time support
-- 💖 [**Ko-fi**](https://ko-fi.com/yusefwilson) - Quick one-time or monthly support
-- 🎨 [**Patreon**](https://patreon.com/yusefwilson) - Ongoing monthly support with exclusive perks
-- 💻 [**GitHub Sponsors**](https://github.com/sponsors/yusefwilson) - Direct support through GitHub
+- ☕ [**Buy Me a Coffee**](https://buymeacoffee.com/yusefwilson)
+- 💖 [**Ko-fi**](https://ko-fi.com/yusefwilson)
+- 🎨 [**Patreon**](https://patreon.com/yusefwilson)
+- 💻 [**GitHub Sponsors**](https://github.com/sponsors/yusefwilson)
 
 Every contribution, no matter how small, is greatly appreciated and helps keep this project alive! 🙏
 
