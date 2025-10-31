@@ -1,8 +1,8 @@
 import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-import BracketInfoCard from '../components/BracketInfoCard';
+import BracketList from '../components/BracketList';
 import MassCompetitorInput from '../components/MassCompetitorInput';
+import FullCompetitorList from '../components/FullCompetitorList';
 import { CURRENT_STATE } from '../components/App';
 
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
@@ -10,12 +10,34 @@ import { dateToLocalTimezoneString } from '../../../src-shared/utils';
 
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
-  const { tournament, setBracketIndex = () => { }, setTournament = () => { } } = state || {};
-  const navigate = useNavigate();
+  const { tournament } = state || {};
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
-  const [competitorViewOpen, setCompetitorViewOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<'brackets' | 'mass-input' | 'competitor-list'>('brackets');
   const [refreshTick, setRefreshTick] = useState(0);
+
+  const cycleView = () => {
+    if (currentView === 'brackets') {
+      setCurrentView('mass-input');
+    } else if (currentView === 'mass-input') {
+      setCurrentView('competitor-list');
+    } else {
+      setCurrentView('brackets');
+    }
+  };
+
+  const getViewButtonText = () => {
+    switch (currentView) {
+      case 'brackets':
+        return 'View: Brackets';
+      case 'mass-input':
+        return 'View: Mass Input';
+      case 'competitor-list':
+        return 'View: Competitors';
+      default:
+        return 'Switch View';
+    }
+  };
 
   if (!tournament) {
     return (
@@ -44,16 +66,15 @@ export default function TournamentView() {
           Add Brackets
         </button>
         <button
-          onClick={() => setCompetitorViewOpen(!competitorViewOpen)}
+          onClick={cycleView}
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
           type="button"
         >
-          Switch View
+          {getViewButtonText()}
         </button>
         <button
           onClick={async () => {
             const AERSData = await window.electron.convertToAERS({ tournamentId: tournament.id });
-            console.log('about to try to save data: ', AERSData, ' to file: ', `${tournament.name}_AERS`);
             const { canceled, filePath } = await window.electron.saveCsv(`${tournament.name}_AERS`, AERSData);
 
             if (!canceled) {
@@ -74,36 +95,13 @@ export default function TournamentView() {
         <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
       )}
 
-      {
-        competitorViewOpen ?
-          <MassCompetitorInput />
-          :
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
-            {tournament?.brackets.length ? (
-              tournament.brackets.map((bracket, index) => (
-                <BracketInfoCard
-                  key={index}
-                  bracket={bracket}
-                  onClick={async () => {
-                    setBracketIndex(index);
-                    await window.electron.saveKeyValue({ key: 'lastBracketIndex', value: index });
-                    navigate('/bracket');
-                  }}
-                  onRemoveClick={async () => {
-                    const newTournament = await window.electron.removeBracketFromTournament({
-                      tournamentId: tournament.id,
-                      bracketId: bracket.id
-                    });
-                    setTournament(newTournament);
-                    setRefreshTick(refreshTick + 1);
-                  }}
-                />
-              ))
-            ) : (
-              <p className="text-gray-400 text-center italic">No brackets added yet.</p>
-            )}
-          </div>
-      }
+      {currentView === 'mass-input' ? (
+        <MassCompetitorInput />
+      ) : currentView === 'competitor-list' ? (
+        <FullCompetitorList />
+      ) : (
+        <BracketList onBracketRemoved={() => setRefreshTick(refreshTick + 1)} />
+      )}
 
     </div>
   );
