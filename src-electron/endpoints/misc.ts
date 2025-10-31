@@ -1,9 +1,12 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
-import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
-import type { SaveKeyValueInput, ApiResponse } from '../../src-shared/types.js';
-import { successResponse, errorResponse } from '../../src-shared/types.js';
+
 import { shell, dialog } from 'electron';
+
+import type { SaveKeyValueInput, ApiResponse } from '../../src-shared/types.js';
+import { successResponse, errorResponse } from '../../src-shared/utils.js';
+
+import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
 
 /* MISC */
 

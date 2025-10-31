@@ -3,10 +3,12 @@ check();
 
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
 import { app, BrowserWindow, ipcMain } from 'electron';
+
 import { load_all_tournaments, create_tournament, delete_tournament, add_brackets_to_tournament, remove_bracket_from_tournament, convert_to_AERS } from './endpoints/tournament.js';
 import { add_competitor_to_bracket, remove_competitor_from_bracket, start_bracket, update_bracket, randomize_competitors } from './endpoints/bracket.js';
-import { ensure_save_environment, get_save_data, save_key_value, get_constants, open_url, save_csv} from './endpoints/misc.js';
+import { ensure_save_environment, get_save_data, save_key_value, get_constants, open_url, save_csv } from './endpoints/misc.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

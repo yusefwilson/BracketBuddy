@@ -1,14 +1,16 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
+import { calculateAllMatchPositions } from '../../../src-shared/utils';
+
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
+
 import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 import FinalPlacings from '../components/FinalPlacings';
 import BracketHotSwapBar from '../components/BracketHotSwapBar';
-import { calculateAllMatchPositions } from '../../../src-shared/utils';
-import { safeApiCall } from '../utils/apiHelpers';
-import { useErrorToast } from '../hooks/useErrorToast';
 
 export default function BracketView() {
   const state = useContext(CURRENT_STATE);

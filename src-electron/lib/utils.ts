@@ -1,3 +1,10 @@
+import { parse, stringify } from 'flatted';
+import { DoubleElimination } from 'tournament-pairings';
+
+import { ExperienceLevel, ExternalMatch, WeightLimit } from '../../src-shared/types.js';
+
+import Match from './Match.js';
+
 /* MATH */
 function greatestPowerOf2LessThanOrEqualTo(n: number): number {
     let power = 1;
@@ -10,7 +17,6 @@ function greatestPowerOf2LessThanOrEqualTo(n: number): number {
 function isPowerOfTwo(n: number) { return n > 0 && (n & (n - 1)) === 0; };
 
 /* SERIALIZATION AND DESERIALIZATION */
-import { parse, stringify } from 'flatted';
 
 function rehydrate(data: any, classMap: Record<string, new () => any>, cache = new WeakMap()): any {
 
@@ -69,10 +75,6 @@ function deserialize(serialized: string, classMap: Record<string, new () => any>
 }
 
 /* MATCHES */
-
-import Match from './Match.js';
-import { ExperienceLevel, ExternalMatch, WeightLimit } from '../../src-shared/types.js';
-import { DoubleElimination } from 'tournament-pairings';
 
 function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } {
 

@@ -1,5 +1,6 @@
 import { useState, useContext, useMemo } from 'react';
 import { UserIcon } from '@heroicons/react/24/outline';
+
 import { CURRENT_STATE } from './App';
 import CompetitorClassModal from './CompetitorClassModal';
 

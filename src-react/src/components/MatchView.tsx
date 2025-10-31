@@ -1,5 +1,6 @@
-import WinnerCheckbox from './WinnerCheckbox';
 import { MatchDTO } from '../../../src-shared/MatchDTO';
+
+import WinnerCheckbox from './WinnerCheckbox';
 
 interface MatchViewProps {
     match: MatchDTO;

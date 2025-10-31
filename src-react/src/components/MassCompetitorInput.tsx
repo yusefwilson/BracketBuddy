@@ -1,9 +1,11 @@
 import { useContext } from 'react';
-import CompetitorInput from './CompetitorInput';
-import { CURRENT_STATE } from './App';
 import { useNavigate } from 'react-router-dom';
+
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+
+import { CURRENT_STATE } from './App';
+import CompetitorInput from './CompetitorInput';
 
 export default function MassCompetitorInput() {
 

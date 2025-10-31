@@ -1,6 +1,4 @@
 import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
-import { load_tournament, save_tournament } from './tournament.js';
-import { successResponse, errorResponse } from '../../src-shared/types.js';
 import type {
     UpdateBracketInput,
     AddCompetitorToBracketInput,
@@ -9,6 +7,9 @@ import type {
     RandomizeCompetitorsInput,
     ApiResponse
 } from '../../src-shared/types.js';
+import { successResponse, errorResponse } from '../../src-shared/utils.js';
+
+import { load_tournament, save_tournament } from './tournament.js';
 
 const update_bracket = async (_: Electron.IpcMainInvokeEvent, input: UpdateBracketInput): Promise<ApiResponse<TournamentDTO>> => {
     try {

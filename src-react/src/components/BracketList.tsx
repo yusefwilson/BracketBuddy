@@ -1,9 +1,11 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BracketInfoCard from './BracketInfoCard';
-import { CURRENT_STATE } from './App';
+
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+
+import { CURRENT_STATE } from './App';
+import BracketInfoCard from './BracketInfoCard';
 
 interface BracketListProps {
     onBracketRemoved: () => void;

@@ -1,8 +1,10 @@
 /* AERS */
+
+import { ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
+
 import Tournament from './Tournament.js';
 import Bracket from './Bracket.js';
 import Match from './Match.js';
-import { ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
 
 function exportTournamentToAERS(tournament: Tournament): string {
     const rows: string[] = [];

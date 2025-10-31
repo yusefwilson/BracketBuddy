@@ -1,8 +1,11 @@
 import { useContext, useEffect } from 'react';
+
 import { TournamentDTO } from '../../../src-shared/TournamentDTO';
-import { CURRENT_STATE } from './App';
+
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+
+import { CURRENT_STATE } from './App';
 
 interface RemoveTournamentModalProps {
     setRemoveTournamentModalOpen: (open: boolean) => void;

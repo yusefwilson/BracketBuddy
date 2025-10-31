@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 
 import type { TournamentDTO } from '../../../src-shared/TournamentDTO';
 
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
+
 import { CURRENT_STATE } from '../components/App';
 import TournamentInfoCard from '../components/TournamentInfoCard';
 import TournamentInputModal from '../components/TournamentInputModal';
 import RemoveTournamentModal from '../components/RemoveTournamentModal';
-import { safeApiCall } from '../utils/apiHelpers';
-import { useErrorToast } from '../hooks/useErrorToast';
 
 export default function Home() {
   const state = useContext(CURRENT_STATE);

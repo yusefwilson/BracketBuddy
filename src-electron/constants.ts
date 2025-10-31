@@ -1,5 +1,6 @@
-import { app } from 'electron';
 import * as path from 'node:path';
+
+import { app } from 'electron';
 
 const SAVE_DIR = app.getPath('userData');
 const SAVE_FILE_NAME = 'BB_SAVE_FILE.json';

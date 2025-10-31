@@ -1,9 +1,12 @@
 import { useState, useContext, useEffect } from 'react';
 import { UserIcon, AcademicCapIcon, HandRaisedIcon, PlusIcon, ScaleIcon } from '@heroicons/react/24/outline';
+
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
-import { CURRENT_STATE } from './App';
+
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+
+import { CURRENT_STATE } from './App';
 
 interface BulkBracketInputModalProps {
     setBulkBracketModalOpen: (open: boolean) => void;

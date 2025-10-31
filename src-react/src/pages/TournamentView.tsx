@@ -1,14 +1,15 @@
 import { useContext, useState } from 'react';
 
-import BracketList from '../components/BracketList';
-import MassCompetitorInput from '../components/MassCompetitorInput';
-import FullCompetitorList from '../components/FullCompetitorList';
-import { CURRENT_STATE } from '../components/App';
+import { dateToLocalTimezoneString } from '../../../src-shared/utils';
+
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
 
+import { CURRENT_STATE } from '../components/App';
+import BracketList from '../components/BracketList';
+import MassCompetitorInput from '../components/MassCompetitorInput';
+import FullCompetitorList from '../components/FullCompetitorList';
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
-import { dateToLocalTimezoneString } from '../../../src-shared/utils';
 
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
@@ -53,7 +54,7 @@ export default function TournamentView() {
   return (
     <>
       <ErrorToastContainer />
-      <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full">
+      <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full overflow-y-auto">
       <h1 className="text-3xl font-bold text-white flex-shrink-0">
         Tournament: <span className="text-blue-400">{tournament?.name}</span>
       </h1>

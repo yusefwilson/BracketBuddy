@@ -1,4 +1,5 @@
 import { CalendarDaysIcon, UserGroupIcon, TrashIcon, TrophyIcon } from '@heroicons/react/24/outline';
+
 import { TournamentDTO } from '../../../src-shared/TournamentDTO';
 
 interface TournamentInfoCardProps {

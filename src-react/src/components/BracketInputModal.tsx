@@ -1,11 +1,14 @@
 import { useState, useContext, useEffect } from 'react';
-import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon, } from '@heroicons/react/24/outline';
+import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon } from '@heroicons/react/24/outline';
+
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
-import CompetitorInput from './CompetitorInput';
-import Dropdown from './Dropdown';
-import { CURRENT_STATE } from './App';
+
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+
+import { CURRENT_STATE } from './App';
+import CompetitorInput from './CompetitorInput';
+import Dropdown from './Dropdown';
 
 interface BracketInputModalProps {
     setBracketModalOpen: (open: boolean) => void;

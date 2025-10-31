@@ -1,9 +1,12 @@
 import { useState, useEffect, useContext } from 'react';
 import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon } from '@heroicons/react/24/outline';
+
 import { BracketDTO } from '../../../src-shared/BracketDTO';
-import { CURRENT_STATE } from './App';
+
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+
+import { CURRENT_STATE } from './App';
 
 interface CompetitorClassModalProps {
     competitorName: string;

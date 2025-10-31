@@ -1,5 +1,25 @@
 import { BracketDTO } from './BracketDTO';
 import { MatchDTO } from './MatchDTO';
+import type { ApiResponse } from './types';
+
+/* API RESPONSE HELPERS */
+export function successResponse<T>(data: T): ApiResponse<T> {
+    return {
+        success: true,
+        data
+    };
+}
+
+export function errorResponse(message: string, code?: string, field?: string): ApiResponse<never> {
+    return {
+        success: false,
+        error: {
+            message,
+            code,
+            field
+        }
+    };
+}
 
 /* MATH */
 function greatestPowerOf2LessThanOrEqualTo(n: number): number {

@@ -1,4 +1,5 @@
 import { UserIcon, AcademicCapIcon, ScaleIcon, TrashIcon, HandRaisedIcon, UsersIcon } from '@heroicons/react/24/outline';
+
 import { BracketDTO } from '../../../src-shared/BracketDTO';
 
 interface BracketInfoCardProps {
