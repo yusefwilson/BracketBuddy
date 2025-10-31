@@ -7,10 +7,13 @@ import MatchView from '../components/MatchView';
 import FinalPlacings from '../components/FinalPlacings';
 import BracketHotSwapBar from '../components/BracketHotSwapBar';
 import { calculateAllMatchPositions } from '../../../src-shared/utils';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 export default function BracketView() {
   const state = useContext(CURRENT_STATE);
   const { bracketIndex, tournament, setTournament = () => { }, setBracketIndex = () => { } } = state || {};
+  const { showError, ErrorToastContainer } = useErrorToast();
   const [finalRematchJustSpawned, setFinalRematchJustSpawned] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,22 +45,33 @@ export default function BracketView() {
   }
 
   const updateMatch = async (matchId: string, winner: number): Promise<void> => {
-    const newTournament = await window.electron.enterResult({
-      tournamentId: bracket.tournamentId,
-      bracketId: bracket.id,
-      matchId: matchId.toString(),
-      winner
-    });
+    const [newTournament, error] = await safeApiCall(
+      window.electron.enterResult({
+        tournamentId: bracket.tournamentId,
+        bracketId: bracket.id,
+        matchId: matchId.toString(),
+        winner
+      })
+    );
 
-    const finalRematchInExistenceAfter = newTournament.brackets[bracketIndex].finalRematchNeeded;
-    setFinalRematchJustSpawned(!bracket.finalRematchNeeded && finalRematchInExistenceAfter);
-    setTournament(newTournament);
+    if (error) {
+      showError(error);
+      return;
+    }
+
+    if (newTournament) {
+      const finalRematchInExistenceAfter = newTournament.brackets[bracketIndex].finalRematchNeeded;
+      setFinalRematchJustSpawned(!bracket.finalRematchNeeded && finalRematchInExistenceAfter);
+      setTournament(newTournament);
+    }
   };
 
   const { winnerMatches, loserMatches, final, finalRematch } = calculateAllMatchPositions(bracket);
 
   return (
-    <div className='flex flex-col h-full gap-4 p-8 bg-slate-800 shadow-inner'>
+    <>
+      <ErrorToastContainer />
+      <div className='flex flex-col h-full gap-4 p-8 bg-slate-800 shadow-inner'>
 
       {/* Toggle Button */}
       <button
@@ -86,27 +100,60 @@ export default function BracketView() {
             <CompetitorInput
               competitors={bracket.competitorNames ?? []}
               addCompetitor={async (name) => {
-                const newTournament = await window.electron.addCompetitorToBracket({
-                  tournamentId: bracket.tournamentId,
-                  bracketId: bracket.id,
-                  competitorName: name
-                });
-                setTournament(newTournament);
+                console.log('about to add competitor to bracket: ', name);
+                const [newTournament, error] = await safeApiCall(
+                  window.electron.addCompetitorToBracket({
+                    tournamentId: bracket.tournamentId,
+                    bracketId: bracket.id,
+                    competitorName: name
+                  })
+                );
+
+                console.log('got response from addCompetitorToBracket:', newTournament, error);
+
+                if (error) {
+                  showError(error);
+                  return;
+                }
+
+                if (newTournament) {
+                  setTournament(newTournament);
+                }
               }}
               removeCompetitor={async (name) => {
-                const newTournament = await window.electron.removeCompetitorFromBracket({
-                  tournamentId: bracket.tournamentId,
-                  bracketId: bracket.id,
-                  competitorName: name
-                });
-                setTournament(newTournament);
+                const [newTournament, error] = await safeApiCall(
+                  window.electron.removeCompetitorFromBracket({
+                    tournamentId: bracket.tournamentId,
+                    bracketId: bracket.id,
+                    competitorName: name
+                  })
+                );
+
+                if (error) {
+                  showError(error);
+                  return;
+                }
+
+                if (newTournament) {
+                  setTournament(newTournament);
+                }
               }}
               randomizeCompetitors={async () => {
-                const newTournament = await window.electron.randomizeCompetitors({
-                  tournamentId: bracket.tournamentId,
-                  bracketId: bracket.id
-                });
-                setTournament(newTournament);
+                const [newTournament, error] = await safeApiCall(
+                  window.electron.randomizeCompetitors({
+                    tournamentId: bracket.tournamentId,
+                    bracketId: bracket.id
+                  })
+                );
+
+                if (error) {
+                  showError(error);
+                  return;
+                }
+
+                if (newTournament) {
+                  setTournament(newTournament);
+                }
               }}
             />
           </div>
@@ -150,5 +197,6 @@ export default function BracketView() {
         />
       )}
     </div>
+    </>
   );
 }

@@ -1,25 +1,36 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
-import type { SaveKeyValueInput } from '../../src-shared/types.js';
+import type { SaveKeyValueInput, ApiResponse } from '../../src-shared/types.js';
+import { successResponse, errorResponse } from '../../src-shared/types.js';
 import { shell, dialog } from 'electron';
 
 /* MISC */
 
-const get_save_data = async (_: Electron.IpcMainInvokeEvent) => {
-    const data = await readFile(SAVE_FILE_PATH, 'utf-8');
-    return JSON.parse(data);
+const get_save_data = async (_: Electron.IpcMainInvokeEvent): Promise<ApiResponse<Record<string, any>>> => {
+    try {
+        const data = await readFile(SAVE_FILE_PATH, 'utf-8');
+        return successResponse(JSON.parse(data));
+    } catch (error) {
+        console.error('Error reading save data:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to read save data');
+    }
 };
 
-const save_key_value = async (_: Electron.IpcMainInvokeEvent, input: SaveKeyValueInput) => {
-    const { key, value } = input;
+const save_key_value = async (_: Electron.IpcMainInvokeEvent, input: SaveKeyValueInput): Promise<ApiResponse<Record<string, any>>> => {
+    try {
+        const { key, value } = input;
 
-    const data = await readFile(SAVE_FILE_PATH, 'utf-8');
-    const parsedData = JSON.parse(data);
-    parsedData[key] = value;
-    await writeFile(SAVE_FILE_PATH, JSON.stringify(parsedData));
+        const data = await readFile(SAVE_FILE_PATH, 'utf-8');
+        const parsedData = JSON.parse(data);
+        parsedData[key] = value;
+        await writeFile(SAVE_FILE_PATH, JSON.stringify(parsedData));
 
-    return parsedData;
+        return successResponse(parsedData);
+    } catch (error) {
+        console.error('Error saving key-value:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to save key-value pair');
+    }
 };
 
 const get_constants = async (_: Electron.IpcMainInvokeEvent) => {
@@ -47,23 +58,29 @@ const open_url = async (_: Electron.IpcMainInvokeEvent, url: string) => {
 };
 
 
-const save_csv = async (_: Electron.IpcMainInvokeEvent, filename: string, data: string) => {
+const save_csv = async (_: Electron.IpcMainInvokeEvent, filename: string, data: string): Promise<ApiResponse<{ canceled: boolean; filePath?: string }>> => {
+    try {
+        const { filePath, canceled } = await dialog.showSaveDialog({
+            title: 'Save CSV File',
+            defaultPath: `${filename || 'export'}.csv`,
+            filters: [
+                { name: 'CSV Files', extensions: ['csv'] },
+                { name: 'All Files', extensions: ['*'] },
+            ],
+        });
 
-    const { filePath, canceled } = await dialog.showSaveDialog({
-        title: 'Save CSV File',
-        defaultPath: `${filename || 'export'}.csv`,
-        filters: [
-            { name: 'CSV Files', extensions: ['csv'] },
-            { name: 'All Files', extensions: ['*'] },
-        ],
-    });
+        if (canceled || !filePath) {
+            return successResponse({ canceled: true });
+        }
 
-    if (canceled || !filePath) return { canceled: true };
-
-    console.log('about to write file: ', filePath, 'with data: ', data);
-    await writeFile(filePath, data, 'utf-8');
-    console.log('just wrote file: ', filePath);
-    return { canceled: false, filePath };
+        console.log('about to write file: ', filePath, 'with data: ', data);
+        await writeFile(filePath, data, 'utf-8');
+        console.log('just wrote file: ', filePath);
+        return successResponse({ canceled: false, filePath });
+    } catch (error) {
+        console.error('Error saving CSV:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to save CSV file');
+    }
 };
 
 export { save_csv };

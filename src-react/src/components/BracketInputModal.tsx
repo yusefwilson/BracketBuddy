@@ -4,6 +4,8 @@ import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/
 import CompetitorInput from './CompetitorInput';
 import Dropdown from './Dropdown';
 import { CURRENT_STATE } from './App';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 interface BracketInputModalProps {
     setBracketModalOpen: (open: boolean) => void;
@@ -19,6 +21,7 @@ export default function BracketInputModal({ setBracketModalOpen }: BracketInputM
 
     const state = useContext(CURRENT_STATE);
     const { tournament, setTournament = () => { } } = state || {};
+    const { showError, ErrorToastContainer } = useErrorToast();
 
     const addCompetitor = async (name: string) => {
         setCompetitorNames([...competitorNames, name]);
@@ -30,13 +33,28 @@ export default function BracketInputModal({ setBracketModalOpen }: BracketInputM
 
     const onSubmit = async () => {
 
-        if (!tournament) throw new Error('Cannot create bracket without a tournament in state.');
+        if (!tournament) {
+            showError('Cannot create bracket without a tournament in state.');
+            return;
+        }
 
         // add bracket to tournament
-        const newTournament = await window.electron.addBracketToTournament({ tournamentId: tournament.id, brackets: [{ gender, experienceLevel, hand, weightLimit, competitorNames }] });
+        const [newTournament, error] = await safeApiCall(
+            window.electron.addBracketToTournament({
+                tournamentId: tournament.id,
+                brackets: [{ gender, experienceLevel, hand, weightLimit, competitorNames }]
+            })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
 
         // trigger refresh
-        setTournament(newTournament);
+        if (newTournament) {
+            setTournament(newTournament);
+        }
 
         // close modal
         setBracketModalOpen(false);
@@ -60,8 +78,10 @@ export default function BracketInputModal({ setBracketModalOpen }: BracketInputM
     }, []);
 
     return (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-            <div className='bg-slate-700 w-full max-w-lg p-6 rounded-xl shadow-lg flex flex-col gap-6 h-3/4 overflow-y-auto'>
+        <>
+            <ErrorToastContainer />
+            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+                <div className='bg-slate-700 w-full max-w-lg p-6 rounded-xl shadow-lg flex flex-col gap-6 h-3/4 overflow-y-auto'>
 
                 <h1 className='text-xl font-semibold text-white text-center'>Enter Bracket Info</h1>
 
@@ -184,7 +204,8 @@ export default function BracketInputModal({ setBracketModalOpen }: BracketInputM
                     </button>
                 </div>
 
+                </div>
             </div>
-        </div>
+        </>
     );
 }

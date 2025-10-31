@@ -25,14 +25,8 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
 
     // Add a new competitor
     const handleAdd = async () => {
-        const competitorNameToAdd = newName.trim()
-        // prevent empty names
-        if (competitorNameToAdd === '') return;
-        // prevent duplicate competitors
-        if (competitors.includes(competitorNameToAdd)) return;
-
         // add competitor
-        await addCompetitor(competitorNameToAdd);
+        await addCompetitor(newName);
         setNewName('');
     };
 

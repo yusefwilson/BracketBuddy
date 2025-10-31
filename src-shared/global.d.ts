@@ -13,33 +13,35 @@ import type {
   StartBracketInput,
   RandomizeCompetitorsInput,
   SaveKeyValueInput,
+  ConvertToAERSInput,
+  ApiResponse
 } from './types';
 
 declare global {
   interface Window {
     electron: {
       // tournament
-      loadAllTournaments: () => Promise<TournamentDTO[]>;
-      createTournament: (input: CreateTournamentInput) => Promise<TournamentDTO>;
-      deleteTournament: (input: DeleteTournamentInput) => Promise<void>;
-      addBracketToTournament: (input: AddBracketsToTournamentInput) => Promise<TournamentDTO>;
-      removeBracketFromTournament: (input: RemoveBracketFromTournamentInput) => Promise<TournamentDTO>;
+      loadAllTournaments: () => Promise<ApiResponse<TournamentDTO[]>>;
+      createTournament: (input: CreateTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      deleteTournament: (input: DeleteTournamentInput) => Promise<ApiResponse<void>>;
+      addBracketToTournament: (input: AddBracketsToTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      removeBracketFromTournament: (input: RemoveBracketFromTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // bracket
-      addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<TournamentDTO>;
-      removeCompetitorFromBracket: (input: RemoveCompetitorFromBracketInput) => Promise<TournamentDTO>;
-      startBracket: (input: StartBracketInput) => Promise<TournamentDTO>;
-      enterResult: (input: UpdateBracketInput) => Promise<TournamentDTO>;
-      randomizeCompetitors: (input: RandomizeCompetitorsInput) => Promise<TournamentDTO>;
+      addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<ApiResponse<TournamentDTO>>;
+      removeCompetitorFromBracket: (input: RemoveCompetitorFromBracketInput) => Promise<ApiResponse<TournamentDTO>>;
+      startBracket: (input: StartBracketInput) => Promise<ApiResponse<TournamentDTO>>;
+      enterResult: (input: UpdateBracketInput) => Promise<ApiResponse<TournamentDTO>>;
+      randomizeCompetitors: (input: RandomizeCompetitorsInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // misc
-      getSaveData: () => Promise<Record<string, any>>;
-      saveKeyValue: (input: SaveKeyValueInput) => Promise<Record<string, any>>;
+      getSaveData: () => Promise<ApiResponse<Record<string, any>>>;
+      saveKeyValue: (input: SaveKeyValueInput) => Promise<ApiResponse<Record<string, any>>>;
       openUrl: (url: string) => Promise<void>;
-      saveCsv: (data: string, filename: string) => Promise<{ canceled: boolean; filePath?: string }>;
+      saveCsv: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
 
       // aers
-      convertToAERS: (input: ConvertToAERSInput) => Promise<string>;
+      convertToAERS: (input: ConvertToAERSInput) => Promise<ApiResponse<string>>;
     };
   }
 }

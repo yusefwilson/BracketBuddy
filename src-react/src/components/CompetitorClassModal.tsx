@@ -2,6 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon } from '@heroicons/react/24/outline';
 import { BracketDTO } from '../../../src-shared/BracketDTO';
 import { CURRENT_STATE } from './App';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 interface CompetitorClassModalProps {
     competitorName: string;
@@ -11,6 +13,7 @@ interface CompetitorClassModalProps {
 export default function CompetitorClassModal({ competitorName, onClose }: CompetitorClassModalProps) {
     const state = useContext(CURRENT_STATE);
     const { tournament, setTournament = () => { } } = state || {};
+    const { showError, ErrorToastContainer } = useErrorToast();
 
     const [loading, setLoading] = useState(false);
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
@@ -48,41 +51,62 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
         try {
             const isCurrentlySelected = selectedBrackets.has(bracket.id);
 
-            let newTournament;
+            let result;
             if (isCurrentlySelected) {
                 // Remove competitor from bracket
-                newTournament = await window.electron.removeCompetitorFromBracket({
-                    tournamentId: tournament.id,
-                    bracketId: bracket.id,
-                    competitorName: competitorName
-                });
+                const [data, error] = await safeApiCall(
+                    window.electron.removeCompetitorFromBracket({
+                        tournamentId: tournament.id,
+                        bracketId: bracket.id,
+                        competitorName: competitorName
+                    })
+                );
 
+                if (error) {
+                    showError(error);
+                    return;
+                }
+
+                result = data;
                 const newSelected = new Set(selectedBrackets);
                 newSelected.delete(bracket.id);
                 setSelectedBrackets(newSelected);
             } else {
                 // Add competitor to bracket
-                newTournament = await window.electron.addCompetitorToBracket({
-                    tournamentId: tournament.id,
-                    bracketId: bracket.id,
-                    competitorName: competitorName
-                });
+                const [data, error] = await safeApiCall(
+                    window.electron.addCompetitorToBracket({
+                        tournamentId: tournament.id,
+                        bracketId: bracket.id,
+                        competitorName: competitorName
+                    })
+                );
 
+                if (error) {
+                    showError(error);
+                    return;
+                }
+
+                result = data;
                 const newSelected = new Set(selectedBrackets);
                 newSelected.add(bracket.id);
                 setSelectedBrackets(newSelected);
             }
 
-            setTournament(newTournament);
+            if (result) {
+                setTournament(result);
+            }
         } catch (error) {
             console.error('Error toggling bracket:', error);
+            showError('An unexpected error occurred');
         } finally {
             setLoading(false);
         }
     };
     
     return (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+        <>
+            <ErrorToastContainer />
+            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
             <div className='bg-slate-700 w-full max-w-3xl p-6 rounded-xl shadow-lg flex flex-col gap-4 max-h-[80vh] overflow-y-auto'>
 
                 <h1 className='text-2xl font-semibold text-white text-center'>
@@ -171,5 +195,6 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
                 </div>
             </div>
         </div>
+        </>
     );
 }

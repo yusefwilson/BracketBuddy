@@ -7,10 +7,13 @@ import { CURRENT_STATE } from '../components/App';
 import TournamentInfoCard from '../components/TournamentInfoCard';
 import TournamentInputModal from '../components/TournamentInputModal';
 import RemoveTournamentModal from '../components/RemoveTournamentModal';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 export default function Home() {
   const state = useContext(CURRENT_STATE);
   const navigate = useNavigate();
+  const { showError, ErrorToastContainer } = useErrorToast();
 
   const [allTournaments, setAllTournaments] = useState<TournamentDTO[]>();
   const [tournamentModalOpen, setTournamentModalOpen] = useState(false);
@@ -21,13 +24,20 @@ export default function Home() {
     const loadTournaments = async () => {
       console.log('Loading tournaments...');
       await new Promise(resolve => setTimeout(resolve, 100)); // 💀
-      const tournaments = await window.electron.loadAllTournaments();
+      const [tournaments, error] = await safeApiCall(window.electron.loadAllTournaments());
+
+      if (error) {
+        showError(error);
+        setAllTournaments([]);
+        return;
+      }
+
       console.log('Loaded tournaments:', tournaments);
-      setAllTournaments(tournaments);
+      setAllTournaments(tournaments || []);
     };
     console.log('Home page mounted');
     loadTournaments();
-  }, [tournamentModalOpen, removeTournamentModalOpen]);
+  }, [tournamentModalOpen, removeTournamentModalOpen, showError]);
 
   if (!allTournaments) {
     return (
@@ -36,7 +46,9 @@ export default function Home() {
   }
 
   return (
-    <div className='bg-slate-700 w-full text-white p-6 flex flex-col items-center h-full'>
+    <>
+      <ErrorToastContainer />
+      <div className='bg-slate-700 w-full text-white p-6 flex flex-col items-center h-full'>
 
       {/* Create Button */}
       <div className='w-full max-w-3xl flex justify-end mb-4'>
@@ -62,7 +74,15 @@ export default function Home() {
               onClick={async () => {
                 state?.setTournament(tournament);
                 // record this change in the save file
-                await window.electron.saveKeyValue({ key: 'lastTournamentIndex', value: index });
+                const [, error] = await safeApiCall(
+                  window.electron.saveKeyValue({ key: 'lastTournamentIndex', value: index })
+                );
+
+                if (error) {
+                  showError(error);
+                  return;
+                }
+
                 navigate('/tournament');
               }}
               onRemoveClick={() => {
@@ -82,5 +102,6 @@ export default function Home() {
         <RemoveTournamentModal setRemoveTournamentModalOpen={setRemoveTournamentModalOpen} tournamentToDelete={tournamentToDelete} />
       )}
     </div>
+    </>
   );
 }

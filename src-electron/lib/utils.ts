@@ -9,16 +9,6 @@ function greatestPowerOf2LessThanOrEqualTo(n: number): number {
 
 function isPowerOfTwo(n: number) { return n > 0 && (n & (n - 1)) === 0; };
 
-/* SAVE DATA */
-async function getSaveData(): Promise<Record<string, any>> {
-    const data = await window.electron.getSaveData();
-    return data;
-}
-
-async function saveKeyValue(key: string, value: any): Promise<void> {
-    await window.electron.saveKeyValue({ key, value });
-}
-
 /* SERIALIZATION AND DESERIALIZATION */
 import { parse, stringify } from 'flatted';
 
@@ -523,7 +513,6 @@ function shuffle<T>(array: T[]) {
 
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
-    getSaveData, saveKeyValue,
     serialize, deserialize,
     prepareMatches,
     shuffle

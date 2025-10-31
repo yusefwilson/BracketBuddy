@@ -1,6 +1,8 @@
 import { useContext, useEffect } from 'react';
 import { TournamentDTO } from '../../../src-shared/TournamentDTO';
 import { CURRENT_STATE } from './App';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 interface RemoveTournamentModalProps {
     setRemoveTournamentModalOpen: (open: boolean) => void;
@@ -10,6 +12,7 @@ interface RemoveTournamentModalProps {
 export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, tournamentToDelete, }: RemoveTournamentModalProps) {
     const state = useContext(CURRENT_STATE);
     const { tournament, setTournament = () => { } } = state || {};
+    const { showError, ErrorToastContainer } = useErrorToast();
 
     // close modal when escape key is pressed
     useEffect(() => {
@@ -27,8 +30,19 @@ export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, to
 
     // delete tournament from disk, clear state if necessary, and close modal
     const onDelete = async () => {
+        if (!tournamentToDelete?.id) {
+            showError('No tournament selected to delete');
+            return;
+        }
 
-        await window.electron.deleteTournament({ tournamentId: tournamentToDelete?.id || '' });
+        const [, error] = await safeApiCall(
+            window.electron.deleteTournament({ tournamentId: tournamentToDelete.id })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
 
         // clear state
         if (tournament?.id === tournamentToDelete?.id) {
@@ -39,8 +53,10 @@ export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, to
     };
 
     return (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-            <div className='bg-slate-700 w-full max-w-md p-6 rounded-xl shadow-lg flex flex-col gap-4'>
+        <>
+            <ErrorToastContainer />
+            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+                <div className='bg-slate-700 w-full max-w-md p-6 rounded-xl shadow-lg flex flex-col gap-4'>
 
                 <h1 className='text-white text-lg font-semibold text-center'>
                     Are you sure you want to delete{' '} <br />
@@ -62,7 +78,8 @@ export default function RemoveTournamentModal({ setRemoveTournamentModalOpen, to
                         Confirm Delete
                     </button>
                 </div>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

@@ -2,6 +2,8 @@ import { useState, useContext, useEffect } from 'react';
 import { UserIcon, AcademicCapIcon, HandRaisedIcon, PlusIcon, ScaleIcon } from '@heroicons/react/24/outline';
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
 import { CURRENT_STATE } from './App';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 interface BulkBracketInputModalProps {
     setBulkBracketModalOpen: (open: boolean) => void;
@@ -12,6 +14,7 @@ const defaultWeights: WeightLimit[] = [154, 165, 176, 187, 198, 220, 242, 'Super
 export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkBracketInputModalProps) {
     const state = useContext(CURRENT_STATE);
     const { tournament, setTournament = () => { } } = state || {};
+    const { showError, ErrorToastContainer } = useErrorToast();
 
     const [selectedGenders, setSelectedGenders] = useState<Gender[]>(['Male']);
     const [selectedExperienceLevels, setSelectedExperienceLevels] = useState<ExperienceLevel[]>(['Novice']);
@@ -48,15 +51,27 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
     );
 
     const onSubmit = async () => {
-        if (!tournament) throw new Error('Cannot create bracket without a tournament.');
+        if (!tournament) {
+            showError('Cannot create bracket without a tournament.');
+            return;
+        }
 
-        const newTournament = await window.electron.addBracketToTournament({
-            tournamentId: tournament.id,
-            brackets: resultingBrackets.map(b => ({ ...b, competitorNames: [] }))
-        });
+        const [data, error] = await safeApiCall(
+            window.electron.addBracketToTournament({
+                tournamentId: tournament.id,
+                brackets: resultingBrackets.map(b => ({ ...b, competitorNames: [] }))
+            })
+        );
 
-        setTournament(newTournament);
-        setBulkBracketModalOpen(false);
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (data) {
+            setTournament(data);
+            setBulkBracketModalOpen(false);
+        }
     };
 
     useEffect(() => {
@@ -71,7 +86,9 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
     const sortedWeights = [...weightOptions].sort((a, b) => (a === 'Superheavyweight' ? -1 : b === 'Superheavyweight' ? 1 : (a as number) - (b as number)));
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <>
+            <ErrorToastContainer />
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-slate-700 w-full max-w-6xl p-6 rounded-xl shadow-lg flex gap-6 h-3/4">
                 {/* Left Panel: Inputs */}
                 <div className="flex-1 flex flex-col gap-6 overflow-y-auto">
@@ -212,5 +229,6 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
                 </div>
             </div>
         </div>
+        </>
     );
 }

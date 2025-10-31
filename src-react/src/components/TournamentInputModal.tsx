@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { dateToLocalTimezoneString } from '../../../src-shared/utils';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 interface TournamentInputModalProps {
     setTournamentModalOpen: (open: boolean) => void;
@@ -9,6 +11,7 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
     const [name, setName] = useState('');
     const [date, setDate] = useState(new Date());
     const [error, setError] = useState('');
+    const { showError, ErrorToastContainer } = useErrorToast();
 
     const invalidChars = /[:<>:'/\\|?*]/g;
 
@@ -32,10 +35,17 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
             return;
         }
 
-        const allTournaments = await window.electron.loadAllTournaments();
+        const [allTournaments, tournamentsError] = await safeApiCall(
+            window.electron.loadAllTournaments()
+        );
+
+        if (tournamentsError) {
+            showError(tournamentsError);
+            return;
+        }
 
         // TODO: should this be some kind of id check instead?
-        if (allTournaments.some((t) => t.name === name)) {
+        if (allTournaments && allTournaments.some((t) => t.name === name)) {
             setError(`Tournament with name '${name}' already exists.`);
             return;
         }
@@ -45,7 +55,14 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
 
         // create and save tournament. TODO: does this update state? (probably)
         console.log('about to create tournament with name', name, 'and date', date);
-        await window.electron.createTournament({ name, date });
+        const [, createError] = await safeApiCall(
+            window.electron.createTournament({ name, date })
+        );
+
+        if (createError) {
+            showError(createError);
+            return;
+        }
 
         // close modal
         setTournamentModalOpen(false);
@@ -65,8 +82,10 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
     }, []);
 
     return (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-            <div className='bg-slate-700 w-full max-w-md rounded-xl p-6 shadow-lg flex flex-col gap-4'>
+        <>
+            <ErrorToastContainer />
+            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+                <div className='bg-slate-700 w-full max-w-md rounded-xl p-6 shadow-lg flex flex-col gap-4'>
 
                 <h1 className='text-xl font-semibold text-white text-center'>Enter Tournament Info</h1>
 
@@ -107,7 +126,8 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
                         Create Tournament
                     </button>
                 </div>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

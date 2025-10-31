@@ -96,10 +96,44 @@ interface SaveKeyValueInput {
     key: string;
     value: any;
 }
+
+// API Response types
+interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: ApiError;
+}
+
+interface ApiError {
+    message: string;
+    code?: string;
+    field?: string; // Optional field identifier for form validation errors
+}
+
+// Helper functions for creating responses
+export function successResponse<T>(data: T): ApiResponse<T> {
+    return {
+        success: true,
+        data
+    };
+}
+
+export function errorResponse(message: string, code?: string, field?: string): ApiResponse<never> {
+    return {
+        success: false,
+        error: {
+            message,
+            code,
+            field
+        }
+    };
+}
+
 export type {
     Gender, Hand, ExperienceLevel, WeightLimit,
     ExternalMatch, SlotCoordinates,
     UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, StartBracketInput, RandomizeCompetitorsInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
-    SaveKeyValueInput, ConvertToAERSInput
+    SaveKeyValueInput, ConvertToAERSInput,
+    ApiResponse, ApiError
 };

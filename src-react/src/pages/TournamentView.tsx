@@ -4,6 +4,8 @@ import BracketList from '../components/BracketList';
 import MassCompetitorInput from '../components/MassCompetitorInput';
 import FullCompetitorList from '../components/FullCompetitorList';
 import { CURRENT_STATE } from '../components/App';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
 import { dateToLocalTimezoneString } from '../../../src-shared/utils';
@@ -11,6 +13,7 @@ import { dateToLocalTimezoneString } from '../../../src-shared/utils';
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
   const { tournament } = state || {};
+  const { showError, ErrorToastContainer } = useErrorToast();
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'brackets' | 'mass-input' | 'competitor-list'>('brackets');
@@ -48,7 +51,9 @@ export default function TournamentView() {
   }
 
   return (
-    <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full">
+    <>
+      <ErrorToastContainer />
+      <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full">
       <h1 className="text-3xl font-bold text-white flex-shrink-0">
         Tournament: <span className="text-blue-400">{tournament?.name}</span>
       </h1>
@@ -74,13 +79,30 @@ export default function TournamentView() {
         </button>
         <button
           onClick={async () => {
-            const AERSData = await window.electron.convertToAERS({ tournamentId: tournament.id });
-            const { canceled, filePath } = await window.electron.saveCsv(`${tournament.name}_AERS`, AERSData);
+            const [AERSData, error] = await safeApiCall(
+              window.electron.convertToAERS({ tournamentId: tournament.id })
+            );
 
-            if (!canceled) {
-              console.log(`✅ Saved CSV to: ${filePath}`);
-            } else {
-              console.log('❌ Save canceled');
+            if (error) {
+              showError(error);
+              return;
+            }
+
+            if (AERSData) {
+              const [result, csvError] = await safeApiCall(
+                window.electron.saveCsv(`${tournament.name}_AERS`, AERSData)
+              );
+
+              if (csvError) {
+                showError(csvError);
+                return;
+              }
+
+              if (result && !result.canceled) {
+                console.log(`✅ Saved CSV to: ${result.filePath}`);
+              } else {
+                console.log('❌ Save canceled');
+              }
             }
           }}
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
@@ -104,5 +126,6 @@ export default function TournamentView() {
       )}
 
     </div>
+    </>
   );
 }

@@ -2,6 +2,8 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { createContext, useState, useEffect } from 'react';
 
 import { TournamentDTO } from '../../../src-shared/TournamentDTO';
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 import TournamentView from '../pages/TournamentView';
 import BracketView from '../pages/BracketView';
@@ -23,6 +25,7 @@ export default function App() {
 
   const [tournament, setTournament] = useState<TournamentDTO | null>(null);
   const [bracketIndex, setBracketIndex] = useState<number | null>(null);
+  const { showError, ErrorToastContainer } = useErrorToast();
 
   // Load latest tournament on mount
   useEffect(() => {
@@ -31,26 +34,37 @@ export default function App() {
 
       // load saved data from disk. Tournament class has static method to load all tournaments, and getSaveData() is a helper function to read the save file
       console.log('loading all tournaments');
-      const tournaments = await window.electron.loadAllTournaments();
-      const saveData = await window.electron.getSaveData();
+      const [tournaments, tournamentsError] = await safeApiCall(window.electron.loadAllTournaments());
+      const [saveData, saveDataError] = await safeApiCall(window.electron.getSaveData());
+
+      if (tournamentsError) {
+        showError(tournamentsError);
+        return;
+      }
+
+      if (saveDataError) {
+        showError(saveDataError);
+        return;
+      }
 
       console.log('Loaded tournaments:', tournaments);
       console.log('Loaded save data:', saveData);
 
-      const lastTournamentIndex = saveData.lastTournamentIndex || 0;
-      const lastBracketIndex = saveData.lastBracketIndex || 0;
+      const lastTournamentIndex = (saveData?.lastTournamentIndex || 0) as number;
+      const lastBracketIndex = (saveData?.lastBracketIndex || 0) as number;
 
-      const latestTournament = tournaments[lastTournamentIndex] || null;
+      const latestTournament = tournaments ? tournaments[lastTournamentIndex] || null : null;
 
       setTournament(latestTournament);
       setBracketIndex(lastBracketIndex);
     };
     console.log('App mounted');
     loadLatest();
-  }, []);
+  }, [showError]);
 
   return (
     <CURRENT_STATE.Provider value={{ tournament, bracketIndex, setTournament, setBracketIndex }}>
+      <ErrorToastContainer />
       <Router>
         <Navbar />
         <div className="text-white h-screen-navbar">
