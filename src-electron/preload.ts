@@ -56,6 +56,8 @@ contextBridge.exposeInMainWorld('electron', {
 
     openUrl: async (url: string) => ipcRenderer.invoke('open-url', url),
 
+    saveCsv: async (data: string, filename: string) => ipcRenderer.invoke('save-csv', data, filename),
+
     // aers
     convertToAERS: async (input: ConvertToAERSInput) => ipcRenderer.invoke('convert-to-AERS', input),
 });

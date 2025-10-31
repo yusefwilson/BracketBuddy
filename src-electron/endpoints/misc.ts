@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
 import type { SaveKeyValueInput } from '../../src-shared/types.js';
-import { shell } from 'electron';
+import { shell, dialog } from 'electron';
 
 /* MISC */
 
@@ -45,6 +45,28 @@ const ensure_save_environment = () => {
 const open_url = async (_: Electron.IpcMainInvokeEvent, url: string) => {
     await shell.openExternal(url);
 };
+
+
+const save_csv = async (_: Electron.IpcMainInvokeEvent, filename: string, data: string) => {
+
+    const { filePath, canceled } = await dialog.showSaveDialog({
+        title: 'Save CSV File',
+        defaultPath: `${filename || 'export'}.csv`,
+        filters: [
+            { name: 'CSV Files', extensions: ['csv'] },
+            { name: 'All Files', extensions: ['*'] },
+        ],
+    });
+
+    if (canceled || !filePath) return { canceled: true };
+
+    console.log('about to write file: ', filePath, 'with data: ', data);
+    await writeFile(filePath, data, 'utf-8');
+    console.log('just wrote file: ', filePath);
+    return { canceled: false, filePath };
+};
+
+export { save_csv };
 
 export {
     get_save_data,

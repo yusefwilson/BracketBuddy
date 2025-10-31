@@ -53,8 +53,14 @@ export default function TournamentView() {
         <button
           onClick={async () => {
             const AERSData = await window.electron.convertToAERS({ tournamentId: tournament.id });
-            //window.electron.openUrl('data:text/plain;charset=utf-8,' + encodeURIComponent(AERSData));
-            console.log('AERS data: \n', AERSData);
+            console.log('about to try to save data: ', AERSData, ' to file: ', `${tournament.name}_AERS`);
+            const { canceled, filePath } = await window.electron.saveCsv(`${tournament.name}_AERS`, AERSData);
+
+            if (!canceled) {
+              console.log(`✅ Saved CSV to: ${filePath}`);
+            } else {
+              console.log('❌ Save canceled');
+            }
           }}
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
           type="button"

@@ -36,6 +36,7 @@ declare global {
       getSaveData: () => Promise<Record<string, any>>;
       saveKeyValue: (input: SaveKeyValueInput) => Promise<Record<string, any>>;
       openUrl: (url: string) => Promise<void>;
+      saveCsv: (data: string, filename: string) => Promise<{ canceled: boolean; filePath?: string }>;
 
       // aers
       convertToAERS: (input: ConvertToAERSInput) => Promise<string>;
