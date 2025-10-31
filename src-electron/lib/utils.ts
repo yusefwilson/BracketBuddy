@@ -81,10 +81,8 @@ function deserialize(serialized: string, classMap: Record<string, new () => any>
 /* MATCHES */
 
 import Match from './Match.js';
-import { ExternalMatch } from '../../src-shared/types.js';
+import { ExperienceLevel, ExternalMatch, WeightLimit } from '../../src-shared/types.js';
 import { DoubleElimination } from 'tournament-pairings';
-
-
 
 function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } {
 

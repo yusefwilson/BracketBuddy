@@ -86,6 +86,9 @@ interface RemoveBracketFromTournamentInput {
     bracketId: string;
 }
 
+interface ConvertToAERSInput {
+    tournamentId: string;
+}
 
 // misc
 
@@ -98,5 +101,5 @@ export type {
     ExternalMatch, SlotCoordinates,
     UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, StartBracketInput, RandomizeCompetitorsInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
-    SaveKeyValueInput
+    SaveKeyValueInput, ConvertToAERSInput
 };

@@ -10,6 +10,7 @@ import type {
     StartBracketInput,
     RandomizeCompetitorsInput,
     SaveKeyValueInput,
+    ConvertToAERSInput
 } from '../src-shared/types.js';
 
 contextBridge.exposeInMainWorld('electron', {
@@ -54,4 +55,7 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.invoke('save-key-value', input),
 
     openUrl: async (url: string) => ipcRenderer.invoke('open-url', url),
+
+    // aers
+    convertToAERS: async (input: ConvertToAERSInput) => ipcRenderer.invoke('convert-to-AERS', input),
 });

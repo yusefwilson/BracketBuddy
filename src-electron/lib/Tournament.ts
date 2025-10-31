@@ -3,6 +3,7 @@ import Bracket from './Bracket.js';
 import Match from './Match.js';
 import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
 import { dateToLocalTimezoneString } from '../../src-shared/utils.js';
+import { exportTournamentToAERS } from './AERS.js';
 
 class Tournament {
 
@@ -64,6 +65,10 @@ class Tournament {
 
     getAllBrackets(): Bracket[] {
         return this.brackets;
+    }
+
+    exportToAERS(): string {
+        return exportTournamentToAERS(this);
     }
 }
 export default Tournament;

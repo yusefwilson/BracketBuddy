@@ -4,7 +4,7 @@ check();
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { app, BrowserWindow, ipcMain } from 'electron';
-import { load_all_tournaments, create_tournament, delete_tournament, add_brackets_to_tournament, remove_bracket_from_tournament } from './endpoints/tournament.js';
+import { load_all_tournaments, create_tournament, delete_tournament, add_brackets_to_tournament, remove_bracket_from_tournament, convert_to_AERS } from './endpoints/tournament.js';
 import { add_competitor_to_bracket, remove_competitor_from_bracket, start_bracket, update_bracket, randomize_competitors } from './endpoints/bracket.js';
 import { ensure_save_environment, get_save_data, save_key_value, get_constants, open_url } from './endpoints/misc.js';
 
@@ -58,6 +58,9 @@ ipcMain.handle('get-save-data', get_save_data);
 ipcMain.handle('save-key-value', save_key_value);
 ipcMain.handle('get-constants', get_constants);
 ipcMain.handle('open-url', open_url);
+
+// aers
+ipcMain.handle('convert-to-AERS', convert_to_AERS);
 
 const main = async () => {
     await app.whenReady();

@@ -50,6 +50,17 @@ export default function TournamentView() {
         >
           Switch View
         </button>
+        <button
+          onClick={async () => {
+            const AERSData = await window.electron.convertToAERS({ tournamentId: tournament.id });
+            //window.electron.openUrl('data:text/plain;charset=utf-8,' + encodeURIComponent(AERSData));
+            console.log('AERS data: \n', AERSData);
+          }}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
+          type="button"
+        >
+          Export To AERS
+        </button>
       </div>
 
       {/* Modals */}

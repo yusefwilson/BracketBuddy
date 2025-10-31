@@ -12,6 +12,7 @@ import type {
     DeleteTournamentInput,
     AddBracketsToTournamentInput,
     RemoveBracketFromTournamentInput,
+    ConvertToAERSInput
 } from '../../src-shared/types.js';
 
 /* TOURNAMENT */
@@ -81,6 +82,13 @@ const remove_bracket_from_tournament = async (_: Electron.IpcMainInvokeEvent, in
     return tournament.toDTO();
 };
 
+const convert_to_AERS = async (_: Electron.IpcMainInvokeEvent, input: ConvertToAERSInput): Promise<string> => {
+    const { tournamentId } = input;
+    const tournament = await load_tournament(_, tournamentId);
+    console.log('Exporting tournament ' + tournamentId + ' to AERS');
+    return tournament.exportToAERS();
+};
+
 /* HELPER FUNCTIONS */
 
 const load_tournament = async (_: Electron.IpcMainInvokeEvent, tournamentId: string): Promise<Tournament> => {
@@ -106,4 +114,5 @@ export {
     remove_bracket_from_tournament,
     load_tournament,
     save_tournament,
+    convert_to_AERS
 };

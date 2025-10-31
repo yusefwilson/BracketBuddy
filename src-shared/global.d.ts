@@ -36,6 +36,9 @@ declare global {
       getSaveData: () => Promise<Record<string, any>>;
       saveKeyValue: (input: SaveKeyValueInput) => Promise<Record<string, any>>;
       openUrl: (url: string) => Promise<void>;
+
+      // aers
+      convertToAERS: (input: ConvertToAERSInput) => Promise<string>;
     };
   }
 }

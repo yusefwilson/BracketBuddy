@@ -1,12 +1,12 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { createContext, useState, useEffect } from 'react';
 
-import Home from '../pages/Home';
-import Navbar from './Navbar';
-
 import { TournamentDTO } from '../../../src-shared/TournamentDTO';
+
 import TournamentView from '../pages/TournamentView';
 import BracketView from '../pages/BracketView';
+import Home from '../pages/Home';
+import Navbar from './Navbar';
 
 // this holds the current tournament and bracket that the user is viewing. all components that need to access the current tournament and bracket will use this context
 // react automatically triggers refreshes for components that consume this context when the context value changes
