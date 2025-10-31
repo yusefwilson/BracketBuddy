@@ -17,5 +17,18 @@ export function useErrorToast() {
     const removeError = useCallback((id: number) => {
         setErrors(prev => prev.filter(error => error.id !== id));
     }, []);
+
+    const ErrorToastContainer = useCallback(() => (
+        <>
+            {errors.map((error) => (
+                <ErrorToast
+                    key={error.id}
+                    message={error.message}
+                    onClose={() => removeError(error.id)}
+                />
+            ))}
+        </>
+    ), [errors, removeError]);
+
     return { showError, ErrorToastContainer };
 }
