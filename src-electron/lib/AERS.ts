@@ -6,7 +6,7 @@ import Tournament from './Tournament.js';
 import Bracket from './Bracket.js';
 import Match from './Match.js';
 
-function exportTournamentToAERS(tournament: Tournament): string {
+function convertTournamentToAERS(tournament: Tournament): string {
     const rows: string[] = [];
     const headers = [
         'ORDER', 'PULLER1', 'PULLER2', 'WINNER',
@@ -87,4 +87,4 @@ function escapeCSV(value: string | number | null | undefined): string {
     return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
 
-export { exportTournamentToAERS };
+export { convertTournamentToAERS };

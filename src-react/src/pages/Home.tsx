@@ -52,7 +52,33 @@ export default function Home() {
       <div className='bg-slate-700 w-full text-white p-6 flex flex-col items-center h-full'>
 
       {/* Create Button */}
-      <div className='w-full max-w-3xl flex justify-end mb-4'>
+      <div className='w-full max-w-3xl flex justify-end gap-3 mb-4'>
+        <button
+          className='bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-semibold transition duration-200'
+          onClick={async () => {
+            const [result, error] = await safeApiCall(
+              window.electron.importTournament({})
+            );
+
+            if (error) {
+              showError(error);
+              return;
+            }
+
+            if (result) {
+              console.log('✅ Imported tournament:', result.name);
+              // Reload tournaments list
+              const [tournaments, loadError] = await safeApiCall(window.electron.loadAllTournaments());
+              if (loadError) {
+                showError(loadError);
+              } else {
+                setAllTournaments(tournaments || []);
+              }
+            }
+          }}
+        >
+          Load Tournament
+        </button>
         <button
           className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-semibold transition duration-200'
           onClick={() => setTournamentModalOpen(true)}

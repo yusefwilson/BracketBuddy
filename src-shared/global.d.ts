@@ -13,7 +13,9 @@ import type {
   StartBracketInput,
   RandomizeCompetitorsInput,
   SaveKeyValueInput,
-  ConvertToAERSInput,
+  ExportToAERSInput,
+  ExportTournamentInput,
+  ImportTournamentInput,
   ApiResponse
 } from './types';
 
@@ -26,6 +28,8 @@ declare global {
       deleteTournament: (input: DeleteTournamentInput) => Promise<ApiResponse<void>>;
       addBracketToTournament: (input: AddBracketsToTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
       removeBracketFromTournament: (input: RemoveBracketFromTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      exportTournament: (input: ExportTournamentInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      importTournament: (input: ImportTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // bracket
       addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<ApiResponse<TournamentDTO>>;
@@ -39,9 +43,11 @@ declare global {
       saveKeyValue: (input: SaveKeyValueInput) => Promise<ApiResponse<Record<string, any>>>;
       openUrl: (url: string) => Promise<void>;
       saveCsv: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      saveFile: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      loadFile: (fileExtension: string) => Promise<ApiResponse<{ canceled: boolean; data?: string; filePath?: string }>>;
 
       // aers
-      convertToAERS: (input: ConvertToAERSInput) => Promise<ApiResponse<string>>;
+      exportToAERS: (input: ExportToAERSInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
     };
   }
 }

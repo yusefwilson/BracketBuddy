@@ -18,7 +18,6 @@ export default function TournamentView() {
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'brackets' | 'mass-input' | 'competitor-list'>('brackets');
-  const [refreshTick, setRefreshTick] = useState(0);
 
   const cycleView = () => {
     if (currentView === 'brackets') {
@@ -55,47 +54,37 @@ export default function TournamentView() {
     <>
       <ErrorToastContainer />
       <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full overflow-y-auto">
-      <h1 className="text-3xl font-bold text-white flex-shrink-0">
-        Tournament: <span className="text-blue-400">{tournament?.name}</span>
-      </h1>
-      <h2 className="text-lg text-gray-300 flex-shrink-0">
-        Date: <span className="font-semibold">{dateToLocalTimezoneString(tournament?.date)}</span>
-      </h2>
+        <h1 className="text-3xl font-bold text-white flex-shrink-0">
+          Tournament: <span className="text-blue-400">{tournament?.name}</span>
+        </h1>
+        <h2 className="text-lg text-gray-300 flex-shrink-0">
+          Date: <span className="font-semibold">{dateToLocalTimezoneString(tournament?.date)}</span>
+        </h2>
 
-      {/* Buttons to open modals */}
-      <div className="flex gap-4 flex-shrink-0">
-        <button
-          onClick={() => setBulkBracketModalOpen(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-          type="button"
-        >
-          Add Brackets
-        </button>
-        <button
-          onClick={cycleView}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-          type="button"
-        >
-          {getViewButtonText()}
-        </button>
-        <button
-          onClick={async () => {
-            const [AERSData, error] = await safeApiCall(
-              window.electron.convertToAERS({ tournamentId: tournament.id })
-            );
-
-            if (error) {
-              showError(error);
-              return;
-            }
-
-            if (AERSData) {
-              const [result, csvError] = await safeApiCall(
-                window.electron.saveCsv(`${tournament.name}_AERS`, AERSData)
+        {/* Buttons to open modals */}
+        <div className="flex gap-4 flex-shrink-0">
+          <button
+            onClick={() => setBulkBracketModalOpen(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
+            type="button"
+          >
+            Add Brackets
+          </button>
+          <button
+            onClick={cycleView}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
+            type="button"
+          >
+            {getViewButtonText()}
+          </button>
+          <button
+            onClick={async () => {
+              const [result, error] = await safeApiCall(
+                window.electron.exportToAERS({ tournamentId: tournament.id })
               );
 
-              if (csvError) {
-                showError(csvError);
+              if (error) {
+                showError(error);
                 return;
               }
 
@@ -105,28 +94,50 @@ export default function TournamentView() {
                 console.log('❌ Save canceled');
               }
             }
-          }}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-          type="button"
-        >
-          Export To AERS
-        </button>
+            }
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
+            type="button"
+          >
+            Export To AERS
+          </button>
+          <button
+            onClick={async () => {
+              const [result, error] = await safeApiCall(
+                window.electron.exportTournament({ tournamentId: tournament.id })
+              );
+
+              if (error) {
+                showError(error);
+                return;
+              }
+
+              if (result && !result.canceled) {
+                console.log(`✅ Saved tournament to: ${result.filePath}`);
+              } else {
+                console.log('❌ Save canceled');
+              }
+            }}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
+            type="button"
+          >
+            Export To File
+          </button>
+        </div>
+
+        {/* Modals */}
+        {bulkBracketModalOpen && (
+          <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
+        )}
+
+        {currentView === 'mass-input' ? (
+          <MassCompetitorInput />
+        ) : currentView === 'competitor-list' ? (
+          <FullCompetitorList />
+        ) : (
+          <BracketList />
+        )}
+
       </div>
-
-      {/* Modals */}
-      {bulkBracketModalOpen && (
-        <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
-      )}
-
-      {currentView === 'mass-input' ? (
-        <MassCompetitorInput />
-      ) : currentView === 'competitor-list' ? (
-        <FullCompetitorList />
-      ) : (
-        <BracketList onBracketRemoved={() => setRefreshTick(refreshTick + 1)} />
-      )}
-
-    </div>
     </>
   );
 }

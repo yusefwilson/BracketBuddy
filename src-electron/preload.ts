@@ -11,7 +11,8 @@ import type {
     StartBracketInput,
     RandomizeCompetitorsInput,
     SaveKeyValueInput,
-    ConvertToAERSInput
+    ExportToAERSInput,
+    ExportTournamentInput,
 } from '../src-shared/types.js';
 
 contextBridge.exposeInMainWorld('electron', {
@@ -32,6 +33,12 @@ contextBridge.exposeInMainWorld('electron', {
 
     removeBracketFromTournament: async (input: RemoveBracketFromTournamentInput) =>
         ipcRenderer.invoke('remove-bracket-from-tournament', input),
+
+    exportTournament: async (input: ExportTournamentInput) =>
+        ipcRenderer.invoke('export-tournament', input),
+
+    importTournament: async () =>
+        ipcRenderer.invoke('import-tournament'),
 
     // bracket
     enterResult: async (input: UpdateBracketInput) =>
@@ -57,8 +64,12 @@ contextBridge.exposeInMainWorld('electron', {
 
     openUrl: async (url: string) => ipcRenderer.invoke('open-url', url),
 
-    saveCsv: async (filename: string, data: string) => ipcRenderer.invoke('save-csv', filename, data),
+    saveFile: async (filename: string, data: string) =>
+        ipcRenderer.invoke('save-file', filename, data),
+
+    loadFile: async (fileExtension: string) =>
+        ipcRenderer.invoke('load-file', fileExtension),
 
     // aers
-    convertToAERS: async (input: ConvertToAERSInput) => ipcRenderer.invoke('convert-to-AERS', input),
+    exportToAERS: async (input: ExportToAERSInput) => ipcRenderer.invoke('export-to-AERS', input),
 });

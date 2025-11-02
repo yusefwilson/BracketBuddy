@@ -7,7 +7,8 @@ import type {
     DeleteTournamentInput,
     AddBracketsToTournamentInput,
     RemoveBracketFromTournamentInput,
-    ConvertToAERSInput,
+    ExportToAERSInput,
+    ExportTournamentInput,
     ApiResponse
 } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
@@ -16,6 +17,8 @@ import Tournament from '../lib/Tournament.js';
 import Bracket from '../lib/Bracket.js';
 
 import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
+import { save_file, load_file } from './misc.js';
+import { error } from 'node:console';
 
 const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<ApiResponse<TournamentDTO[]>> => {
     try {
@@ -56,13 +59,16 @@ const create_tournament = async (_: Electron.IpcMainInvokeEvent, input: CreateTo
     }
 };
 
-const delete_tournament = async (_: Electron.IpcMainInvokeEvent, input: DeleteTournamentInput): Promise<ApiResponse<void>> => {
+const delete_tournament = async (_: Electron.IpcMainInvokeEvent, input: DeleteTournamentInput): Promise<ApiResponse<string>> => {
     try {
         const { tournamentId } = input;
+
         const filePath = path.join(SAVE_DIR, tournamentId + '.json');
         await rename(filePath, filePath + '.deleted');
+
         console.log('Deleted tournament ' + tournamentId);
-        return successResponse(undefined);
+        return successResponse('success');
+
     } catch (error) {
         console.error('Error deleting tournament:', error);
         return errorResponse('Failed to delete tournament. Please try again.');
@@ -111,12 +117,13 @@ const remove_bracket_from_tournament = async (_: Electron.IpcMainInvokeEvent, in
     }
 };
 
-const convert_to_AERS = async (_: Electron.IpcMainInvokeEvent, input: ConvertToAERSInput): Promise<ApiResponse<string>> => {
+const export_to_AERS = async (_: Electron.IpcMainInvokeEvent, input: ExportToAERSInput): Promise<ApiResponse<{ canceled: boolean; filePath?: string }>> => {
     try {
         const { tournamentId } = input;
         const tournament = await load_tournament(_, tournamentId);
         console.log('Exporting tournament ' + tournamentId + ' to AERS');
-        return successResponse(tournament.exportToAERS());
+        const convertedAERSData = tournament.convertToAERS();
+        return await save_file(_, `${tournament.name} - AERS.csv`, convertedAERSData);
     } catch (error) {
         console.error('Error exporting to AERS:', error);
         return errorResponse('Failed to export tournament. Please try again.');
@@ -138,6 +145,44 @@ const save_tournament = async (_: Electron.IpcMainInvokeEvent, tournament: Tourn
     console.log('Saved tournament ' + tournamentId + ' to file ' + filePath);
 };
 
+const export_tournament = async (_: Electron.IpcMainInvokeEvent, input: ExportTournamentInput): Promise<ApiResponse<{ canceled: boolean; filePath?: string }>> => {
+    try {
+        const { tournamentId } = input;
+        const tournament = await load_tournament(_, tournamentId);
+        const serializedData = tournament.serialize();
+
+        return await save_file(_, `${tournament.name}.bb`, serializedData);
+    } catch (error) {
+        console.error('Error exporting tournament:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to export tournament');
+    }
+};
+
+const import_tournament = async (_: Electron.IpcMainInvokeEvent): Promise<ApiResponse<TournamentDTO | null>> => {
+    try {
+        const loadResult = await load_file(_, 'bb');
+
+        if (!loadResult.success || !loadResult.data) {
+            return errorResponse('Failed to load tournament files');
+        }
+
+        if (loadResult.data.canceled) {
+            return successResponse(null); // User canceled
+        }
+
+        const tournament = Tournament.deserialize(loadResult.data.data!);
+
+        // Save the imported tournament to the internal storage
+        await save_tournament(_, tournament);
+
+        console.log('Imported tournament ' + tournament.id);
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error importing tournament:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to import tournament');
+    }
+};
+
 export {
     load_all_tournaments,
     create_tournament,
@@ -146,5 +191,7 @@ export {
     remove_bracket_from_tournament,
     load_tournament,
     save_tournament,
-    convert_to_AERS
+    export_to_AERS,
+    export_tournament,
+    import_tournament
 };

@@ -7,11 +7,7 @@ import { useErrorToast } from '../hooks/useErrorToast';
 import { CURRENT_STATE } from './App';
 import BracketInfoCard from './BracketInfoCard';
 
-interface BracketListProps {
-    onBracketRemoved: () => void;
-}
-
-export default function BracketList({ onBracketRemoved }: BracketListProps) {
+export default function BracketList() {
     const state = useContext(CURRENT_STATE);
     const { tournament, setBracketIndex = () => { }, setTournament = () => { } } = state || {};
     const navigate = useNavigate();
@@ -58,7 +54,6 @@ export default function BracketList({ onBracketRemoved }: BracketListProps) {
 
                                 if (data) {
                                     setTournament(data);
-                                    onBracketRemoved();
                                 }
                             }}
                         />

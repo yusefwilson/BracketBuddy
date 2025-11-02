@@ -61,15 +61,10 @@ const open_url = async (_: Electron.IpcMainInvokeEvent, url: string) => {
 };
 
 
-const save_csv = async (_: Electron.IpcMainInvokeEvent, filename: string, data: string): Promise<ApiResponse<{ canceled: boolean; filePath?: string }>> => {
+const save_file = async (_: Electron.IpcMainInvokeEvent, filename: string, data: string): Promise<ApiResponse<{ canceled: boolean; filePath?: string }>> => {
     try {
         const { filePath, canceled } = await dialog.showSaveDialog({
-            title: 'Save CSV File',
-            defaultPath: `${filename || 'export'}.csv`,
-            filters: [
-                { name: 'CSV Files', extensions: ['csv'] },
-                { name: 'All Files', extensions: ['*'] },
-            ],
+            defaultPath: filename || 'export',
         });
 
         if (canceled || !filePath) {
@@ -81,12 +76,37 @@ const save_csv = async (_: Electron.IpcMainInvokeEvent, filename: string, data: 
         console.log('just wrote file: ', filePath);
         return successResponse({ canceled: false, filePath });
     } catch (error) {
-        console.error('Error saving CSV:', error);
-        return errorResponse(error instanceof Error ? error.message : 'Failed to save CSV file');
+        console.error('Error saving file:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to save file');
     }
 };
 
-export { save_csv };
+const load_file = async (_: Electron.IpcMainInvokeEvent, fileExtension: string): Promise<ApiResponse<{ canceled: boolean; data?: string; filePath?: string }>> => {
+    try {
+        const { filePaths, canceled } = await dialog.showOpenDialog({
+            filters: [
+                { name: 'Files', extensions: [fileExtension] },
+                { name: 'All Files', extensions: ['*'] },
+            ],
+            properties: ['openFile'],
+        });
+
+        if (canceled || !filePaths || filePaths.length === 0) {
+            return successResponse({ canceled: true });
+        }
+
+        const filePath = filePaths[0];
+        console.log('about to read file: ', filePath);
+        const data = await readFile(filePath, 'utf-8');
+        console.log('just read file: ', filePath);
+        return successResponse({ canceled: false, data, filePath });
+    } catch (error) {
+        console.error('Error loading file:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to load file');
+    }
+};
+
+export { save_file, load_file };
 
 export {
     get_save_data,

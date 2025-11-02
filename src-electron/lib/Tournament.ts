@@ -4,7 +4,7 @@ import { dateToLocalTimezoneString } from '../../src-shared/utils.js';
 import Bracket from './Bracket.js';
 import Match from './Match.js';
 import { serialize, deserialize } from './utils.js';
-import { exportTournamentToAERS } from './AERS.js';
+import { convertTournamentToAERS } from './AERS.js';
 
 class Tournament {
 
@@ -68,8 +68,8 @@ class Tournament {
         return this.brackets;
     }
 
-    exportToAERS(): string {
-        return exportTournamentToAERS(this);
+    convertToAERS(): string {
+        return convertTournamentToAERS(this);
     }
 }
 export default Tournament;
