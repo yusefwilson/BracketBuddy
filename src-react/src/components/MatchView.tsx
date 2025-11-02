@@ -5,7 +5,6 @@ import WinnerCheckbox from './WinnerCheckbox';
 
 interface MatchViewProps {
     match: MatchDTO;
-    updateMatch: (matchId: string, winner: number) => void;
     updateMatch: (matchId: string, status: MatchStatus) => void;
     x: number;
     y: number;
