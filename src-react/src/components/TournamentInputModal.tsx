@@ -74,6 +74,8 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 setTournamentModalOpen(false);
+            } else if (event.key === 'Enter') {
+                onSubmit();
             }
         };
 
@@ -81,7 +83,7 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, []);
+    }, [onSubmit, setTournamentModalOpen]);
 
     return (
         <>
