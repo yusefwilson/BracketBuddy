@@ -6,6 +6,8 @@ type ExperienceLevel = 'Youth' | 'Novice' | 'Amateur' | 'Semipro' | 'Pro' | 'Mas
 
 type WeightLimit = number | 'Superheavyweight';
 
+type MatchStatus = 'UNDECIDED' | 'PLAYER_1_WON' | 'PLAYER_2_WON' | 'PLAYER_1_DROPOUT' | 'PLAYER_2_DROPOUT';
+
 type ExternalMatch = {
     round: number,
     match: number,
@@ -34,7 +36,7 @@ interface UpdateBracketInput {
     tournamentId: string;
     bracketId: string;
     matchId: string;
-    winner: number;
+    status: MatchStatus;
 }
 
 interface AddCompetitorToBracketInput {
@@ -115,7 +117,7 @@ interface ApiError {
 }
 
 export type {
-    Gender, Hand, ExperienceLevel, WeightLimit,
+    Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus,
     ExternalMatch, SlotCoordinates,
     UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, StartBracketInput, RandomizeCompetitorsInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,

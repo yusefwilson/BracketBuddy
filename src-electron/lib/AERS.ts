@@ -71,10 +71,12 @@ function getConsecutiveDecided(matches: Match[]): Match[] {
     const sortedMatches = [...matches].sort((a, b) => a.number - b.number);
 
     for (const match of sortedMatches) {
+
         if (match.isDecided()) {
-            result.push(match);
+            // Only include matches that are decided AND not dropouts
+            if (match.status !== 'PLAYER_1_DROPOUT' && match.status !== 'PLAYER_2_DROPOUT') { result.push(match); }
         } else {
-            break; // stop at first undecided or incomplete
+            break; // stop at first undecided
         }
     }
 

@@ -11,6 +11,7 @@ import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 import FinalPlacings from '../components/FinalPlacings';
 import BracketHotSwapBar from '../components/BracketHotSwapBar';
+import { MatchStatus } from '@shared/types';
 
 export default function BracketView() {
   const state = useContext(CURRENT_STATE);
@@ -46,13 +47,13 @@ export default function BracketView() {
     );
   }
 
-  const updateMatch = async (matchId: string, winner: number): Promise<void> => {
+  const updateMatch = async (matchId: string, status: MatchStatus): Promise<void> => {
     const [newTournament, error] = await safeApiCall(
       window.electron.enterResult({
         tournamentId: bracket.tournamentId,
         bracketId: bracket.id,
         matchId: matchId.toString(),
-        winner
+        status
       })
     );
 

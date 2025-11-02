@@ -13,19 +13,19 @@ import { load_tournament, save_tournament } from './tournament.js';
 
 const update_bracket = async (_: Electron.IpcMainInvokeEvent, input: UpdateBracketInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketId, matchId, winner } = input;
+        const { tournamentId, bracketId, matchId, status } = input;
 
         console.log('tournamentId: ', tournamentId);
         console.log('bracketId: ', bracketId);
         console.log('matchId: ', matchId);
-        console.log('winner: ', winner);
+        console.log('status: ', status);
 
         const tournament = await load_tournament(_, tournamentId);
         const bracket = tournament.getBracket(bracketId);
 
         if (!bracket) return errorResponse('Bracket not found. It may have been deleted.');
 
-        bracket.updateMatchById(matchId, winner);
+        bracket.updateMatchById(matchId, status);
         await save_tournament(_, tournament);
 
         return successResponse(tournament.toDTO());

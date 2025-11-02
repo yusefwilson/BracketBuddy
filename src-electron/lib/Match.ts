@@ -1,7 +1,7 @@
 import util from 'util';
 
 import { MatchDTO } from '../../src-shared/MatchDTO.js';
-import { SlotCoordinates } from '../../src-shared/types.js';
+import { SlotCoordinates, MatchStatus } from '../../src-shared/types.js';
 
 class Match {
 
@@ -13,7 +13,7 @@ class Match {
     match: number
     player1: string | null
     player2: string | null
-    winner: number // 1 if player1 won, 2 if player2 won, -1 if it is undecided
+    status: MatchStatus
     win?: SlotCoordinates
     loss?: SlotCoordinates
     winChild?: Match
@@ -24,7 +24,7 @@ class Match {
     slot2PreviouslyWinner?: boolean
 
     constructor(id: string = '', number: number = -1, round: number = -1, match: number = -1, player1: string | null = null, player2: string | null = null,
-        winner: number = -1, win?: SlotCoordinates, loss?: SlotCoordinates) {
+        status: MatchStatus = 'UNDECIDED', win?: SlotCoordinates, loss?: SlotCoordinates) {
 
         this.id = id;
         this.number = number;
@@ -32,14 +32,14 @@ class Match {
         this.match = match;
         this.player1 = player1;
         this.player2 = player2;
-        this.winner = winner;
+        this.status = status;
         this.win = win;
         this.loss = loss;
     }
 
     // for now, a match can only be decided if it has been filled
     isDecided() {
-        return this.winner !== -1 && this.player1 !== null && this.player2 !== null;
+        return this.status !== 'UNDECIDED' && this.player1 !== null && this.player2 !== null;
     }
 
     getGenericWinner() {
@@ -57,7 +57,11 @@ class Match {
         }
 
         // assert that player1 and player2 are not null because we passed isDecided() check
-        return this.winner === 1 ? this.player1 as string : this.player2 as string;
+        if (this.status === 'PLAYER_1_WON' || this.status === 'PLAYER_2_DROPOUT') {
+            return this.player1 as string;
+        } else {
+            return this.player2 as string;
+        }
     }
 
     getLosingPlayer() {
@@ -66,11 +70,15 @@ class Match {
             throw new Error('Match ' + this.id + ' is undecided: ');
         }
         // assert that player1 and player2 are not null because we passed isDecided() check
-        return this.winner === 1 ? this.player2 as string : this.player1 as string;
+        if (this.status === 'PLAYER_1_WON' || this.status === 'PLAYER_2_DROPOUT') {
+            return this.player2 as string;
+        } else {
+            return this.player1 as string;
+        }
     }
 
-    getWinner() {
-        return this.winner;
+    getStatus() {
+        return this.status;
     }
 
     toDTO(): MatchDTO {
@@ -88,7 +96,7 @@ class Match {
             number: this.number,
             player1: this.player1,
             player2: this.player2,
-            winner: this.winner,
+            status: this.status,
             win: this.win,
             loss: this.loss,
             slot1GenericName: slot1GenericName,
@@ -108,23 +116,24 @@ class Match {
         }
     }
 
-    // update the winner of this match and then trigger a recursive update of all children matches' player names
-    updateWinner(winner: number) {
+    // update the status of this match and then trigger a recursive update of all children matches' player names
+    updateStatus(status: MatchStatus) {
 
-        console.log('updating winner of match ' + this.id + ' to ' + winner);
+        console.log('updating status of match ' + this.id + ' to ' + status);
 
-        // winner must be -1, 1, or 2
-        if (winner !== -1 && winner !== 1 && winner !== 2) {
-            throw new Error('Winner must be -1, 1, or 2');
+        // validate status
+        const validStatuses: MatchStatus[] = ['UNDECIDED', 'PLAYER_1_WON', 'PLAYER_2_WON', 'PLAYER_1_DROPOUT', 'PLAYER_2_DROPOUT'];
+        if (!validStatuses.includes(status)) {
+            throw new Error('Invalid status: ' + status);
         }
 
-        // make sure that winner can only be updated if match is filled
+        // make sure that status can only be updated if match is filled
         if (this.player1 === null || this.player2 === null) {
             throw new Error('Match cannot be updated because it is not filled');
         }
 
-        console.log('updating winner of match ' + this.id + ' to ' + winner);
-        this.winner = winner;
+        console.log('updating status of match ' + this.id + ' to ' + status);
+        this.status = status;
 
         if (this.winChild) {
             //console.log('updating winner child which has id ' + this.winnerChild.id);
@@ -158,11 +167,11 @@ class Match {
 
         // if the parent match exist and has not been decided, then make the player of this match null
         if (this.slot1Parent && !this.slot1Parent.isDecided()) {
-            this.winner = -1;
+            this.status = 'UNDECIDED';
             this.player1 = null;
         }
         if (this.slot2Parent && !this.slot2Parent.isDecided()) {
-            this.winner = -1;
+            this.status = 'UNDECIDED';
             this.player2 = null;
         }
 
@@ -184,7 +193,7 @@ class Match {
             number: this.number,
             player1: this.player1,
             player2: this.player2,
-            winner: this.winner,
+            status: this.status,
             win: formatLink(this.win),
             loss: formatLink(this.loss),
             slot1Parent: this.slot1Parent ? `Match ${this.slot1Parent.round}-${this.slot1Parent.match}` : null,

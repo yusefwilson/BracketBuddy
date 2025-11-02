@@ -1,19 +1,22 @@
 import { MatchDTO } from '../../../src-shared/MatchDTO';
+import { MatchStatus } from '../../../src-shared/types';
 
 import WinnerCheckbox from './WinnerCheckbox';
 
 interface MatchViewProps {
     match: MatchDTO;
     updateMatch: (matchId: string, winner: number) => void;
+    updateMatch: (matchId: string, status: MatchStatus) => void;
     x: number;
     y: number;
     currentMatchId?: number;
 }
 
 export default function MatchView({ match, updateMatch, x, y, currentMatchId, }: MatchViewProps) {
-    const toggleWinner = (newWinner: number) => {
-        const updatedWinner = match.winner === newWinner ? -1 : newWinner;
-        updateMatch(match.id, updatedWinner);
+
+    // toggle between statuses and UNDECIDED
+    const toggleStatus = (status: MatchStatus) => {
+        updateMatch(match.id, match.status === status ? 'UNDECIDED' : status);
     };
 
     // highlight the match yellow if it is the current match, gray if it is stale
@@ -23,7 +26,7 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId, }:
     if (currentMatchId === undefined) {
         stale = false;
     }
-    else if (match.number < currentMatchId && match.winner === -1) {
+    else if (match.number < currentMatchId && match.status === 'UNDECIDED') {
         stale = true;
     }
     else {
@@ -51,17 +54,17 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId, }:
                     <h3 className='text-center font-bold w-8'>{match.number}.</h3>
                 </div>
                 <div className='flex flex-col gap-2'>
-                    <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleWinner(1)}>
+                    <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleStatus('PLAYER_1_WON')}>
                         <div className='text-sm truncate w-0 flex-1'>
                             {match.player1 || match.slot1GenericName}
                         </div>
-                        <WinnerCheckbox toggleWinner={() => toggleWinner(1)} checked={match.winner === 1} />
+                        <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_1_WON')} checked={match.status === 'PLAYER_1_WON' || match.status === 'PLAYER_2_DROPOUT'} />
                     </div>
-                    <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleWinner(2)}>
+                    <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleStatus('PLAYER_2_WON')}>
                         <div className='text-sm truncate w-0 flex-1'>
                             {match.player2 || match.slot2GenericName}
                         </div>
-                        <WinnerCheckbox toggleWinner={() => toggleWinner(2)} checked={match.winner === 2} />
+                        <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_2_WON')} checked={match.status === 'PLAYER_2_WON' || match.status === 'PLAYER_1_DROPOUT'} />
                     </div>
                 </div>
             </div>

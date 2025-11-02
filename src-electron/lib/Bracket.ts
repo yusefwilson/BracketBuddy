@@ -1,5 +1,5 @@
 import { BracketDTO } from '../../src-shared/BracketDTO.js';
-import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus } from '../../src-shared/types.js';
 
 import Match from './Match.js';
 import Tournament from './Tournament.js';
@@ -94,9 +94,9 @@ class Bracket {
         shuffle(this.competitorNames);
     }
 
-    updateMatchById(matchId: string, winner: number) {
+    updateMatchById(matchId: string, status: MatchStatus) {
         const matchToBeUpdated = this.findMatchById(matchId);
-        matchToBeUpdated.updateWinner(winner);
+        matchToBeUpdated.updateStatus(status);
     }
 
     findMatchById(matchId: string): Match {
@@ -241,7 +241,7 @@ class Bracket {
 
         const sortedMatches = matches.sort((a, b) => a.number - b.number);
         for (let match of sortedMatches) {
-            if (match.winner === -1) {
+            if (match.status === 'UNDECIDED') {
                 return match.number;
             }
         }

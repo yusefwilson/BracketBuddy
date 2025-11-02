@@ -40,6 +40,7 @@ function rehydrate(data: any, classMap: Record<string, new () => any>, cache = n
                 (instance as any)[key] = rehydrate(data[key], classMap, cache);
             }
         });
+
         return instance;
     }
 
@@ -119,13 +120,13 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
 const prepareMatchesForSpecialLowNumbers = (competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } => {
 
     if (competitorNames.length === 2) {
-        const match1 = new Match('1-1', 1, 1, 1, competitorNames[0], competitorNames[1], -1,
+        const match1 = new Match('1-1', 1, 1, 1, competitorNames[0], competitorNames[1], 'UNDECIDED',
             { round: 2, match: 1, slot: 1 }, { round: 2, match: 1, slot: 2 });
 
-        const final = new Match('2-1', 2, 2, 1, null, null, -1,
+        const final = new Match('2-1', 2, 2, 1, null, null, 'UNDECIDED',
             { round: 3, match: 1, slot: 1 }, { round: 3, match: 1, slot: 2 });
 
-        const finalRematch = new Match('3-1', 3, 3, 1, null, null, -1);
+        const finalRematch = new Match('3-1', 3, 3, 1, null, null, 'UNDECIDED');
 
         // set up parent child links
         finalRematch.slot1Parent = final;
@@ -146,19 +147,19 @@ const prepareMatchesForSpecialLowNumbers = (competitorNames: string[]): { winner
     }
 
     else if (competitorNames.length === 3) {
-        const match1 = new Match('1-1', 1, 1, 1, competitorNames[0], competitorNames[1], -1,
+        const match1 = new Match('1-1', 1, 1, 1, competitorNames[0], competitorNames[1], 'UNDECIDED',
             { round: 2, match: 1, slot: 1 }, { round: 4, match: 1, slot: 1 });
 
-        const match2 = new Match('2-1', 2, 2, 1, competitorNames[2], null, -1,
+        const match2 = new Match('2-1', 2, 2, 1, competitorNames[2], null, 'UNDECIDED',
             { round: 3, match: 1, slot: 1 }, { round: 4, match: 1, slot: 2 });
 
-        const match3 = new Match('4-1', 3, 4, 1, null, null, -1,
+        const match3 = new Match('4-1', 3, 4, 1, null, null, 'UNDECIDED',
             { round: 3, match: 1, slot: 2 });
 
-        const final = new Match('3-1', 4, 3, 1, null, null, -1,
+        const final = new Match('3-1', 4, 3, 1, null, null, 'UNDECIDED',
             { round: 5, match: 1, slot: 1 }, { round: 5, match: 1, slot: 2 });
 
-        const finalRematch = new Match('5-1', 5, 5, 1, null, null, -1);
+        const finalRematch = new Match('5-1', 5, 5, 1, null, null, 'UNDECIDED');
 
         // set up parent child links
         finalRematch.slot1Parent = final;
@@ -208,7 +209,7 @@ const createInternalMatch = (match: ExternalMatch, winSlot: 1 | 2 | undefined, l
 
     const id = match.round + '-' + match.match;
 
-    return new Match(id, -1, match.round, match.match, match.player1, match.player2, -1, win, loss);
+    return new Match(id, -1, match.round, match.match, match.player1, match.player2, 'UNDECIDED', win, loss);
 }
 
 // function to convert tournament-pairings output to the internal Match class
@@ -479,7 +480,7 @@ const separateFinalsFromBrackets = (winnersBracket: Match[][], losersBracket: Ma
     const finalRematchId = `${finalRematchRound}-${finalRematchMatch}`;
     const finalRematchNumber = final.number + 1;
 
-    const finalRematch = new Match(finalRematchId, finalRematchNumber, finalRematchRound, finalRematchMatch, null, null, -1);
+    const finalRematch = new Match(finalRematchId, finalRematchNumber, finalRematchRound, finalRematchMatch, null, null, 'UNDECIDED');
 
     // link finalRematch to final
     finalRematch.slot1Parent = final;
