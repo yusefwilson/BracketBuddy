@@ -1,3 +1,4 @@
+import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { MatchDTO } from '../../../src-shared/MatchDTO';
 import { MatchStatus } from '../../../src-shared/types';
 
@@ -76,14 +77,14 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId, }:
                             <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_1_WON')} checked={match.status === 'PLAYER_1_WON' || match.status === 'PLAYER_2_DROPOUT'} />
                         </div>
                         <button
-                            className={'w-6 h-6 rounded text-xs font-bold transition duration-200 ' +
+                            className={'flex items-center justify-center w-6 h-6 rounded text-xs font-bold transition duration-200 ' +
                                 (match.status === 'PLAYER_1_DROPOUT'
                                     ? 'bg-red-600 text-white hover:bg-red-700'
                                     : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white')}
                             onClick={() => toggleStatus('PLAYER_1_DROPOUT')}
-                            title="Mark as dropout"
+                            title="Mark as dropout/injury/no-show"
                         >
-                            D
+                            <ExclamationTriangleIcon className='h-4 w-4' />
                         </button>
                     </div>
 
@@ -98,14 +99,14 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId, }:
                             <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_2_WON')} checked={match.status === 'PLAYER_2_WON' || match.status === 'PLAYER_1_DROPOUT'} />
                         </div>
                         <button
-                            className={'w-6 h-6 rounded text-xs font-bold transition duration-200 ' +
+                            className={'flex items-center justify-center w-6 h-6 rounded text-xs font-bold transition duration-200 ' +
                                 (match.status === 'PLAYER_2_DROPOUT'
                                     ? 'bg-red-600 text-white hover:bg-red-700'
                                     : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white')}
                             onClick={() => toggleStatus('PLAYER_2_DROPOUT')}
-                            title="Mark as dropout"
+                            title="Mark as dropout/injury/no-show"
                         >
-                            D
+                            <ExclamationTriangleIcon className='h-4 w-4' />
                         </button>
                     </div>
                 </div>
