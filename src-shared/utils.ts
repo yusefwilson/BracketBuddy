@@ -33,7 +33,7 @@ function greatestPowerOf2LessThanOrEqualTo(n: number): number {
 function isPowerOfTwo(n: number) { return n > 0 && (n & (n - 1)) === 0; };
 
 /* POSITIONAL LOGIC */
-const HORIZONTAL_GAP = 225;
+const HORIZONTAL_GAP = 250;
 const INITIAL_VERTICAL_GAP = 100;
 const EXTRA_VERTICAL_OFFSET = 25;
 

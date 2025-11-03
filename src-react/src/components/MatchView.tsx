@@ -32,12 +32,24 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId, }:
         stale = false;
     }
 
-    let colorStyle = 'bg-blue-400 hover:bg-blue-500';
-
+    // Determine color for player 1
+    let player1ColorStyle = 'bg-blue-400 hover:bg-blue-500';
     if (highlighted) {
-        colorStyle = 'bg-yellow-500 transition-200 hover:bg-yellow-600';
+        player1ColorStyle = 'bg-yellow-500 transition-200 hover:bg-yellow-600';
     } else if (stale) {
-        colorStyle = 'bg-gray-500 hover:bg-gray-600';
+        player1ColorStyle = 'bg-gray-500 hover:bg-gray-600';
+    } else if (match.status === 'PLAYER_1_DROPOUT') {
+        player1ColorStyle = 'bg-red-500 hover:bg-red-600';
+    }
+
+    // Determine color for player 2
+    let player2ColorStyle = 'bg-blue-400 hover:bg-blue-500';
+    if (highlighted) {
+        player2ColorStyle = 'bg-yellow-500 transition-200 hover:bg-yellow-600';
+    } else if (stale) {
+        player2ColorStyle = 'bg-gray-500 hover:bg-gray-600';
+    } else if (match.status === 'PLAYER_2_DROPOUT') {
+        player2ColorStyle = 'bg-red-500 hover:bg-red-600';
     }
 
     return (
@@ -53,17 +65,48 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId, }:
                     <h3 className='text-center font-bold w-8'>{match.number}.</h3>
                 </div>
                 <div className='flex flex-col gap-2'>
-                    <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleStatus('PLAYER_1_WON')}>
-                        <div className='text-sm truncate w-0 flex-1'>
-                            {match.player1 || match.slot1GenericName}
+                    {/* Player 1 */}
+                    <div className='flex flex-row items-center gap-1'>
+                        <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + player1ColorStyle}
+                            onClick={() => toggleStatus('PLAYER_1_WON')}
+                            title="Mark as winner">
+                            <div className='text-sm truncate w-0 flex-1'>
+                                {match.player1 || match.slot1GenericName}
+                            </div>
+                            <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_1_WON')} checked={match.status === 'PLAYER_1_WON' || match.status === 'PLAYER_2_DROPOUT'} />
                         </div>
-                        <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_1_WON')} checked={match.status === 'PLAYER_1_WON' || match.status === 'PLAYER_2_DROPOUT'} />
+                        <button
+                            className={'w-6 h-6 rounded text-xs font-bold transition duration-200 ' +
+                                (match.status === 'PLAYER_1_DROPOUT'
+                                    ? 'bg-red-600 text-white hover:bg-red-700'
+                                    : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white')}
+                            onClick={() => toggleStatus('PLAYER_1_DROPOUT')}
+                            title="Mark as dropout"
+                        >
+                            D
+                        </button>
                     </div>
-                    <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + colorStyle} onClick={() => toggleStatus('PLAYER_2_WON')}>
-                        <div className='text-sm truncate w-0 flex-1'>
-                            {match.player2 || match.slot2GenericName}
+
+                    {/* Player 2 */}
+                    <div className='flex flex-row items-center gap-1'>
+                        <div className={'flex flex-row justify-between items-center p-2 rounded-md w-44 transition duration-200 ease-in-out select-none ' + player2ColorStyle}
+                            onClick={() => toggleStatus('PLAYER_2_WON')}
+                            title="Mark as winner">
+                            <div className='text-sm truncate w-0 flex-1'>
+                                {match.player2 || match.slot2GenericName}
+                            </div>
+                            <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_2_WON')} checked={match.status === 'PLAYER_2_WON' || match.status === 'PLAYER_1_DROPOUT'} />
                         </div>
-                        <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_2_WON')} checked={match.status === 'PLAYER_2_WON' || match.status === 'PLAYER_1_DROPOUT'} />
+                        <button
+                            className={'w-6 h-6 rounded text-xs font-bold transition duration-200 ' +
+                                (match.status === 'PLAYER_2_DROPOUT'
+                                    ? 'bg-red-600 text-white hover:bg-red-700'
+                                    : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white')}
+                            onClick={() => toggleStatus('PLAYER_2_DROPOUT')}
+                            title="Mark as dropout"
+                        >
+                            D
+                        </button>
                     </div>
                 </div>
             </div>
