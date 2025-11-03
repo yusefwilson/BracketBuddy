@@ -1,4 +1,4 @@
-import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { MatchDTO } from '../../../src-shared/MatchDTO';
 import { MatchStatus } from '../../../src-shared/types';
 
