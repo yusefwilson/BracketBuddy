@@ -27,13 +27,32 @@ function run(args: any, done: any) {
     }).on('close', done);
 };
 
-export const check = () => {
+export const check = (): boolean => {
     log('App starting...');
     log('Process argv: ' + process.argv.join(' '));
+
+    // Handle uninstall - prevent app from launching
+    if (cmd === '--squirrel-uninstall') {
+        log('Uninstalling - removing shortcuts and exiting...');
+        run(['--removeShortcut=' + target + ''], () => {
+            log('Shortcuts removed');
+        });
+        return false;
+    }
+
+    // Handle obsolete (being replaced by newer version) - prevent app from launching
+    if (cmd === '--squirrel-obsolete') {
+        log('App obsolete - exiting...');
+        return false;
+    }
+
+    // Handle install/update events
     if (cmd === '--squirrel-install' || cmd === '--squirrel-updated' || cmd === '--squirrel-firstrun') {
         log('Creating shortcut...');
         run(['--createShortcut=' + target + ''], () => {
             log('Shortcut created, app continues running');
         });
     }
+
+    return true;
 }

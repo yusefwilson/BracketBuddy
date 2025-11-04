@@ -1,5 +1,8 @@
 import { check } from './installation.js';
-check();
+// Exit early if app is being uninstalled or is obsolete
+if (!check()) {
+    process.exit(0);
+}
 
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
