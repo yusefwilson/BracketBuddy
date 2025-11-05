@@ -1,6 +1,6 @@
 import { check } from './installation.js';
-// Exit early if app is being uninstalled or is obsolete
-if (!check()) {
+// Wait for installation to complete, exit early if app is being uninstalled or is obsolete
+if (!(await check())) {
     process.exit(0);
 }
 
