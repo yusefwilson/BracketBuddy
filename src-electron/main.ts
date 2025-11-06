@@ -52,6 +52,7 @@ ipcMain.handle('add-bracket-to-tournament', add_brackets_to_tournament);
 ipcMain.handle('remove-bracket-from-tournament', remove_bracket_from_tournament);
 ipcMain.handle('export-tournament', export_tournament);
 ipcMain.handle('import-tournament', import_tournament);
+ipcMain.handle('export-to-AERS', export_to_AERS);
 
 // bracket
 ipcMain.handle('update-bracket', update_bracket);
@@ -67,9 +68,6 @@ ipcMain.handle('get-constants', get_constants);
 ipcMain.handle('open-url', open_url);
 ipcMain.handle('save-file', save_file);
 ipcMain.handle('load-file', load_file);
-
-// aers
-ipcMain.handle('export-to-AERS', export_to_AERS);
 
 const main = async () => {
     await app.whenReady();
