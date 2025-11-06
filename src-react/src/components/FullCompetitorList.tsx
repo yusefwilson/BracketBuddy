@@ -1,14 +1,16 @@
 import { useState, useContext, useMemo } from 'react';
-import { UserIcon } from '@heroicons/react/24/outline';
+import { UserIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 import { CURRENT_STATE } from './App';
 import CompetitorClassModal from './CompetitorClassModal';
+import AddCompetitorModal from './AddCompetitorModal';
 
 export default function FullCompetitorList() {
     const state = useContext(CURRENT_STATE);
     const { tournament } = state || {};
 
     const [selectedCompetitor, setSelectedCompetitor] = useState<string | null>(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
     // Get all unique competitors from all brackets
@@ -67,18 +69,33 @@ export default function FullCompetitorList() {
         <div className="w-full flex flex-col gap-4">
             {/* Header and Search */}
             <div className="flex flex-col gap-3">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <UserIcon className="h-7 w-7 text-blue-400" />
-                    All Competitors ({allCompetitors.length})
-                </h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                        <UserIcon className="h-7 w-7 text-blue-400" />
+                        All Competitors ({allCompetitors.length})
+                    </h2>
 
-                <input
-                    type="text"
-                    placeholder="Search competitors..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full max-w-md"
-                />
+                </div>
+                <div className="flex flex-row gap-4">
+
+                    <input
+                        type="text"
+                        placeholder="Search competitors..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full max-w-md"
+                    />
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 font-semibold"
+                    >
+                        <PlusIcon className="h-5 w-5" />
+                        Add Competitor
+                    </button>
+                </div>
+
+
+
             </div>
 
             {/* Competitor List */}
@@ -115,11 +132,17 @@ export default function FullCompetitorList() {
                 </div>
             )}
 
-            {/* Modal */}
+            {/* Modals */}
             {selectedCompetitor && (
                 <CompetitorClassModal
                     competitorName={selectedCompetitor}
                     onClose={() => setSelectedCompetitor(null)}
+                />
+            )}
+
+            {isAddModalOpen && (
+                <AddCompetitorModal
+                    onClose={() => setIsAddModalOpen(false)}
                 />
             )}
         </div>
