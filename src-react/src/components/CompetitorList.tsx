@@ -1,5 +1,7 @@
-import { useState, useContext, useMemo } from 'react';
+import { useState, useContext, useMemo, useEffect } from 'react';
 import { UserIcon, PlusIcon } from '@heroicons/react/24/outline';
+
+import { safeApiCall } from '../utils/apiHelpers';
 
 import { CURRENT_STATE } from './App';
 import CompetitorClassModal from './CompetitorClassModal';
@@ -10,8 +12,25 @@ export default function CompetitorList() {
     const { tournament } = state || {};
 
     const [selectedCompetitor, setSelectedCompetitor] = useState<string | null>(null);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(true);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Load saved modal state on mount
+    useEffect(() => {
+        const loadModalState = async () => {
+            const [saveData, error] = await safeApiCall(window.electron.getSaveData());
+            if (!error && saveData?.isAddCompetitorModalOpen !== undefined) {
+                setIsAddModalOpen(saveData.isAddCompetitorModalOpen);
+            }
+        };
+        loadModalState();
+    }, []);
+
+    // Save modal state whenever it changes
+    const handleModalToggle = async (isOpen: boolean) => {
+        setIsAddModalOpen(isOpen);
+        await safeApiCall(window.electron.saveKeyValue({ key: 'isAddCompetitorModalOpen', value: isOpen }));
+    };
 
     // Get all unique competitors from all brackets
     const allCompetitors = useMemo(() => {
@@ -99,7 +118,7 @@ export default function CompetitorList() {
                         className="bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full max-w-md"
                     />
                     <button
-                        onClick={() => setIsAddModalOpen(true)}
+                        onClick={() => handleModalToggle(true)}
                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 font-semibold"
                     >
                         <PlusIcon className="h-5 w-5" />
@@ -158,7 +177,7 @@ export default function CompetitorList() {
 
             {isAddModalOpen && (
                 <AddCompetitorModal
-                    onClose={() => setIsAddModalOpen(false)}
+                    onClose={() => handleModalToggle(false)}
                 />
             )}
         </div>

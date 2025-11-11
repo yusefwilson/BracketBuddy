@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 
 import { dateToLocalTimezoneString } from '../../../src-shared/utils';
 
@@ -17,6 +17,23 @@ export default function TournamentView() {
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'brackets' | 'competitor-list'>('brackets');
+
+  // Load saved view on mount
+  useEffect(() => {
+    const loadView = async () => {
+      const [saveData, error] = await safeApiCall(window.electron.getSaveData());
+      if (!error && saveData?.currentView) {
+        setCurrentView(saveData.currentView);
+      }
+    };
+    loadView();
+  }, []);
+
+  // Save view whenever it changes
+  const handleViewChange = async (view: 'brackets' | 'competitor-list') => {
+    setCurrentView(view);
+    await safeApiCall(window.electron.saveKeyValue({ key: 'currentView', value: view }));
+  };
 
   if (!tournament) {
     return (
@@ -54,7 +71,7 @@ export default function TournamentView() {
             {/* View Toggle Buttons */}
             <div className="flex gap-1 bg-slate-600 rounded-md p-1">
               <button
-                onClick={() => setCurrentView('brackets')}
+                onClick={() => handleViewChange('brackets')}
                 className={`px-4 py-1 rounded transition font-semibold ${
                   currentView === 'brackets'
                     ? 'bg-blue-500 text-white'
@@ -65,7 +82,7 @@ export default function TournamentView() {
                 Brackets
               </button>
               <button
-                onClick={() => setCurrentView('competitor-list')}
+                onClick={() => handleViewChange('competitor-list')}
                 className={`px-4 py-1 rounded transition font-semibold ${
                   currentView === 'competitor-list'
                     ? 'bg-blue-500 text-white'
