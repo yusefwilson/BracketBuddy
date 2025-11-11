@@ -10,7 +10,7 @@ export default function FullCompetitorList() {
     const { tournament } = state || {};
 
     const [selectedCompetitor, setSelectedCompetitor] = useState<string | null>(null);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
     // Get all unique competitors from all brackets
