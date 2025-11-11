@@ -15,7 +15,7 @@ import { MatchStatus } from '@shared/types';
 
 export default function BracketView() {
   const state = useContext(CURRENT_STATE);
-  const { bracketIndex, tournament, setTournament = () => { }, setBracketIndex = () => { } } = state || {};
+  const { bracketId, tournament, setTournament = () => { }, setBracketId = () => { } } = state || {};
   const { showError, ErrorToastContainer } = useErrorToast();
   const [finalRematchJustSpawned, setFinalRematchJustSpawned] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(true);
@@ -30,7 +30,7 @@ export default function BracketView() {
     }
   }, [finalRematchJustSpawned]);
 
-  if (!tournament || bracketIndex === null || bracketIndex === undefined) {
+  if (!tournament || !bracketId) {
     return (
       <div className='h-full flex items-center justify-center text-white'>
         Loading bracket...
@@ -38,7 +38,7 @@ export default function BracketView() {
     );
   }
 
-  const bracket = tournament.brackets[bracketIndex];
+  const bracket = tournament.brackets.find(b => b.id === bracketId);
   if (!bracket) {
     return (
       <div className='h-full flex items-center justify-center text-white'>
@@ -63,7 +63,8 @@ export default function BracketView() {
     }
 
     if (newTournament) {
-      const finalRematchInExistenceAfter = newTournament.brackets[bracketIndex].finalRematchNeeded;
+      const updatedBracket = newTournament.brackets.find(b => b.id === bracketId);
+      const finalRematchInExistenceAfter = updatedBracket?.finalRematchNeeded || false;
       setFinalRematchJustSpawned(!bracket.finalRematchNeeded && finalRematchInExistenceAfter);
       setTournament(newTournament);
     }
@@ -195,8 +196,8 @@ export default function BracketView() {
       {tournament && (
         <BracketHotSwapBar
           tournament={tournament}
-          currentBracketIndex={bracketIndex!}
-          onBracketChange={setBracketIndex}
+          currentBracketId={bracketId}
+          onBracketChange={setBracketId}
         />
       )}
     </div>

@@ -7,8 +7,7 @@ import { useErrorToast } from '../hooks/useErrorToast';
 
 import { CURRENT_STATE } from '../components/App';
 import BracketList from '../components/BracketList';
-import MassCompetitorInput from '../components/MassCompetitorInput';
-import FullCompetitorList from '../components/FullCompetitorList';
+import CompetitorList from '../components/CompetitorList';
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
 
 export default function TournamentView() {
@@ -17,30 +16,7 @@ export default function TournamentView() {
   const { showError, ErrorToastContainer } = useErrorToast();
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<'brackets' | 'mass-input' | 'competitor-list'>('brackets');
-
-  const cycleView = () => {
-    if (currentView === 'brackets') {
-      setCurrentView('mass-input');
-    } else if (currentView === 'mass-input') {
-      setCurrentView('competitor-list');
-    } else {
-      setCurrentView('brackets');
-    }
-  };
-
-  const getViewButtonText = () => {
-    switch (currentView) {
-      case 'brackets':
-        return 'View: Brackets';
-      case 'mass-input':
-        return 'View: Mass Input';
-      case 'competitor-list':
-        return 'View: Competitors';
-      default:
-        return 'Switch View';
-    }
-  };
+  const [currentView, setCurrentView] = useState<'brackets' | 'competitor-list'>('brackets');
 
   if (!tournament) {
     return (
@@ -53,90 +29,115 @@ export default function TournamentView() {
   return (
     <>
       <ErrorToastContainer />
-      <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full overflow-y-auto">
-        <h1 className="text-3xl font-bold text-white flex-shrink-0">
-          Tournament: <span className="text-blue-400">{tournament?.name}</span>
-        </h1>
-        <h2 className="text-lg text-gray-300 flex-shrink-0">
-          Date: <span className="font-semibold">{dateToLocalTimezoneString(tournament?.date)}</span>
-        </h2>
+      <div className="bg-slate-700 flex flex-col w-full mx-auto h-full overflow-y-auto">
+        {/* Compact Header/Toolbar */}
+        <div className="flex items-center justify-between px-6 py-4 bg-slate-800 border-b border-slate-600 flex-shrink-0">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-bold text-white">
+              <span className="text-blue-400">{tournament?.name}</span>
+            </h1>
+            <h2 className="text-sm text-gray-300">
+              {dateToLocalTimezoneString(tournament?.date)}
+            </h2>
+          </div>
 
-        {/* Buttons to open modals */}
-        <div className="flex gap-4 flex-shrink-0">
-          <button
-            onClick={() => setBulkBracketModalOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-            type="button"
-          >
-            Add Brackets
-          </button>
-          <button
-            onClick={cycleView}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-            type="button"
-          >
-            {getViewButtonText()}
-          </button>
-          <button
-            onClick={async () => {
-              const [result, error] = await safeApiCall(
-                window.electron.exportToAERS({ tournamentId: tournament.id })
-              );
+          {/* Toolbar Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setBulkBracketModalOpen(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition"
+              type="button"
+            >
+              Add Brackets
+            </button>
 
-              if (error) {
-                showError(error);
-                return;
+            {/* View Toggle Buttons */}
+            <div className="flex gap-1 bg-slate-600 rounded-md p-1">
+              <button
+                onClick={() => setCurrentView('brackets')}
+                className={`px-4 py-1 rounded transition font-semibold ${
+                  currentView === 'brackets'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                type="button"
+              >
+                Brackets
+              </button>
+              <button
+                onClick={() => setCurrentView('competitor-list')}
+                className={`px-4 py-1 rounded transition font-semibold ${
+                  currentView === 'competitor-list'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                type="button"
+              >
+                Competitors
+              </button>
+            </div>
+
+            <button
+              onClick={async () => {
+                const [result, error] = await safeApiCall(
+                  window.electron.exportToAERS({ tournamentId: tournament.id })
+                );
+
+                if (error) {
+                  showError(error);
+                  return;
+                }
+
+                if (result && !result.canceled) {
+                  console.log(`✅ Saved CSV to: ${result.filePath}`);
+                } else {
+                  console.log('❌ Save canceled');
+                }
               }
-
-              if (result && !result.canceled) {
-                console.log(`✅ Saved CSV to: ${result.filePath}`);
-              } else {
-                console.log('❌ Save canceled');
               }
-            }
-            }
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-            type="button"
-          >
-            Export To AERS
-          </button>
-          <button
-            onClick={async () => {
-              const [result, error] = await safeApiCall(
-                window.electron.exportTournament({ tournamentId: tournament.id })
-              );
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition"
+              type="button"
+            >
+              Export To AERS
+            </button>
+            <button
+              onClick={async () => {
+                const [result, error] = await safeApiCall(
+                  window.electron.exportTournament({ tournamentId: tournament.id })
+                );
 
-              if (error) {
-                showError(error);
-                return;
-              }
+                if (error) {
+                  showError(error);
+                  return;
+                }
 
-              if (result && !result.canceled) {
-                console.log(`✅ Saved tournament to: ${result.filePath}`);
-              } else {
-                console.log('❌ Save canceled');
-              }
-            }}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-            type="button"
-          >
-            Export To File
-          </button>
+                if (result && !result.canceled) {
+                  console.log(`✅ Saved tournament to: ${result.filePath}`);
+                } else {
+                  console.log('❌ Save canceled');
+                }
+              }}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition"
+              type="button"
+            >
+              Export To File
+            </button>
+          </div>
         </div>
 
-        {/* Modals */}
-        {bulkBracketModalOpen && (
-          <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
-        )}
+        {/* Main Content Area */}
+        <div className={`p-6 flex-1 flex flex-col ${currentView === 'brackets' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+          {/* Modals */}
+          {bulkBracketModalOpen && (
+            <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
+          )}
 
-        {currentView === 'mass-input' ? (
-          <MassCompetitorInput />
-        ) : currentView === 'competitor-list' ? (
-          <FullCompetitorList />
-        ) : (
-          <BracketList />
-        )}
-
+          {currentView === 'brackets' ? (
+            <BracketList />
+          ) : (
+            <CompetitorList />
+          )}
+        </div>
       </div>
     </>
   );

@@ -5,7 +5,7 @@ import { CURRENT_STATE } from './App';
 import CompetitorClassModal from './CompetitorClassModal';
 import AddCompetitorModal from './AddCompetitorModal';
 
-export default function FullCompetitorList() {
+export default function CompetitorList() {
     const state = useContext(CURRENT_STATE);
     const { tournament } = state || {};
 

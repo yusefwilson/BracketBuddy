@@ -5,62 +5,112 @@ import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
 
 import { CURRENT_STATE } from './App';
-import BracketInfoCard from './BracketInfoCard';
+import BracketCompetitorInput from './BracketCompetitorInput';
 
 export default function BracketList() {
     const state = useContext(CURRENT_STATE);
-    const { tournament, setBracketIndex = () => { }, setTournament = () => { } } = state || {};
+    const { tournament, setTournament = () => { }, setBracketId = () => { } } = state || {};
     const navigate = useNavigate();
     const { showError, ErrorToastContainer } = useErrorToast();
 
     if (!tournament) {
-        return null;
+        return <div>Loading tournament...</div>;
     }
+    if (!tournament.id) {
+        return <div>No tournament id</div>;
+    }
+
+    const handleAddCompetitor = async (bracketId: string, name: string) => {
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.addCompetitorToBracket({ tournamentId: tournament.id, bracketId, competitorName: name })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
+    };
+
+    const handleRemoveCompetitor = async (bracketId: string, name: string) => {
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.removeCompetitorFromBracket({ tournamentId: tournament.id, bracketId, competitorName: name })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
+    };
+
+    const handleRandomize = async (bracketId: string) => {
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.randomizeCompetitors({ tournamentId: tournament.id, bracketId })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
+    };
+
+    const handleRemoveBracket = async (bracketId: string) => {
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.removeBracketFromTournament({ tournamentId: tournament.id, bracketId })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
+    };
+
+    const handleBracketClick = async (bracketId: string) => {
+        setBracketId(bracketId);
+        const [, error] = await safeApiCall(
+            window.electron.saveKeyValue({ key: 'lastBracketId', value: bracketId })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        navigate('/bracket');
+    };
+
+    const brackets = tournament.brackets;
 
     return (
         <>
             <ErrorToastContainer />
-            <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
-                {tournament?.brackets.length ? (
-                    tournament.brackets.map((bracket, index) => (
-                        <BracketInfoCard
-                            key={index}
-                            bracket={bracket}
-                            onClick={async () => {
-                                setBracketIndex(index);
-                                const [, error] = await safeApiCall(
-                                    window.electron.saveKeyValue({ key: 'lastBracketIndex', value: index })
-                                );
-
-                                if (error) {
-                                    showError(error);
-                                    return;
-                                }
-
-                                navigate('/bracket');
-                            }}
-                            onRemoveClick={async () => {
-                                const [data, error] = await safeApiCall(
-                                    window.electron.removeBracketFromTournament({
-                                        tournamentId: tournament.id,
-                                        bracketId: bracket.id
-                                    })
-                                );
-
-                                if (error) {
-                                    showError(error);
-                                    return;
-                                }
-
-                                if (data) {
-                                    setTournament(data);
-                                }
-                            }}
-                        />
-                    ))
-                ) : (
-                    <p className="text-gray-400 text-center italic">No brackets added yet.</p>
-                )}
+            <div className="flex flex-row w-full gap-2 overflow-x-auto h-full">
+                {brackets.map((bracket) => (
+                    <BracketCompetitorInput
+                        key={bracket.id}
+                        bracket={bracket}
+                        onAddCompetitor={handleAddCompetitor}
+                        onRemoveCompetitor={handleRemoveCompetitor}
+                        onRandomize={handleRandomize}
+                        onRemoveBracket={handleRemoveBracket}
+                        onBracketClick={handleBracketClick}
+                    />
+                ))}
             </div>
         </>
     );
