@@ -132,10 +132,10 @@ export default function CompetitorList() {
 
             {/* Competitor List */}
             {filteredCompetitors.length === 0 ? (
-                <div className="text-gray-400 text-center italic py-8">
+                <div className="flex items-center justify-center h-full text-gray-400">
                     {searchTerm.trim()
                         ? `No competitors found matching "${searchTerm}"`
-                        : 'No competitors yet. Add brackets and competitors to get started.'
+                        : 'No brackets yet. Click "Add Brackets" to get started.'
                     }
                 </div>
             ) : (

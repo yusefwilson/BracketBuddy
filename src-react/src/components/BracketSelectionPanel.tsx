@@ -16,6 +16,7 @@ interface BracketSelectionPanelProps {
     toggleSelect: <T>(item: T, list: T[], setList: (list: T[]) => void) => void;
     onSubmit: () => void;
     onCancel: () => void;
+    isAddDisabled: boolean;
 }
 
 export default function BracketSelectionPanel({
@@ -32,7 +33,8 @@ export default function BracketSelectionPanel({
     removeCustomWeight,
     toggleSelect,
     onSubmit,
-    onCancel
+    onCancel,
+    isAddDisabled
 }: BracketSelectionPanelProps) {
     // Helper to sort weight buttons: Superheavyweight first, then ascending numbers
     const sortedWeights = [...weightOptions].sort((a, b) =>
@@ -41,10 +43,10 @@ export default function BracketSelectionPanel({
 
     return (
         <div className="flex-1 flex flex-col gap-6 overflow-y-auto">
-            <h1 className="text-xl font-semibold text-white text-center">Bulk Bracket Creator</h1>
+            <h1 className="text-xl font-semibold text-white text-center pb-4 border-b border-slate-600">Bulk Bracket Creator</h1>
 
             {/* Gender */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 pb-6 border-b border-slate-600">
                 <UserIcon className="h-6 w-6 text-blue-400 flex-shrink-0" />
                 <div className="flex gap-2 flex-wrap">
                     {['Male', 'Female', 'Mixed'].map(g => (
@@ -63,7 +65,7 @@ export default function BracketSelectionPanel({
             </div>
 
             {/* Experience Level */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 pb-6 border-b border-slate-600">
                 <AcademicCapIcon className="h-6 w-6 text-green-400 flex-shrink-0" />
                 <div className="flex gap-2 flex-wrap">
                     {['Youth', 'Novice', 'Amateur', 'Semipro', 'Pro', 'Master', 'Grandmaster', 'Senior Grandmaster'].map(e => (
@@ -82,7 +84,7 @@ export default function BracketSelectionPanel({
             </div>
 
             {/* Hand */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 pb-6 border-b border-slate-600">
                 <HandRaisedIcon className="h-6 w-6 text-yellow-400 flex-shrink-0" />
                 <div className="flex gap-2 flex-wrap">
                     {['Right', 'Left'].map(h => (
@@ -101,7 +103,7 @@ export default function BracketSelectionPanel({
             </div>
 
             {/* Weight Classes */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 pb-6 border-b border-slate-600">
                 <div className="flex items-center gap-2">
                     <ScaleIcon className="h-6 w-6 text-purple-500 flex-shrink-0" />
                     <input
@@ -165,8 +167,9 @@ export default function BracketSelectionPanel({
             {/* Action Buttons */}
             <div className="flex justify-center gap-4 mt-auto">
                 <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md transition"
+                    className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2 rounded-md transition"
                     onClick={onSubmit}
+                    disabled={isAddDisabled}
                 >
                     Add Brackets
                 </button>

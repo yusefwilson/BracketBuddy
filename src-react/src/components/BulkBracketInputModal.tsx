@@ -162,6 +162,9 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
     // Get all brackets to display: existing + all in bracketsToAdd (even if they already exist)
     const existingBrackets = tournament?.brackets || [];
 
+    // Calculate how many new brackets there are (brackets that don't already exist)
+    const newBracketsCount = resultingBrackets.filter(b => !bracketExists(b)).length;
+
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') setBulkBracketModalOpen(false);
@@ -191,6 +194,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
                         toggleSelect={toggleSelect}
                         onSubmit={onSubmit}
                         onCancel={() => setBulkBracketModalOpen(false)}
+                        isAddDisabled={newBracketsCount === 0}
                     />
 
                     {/* Right Panel: Preview */}

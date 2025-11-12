@@ -96,6 +96,17 @@ export default function BracketsAndCompetitors() {
 
     const brackets = tournament.brackets;
 
+    if (brackets.length === 0) {
+        return (
+            <>
+                <ErrorToastContainer />
+                <div className="flex items-center justify-center h-full text-gray-400">
+                    No brackets yet. Click "Add Brackets" to get started.
+                </div>
+            </>
+        );
+    }
+
     return (
         <>
             <ErrorToastContainer />
