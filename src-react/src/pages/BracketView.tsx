@@ -97,9 +97,7 @@ export default function BracketView() {
           <p className='text-lg font-bold'>
             {bracket.gender + ' | ' + bracket.hand + ' | ' + bracket.experienceLevel + ' | ' + bracket.weightLimit}
           </p>
-
-          <h2 className='text-white text-lg font-semibold text-center'>Competitors</h2>
-
+          
           <div className='h-64'>
             <CompetitorInput
               competitors={bracket.competitorNames ?? []}

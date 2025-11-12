@@ -6,6 +6,7 @@ import { safeApiCall } from '../utils/apiHelpers';
 import { CURRENT_STATE } from './App';
 import CompetitorClassModal from './CompetitorClassModal';
 import AddCompetitorModal from './AddCompetitorModal';
+import CompetitorInfoCard from './CompetitorInfoCard';
 
 export default function CompetitorList() {
     const state = useContext(CURRENT_STATE);
@@ -141,28 +142,13 @@ export default function CompetitorList() {
             ) : (
                 <div className="flex flex-col gap-2">
                     {filteredCompetitors.map((competitor) => (
-                        <button
+                        <CompetitorInfoCard
                             key={competitor.name}
+                            name={competitor.name}
+                            bracketCount={competitor.bracketCount}
+                            brackets={competitor.brackets}
                             onClick={() => setSelectedCompetitor(competitor.name)}
-                            className="bg-slate-600 hover:bg-slate-500 px-6 py-4 rounded-lg transition-all duration-200 border-2 border-transparent hover:border-blue-400 group w-full"
-                        >
-                            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4">
-                                <div className="flex items-center gap-3 min-w-[200px]">
-                                    <UserIcon className="h-5 w-5 text-blue-400 flex-shrink-0" />
-                                    <span className="text-white font-semibold text-lg group-hover:text-blue-300">
-                                        {competitor.name}
-                                    </span>
-                                </div>
-                                <span className="text-gray-300 text-sm truncate text-left">
-                                    {competitor.brackets.map(b => b.name).join(' • ')}
-                                </span>
-                                <div className="text-sm text-gray-300 whitespace-nowrap">
-                                    <span className="font-medium text-blue-300">{competitor.bracketCount}</span>
-                                    {' '}
-                                    {competitor.bracketCount === 1 ? 'class' : 'classes'}
-                                </div>
-                            </div>
-                        </button>
+                        />
                     ))}
                 </div>
             )}
