@@ -120,6 +120,11 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
 
         if (data) {
             setTournament(data);
+            // Clear selections after successful add
+            setSelectedGenders([]);
+            setSelectedExperienceLevels([]);
+            setSelectedHands([]);
+            setSelectedWeights([]);
             // Don't close the modal anymore
         }
     };
