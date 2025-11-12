@@ -99,7 +99,7 @@ export default function BracketsAndCompetitors() {
     return (
         <>
             <ErrorToastContainer />
-            <div className="flex flex-row w-full gap-2 overflow-x-auto h-full">
+            <div className="flex flex-row w-full gap-4 overflow-x-auto h-full pb-2">
                 {brackets.map((bracket) => (
                     <BracketCompetitorInput
                         key={bracket.id}

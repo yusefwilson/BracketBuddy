@@ -23,27 +23,30 @@ export default function BracketCompetitorInput({
     return (
         <div
             key={bracket.id}
-            className="flex flex-col rounded-lg p-4 bg-slate-500 transition [&:not(:has(:hover))]:hover:bg-slate-600 [&:not(:has(:hover))]:hover:cursor-pointer min-w-[300px] h-full"
+            className="flex flex-col rounded-xl p-5 bg-slate-600 shadow-lg transition [&:not(:has(:hover))]:hover:bg-slate-500 [&:not(:has(:hover))]:hover:cursor-pointer [&:not(:has(:hover))]:hover:shadow-xl min-w-[320px] h-full"
             onClick={async (e) => {
                 // Only trigger if the click happened directly on this div, not a child
                 if (e.target !== e.currentTarget) return;
                 await onBracketClick(bracket.id);
             }}
         >
-            <div className="flex justify-between items-center mb-3 flex-shrink-0 w-full">
-                <h2 className="text-md font-semibold text-white">
+            <div className="flex justify-between items-start mb-4 flex-shrink-0 w-full gap-3">
+                <h2 className="text-lg font-semibold text-white leading-tight">
                     {bracket.gender} | {bracket.experienceLevel} | {bracket.hand}{' '}
-                    {bracket.weightLimit !== 'Superheavyweight'
-                        ? `(${bracket.weightLimit} lbs)`
-                        : '(Superheavyweight)'}
+                    <span className="text-gray-300">
+                        {bracket.weightLimit !== 'Superheavyweight'
+                            ? `${bracket.weightLimit} lbs`
+                            : 'Superheavyweight'}
+                    </span>
                 </h2>
                 <button
                     onClick={async (e) => {
                         e.stopPropagation();
                         await onRemoveBracket(bracket.id);
                     }}
-                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition flex items-center flex-shrink-0"
+                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex items-center flex-shrink-0"
                     type="button"
+                    title="Delete bracket"
                 >
                     <TrashIcon className="h-4 w-4" />
                 </button>
