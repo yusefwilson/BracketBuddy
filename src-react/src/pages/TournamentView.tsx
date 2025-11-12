@@ -6,8 +6,9 @@ import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
 
 import { CURRENT_STATE } from '../components/App';
-import BracketList from '../components/BracketList';
+import BracketsAndCompetitors from '../components/BracketsAndCompetitors';
 import CompetitorList from '../components/CompetitorList';
+import BracketList from '../components/BracketList';
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
 
 export default function TournamentView() {
@@ -16,7 +17,7 @@ export default function TournamentView() {
   const { showError, ErrorToastContainer } = useErrorToast();
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<'brackets' | 'competitor-list'>('brackets');
+  const [currentView, setCurrentView] = useState<'both' | 'brackets' | 'competitor-list'>('both');
 
   // Load saved view on mount
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function TournamentView() {
   }, []);
 
   // Save view whenever it changes
-  const handleViewChange = async (view: 'brackets' | 'competitor-list') => {
+  const handleViewChange = async (view: 'both' | 'brackets' | 'competitor-list') => {
     setCurrentView(view);
     await safeApiCall(window.electron.saveKeyValue({ key: 'currentView', value: view }));
   };
@@ -71,23 +72,31 @@ export default function TournamentView() {
             {/* View Toggle Buttons */}
             <div className="flex gap-1 bg-slate-600 rounded-md p-1">
               <button
-                onClick={() => handleViewChange('brackets')}
-                className={`px-4 py-1 rounded transition font-semibold ${
-                  currentView === 'brackets'
+                onClick={() => handleViewChange('both')}
+                className={`px-4 py-1 rounded transition font-semibold ${currentView === 'both'
                     ? 'bg-blue-500 text-white'
                     : 'text-gray-300 hover:text-white'
-                }`}
+                  }`}
+                type="button"
+              >
+                Both
+              </button>
+              <button
+                onClick={() => handleViewChange('brackets')}
+                className={`px-4 py-1 rounded transition font-semibold ${currentView === 'brackets'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-300 hover:text-white'
+                  }`}
                 type="button"
               >
                 Brackets
               </button>
               <button
                 onClick={() => handleViewChange('competitor-list')}
-                className={`px-4 py-1 rounded transition font-semibold ${
-                  currentView === 'competitor-list'
+                className={`px-4 py-1 rounded transition font-semibold ${currentView === 'competitor-list'
                     ? 'bg-blue-500 text-white'
                     : 'text-gray-300 hover:text-white'
-                }`}
+                  }`}
                 type="button"
               >
                 Competitors
@@ -143,13 +152,15 @@ export default function TournamentView() {
         </div>
 
         {/* Main Content Area */}
-        <div className={`p-6 flex-1 flex flex-col ${currentView === 'brackets' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <div className={`p-6 flex-1 flex flex-col ${currentView === 'both' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {/* Modals */}
           {bulkBracketModalOpen && (
             <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
           )}
 
-          {currentView === 'brackets' ? (
+          {currentView === 'both' ? (
+            <BracketsAndCompetitors />
+          ) : currentView === 'brackets' ? (
             <BracketList />
           ) : (
             <CompetitorList />
