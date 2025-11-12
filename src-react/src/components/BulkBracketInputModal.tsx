@@ -33,6 +33,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
     const [selectedWeights, setSelectedWeights] = useState<WeightLimit[]>([154]);
 
     const [bracketsToAdd, setBracketsToAdd] = useState<Set<string>>(new Set());
+    const [manuallyExcluded, setManuallyExcluded] = useState<Set<string>>(new Set());
 
     const addCustomWeight = (value: number) => {
         if (!weightOptions.includes(value)) {
@@ -61,6 +62,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
             updated.delete(key);
             return updated;
         });
+        setManuallyExcluded(prev => new Set([...prev, key]));
     };
 
     const allPossibleBrackets = useMemo(() => {
@@ -87,14 +89,27 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
         setBracketsToAdd(prev => {
             // Start with previous set
             const updated = new Set(prev);
-            // Add any new possible brackets
-            possibleKeys.forEach(key => updated.add(key));
+            // Add any new possible brackets (but not if manually excluded)
+            possibleKeys.forEach(key => {
+                if (!manuallyExcluded.has(key)) {
+                    updated.add(key);
+                }
+            });
             // Remove any that are no longer possible
             [...updated].forEach(key => {
-                if (!possibleKeys.has(key)) updated.delete(key);
+                if (!possibleKeys.has(key)) {
+                    updated.delete(key);
+                }
             });
             return updated;
         });
+        // Also clean up manuallyExcluded - remove any that are no longer possible. This is really important, since manually excluded brackets should only be ones that could even exist in the first place - otherwise you wouldn't ever be able to add manually excluded ones back!
+        setManuallyExcluded(prev => {
+            const updated = new Set([...prev].filter(key => possibleKeys.has(key)));
+            return updated;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // Note: manuallyExcluded is intentionally not in deps - we only want this to run when selections change
     }, [selectedGenders, selectedExperienceLevels, selectedHands, selectedWeights]);
 
     // Filter to only include brackets that are in the bracketsToAdd set
@@ -125,6 +140,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
             setSelectedExperienceLevels([]);
             setSelectedHands([]);
             setSelectedWeights([]);
+            setManuallyExcluded(new Set());
             // Don't close the modal anymore
         }
     };
