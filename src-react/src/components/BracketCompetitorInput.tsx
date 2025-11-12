@@ -33,7 +33,7 @@ export default function BracketCompetitorInput({
             <div className="flex justify-between items-start mb-4 flex-shrink-0 w-full gap-3">
                 <h2 className="text-lg font-semibold text-white leading-tight">
                     {bracket.gender} | {bracket.experienceLevel} | {bracket.hand}{' '}
-                    <span className="text-gray-300">
+                    <span className="text-white">
                         {bracket.weightLimit !== 'Superheavyweight'
                             ? `${bracket.weightLimit} lbs`
                             : 'Superheavyweight'}
