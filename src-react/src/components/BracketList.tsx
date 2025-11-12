@@ -9,7 +9,7 @@ import BracketInfoCard from './BracketInfoCard';
 
 export default function BracketList() {
     const state = useContext(CURRENT_STATE);
-    const { tournament, setBracketId = () => { } } = state || {};
+    const { tournament, setTournament = () => { }, setBracketId = () => { } } = state || {};
     const navigate = useNavigate();
     const { showError, ErrorToastContainer } = useErrorToast();
 
@@ -29,6 +29,21 @@ export default function BracketList() {
         }
 
         navigate('/bracket');
+    };
+
+    const handleDeleteBracket = async (bracketId: string) => {
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.removeBracketFromTournament({ tournamentId: tournament.id, bracketId })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
     };
 
     const brackets = tournament.brackets;
@@ -53,6 +68,7 @@ export default function BracketList() {
                         key={bracket.id}
                         bracket={bracket}
                         onClick={handleBracketClick}
+                        onDelete={handleDeleteBracket}
                     />
                 ))}
             </div>
