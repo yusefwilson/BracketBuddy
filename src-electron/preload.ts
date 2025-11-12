@@ -28,8 +28,8 @@ contextBridge.exposeInMainWorld('electron', {
     deleteTournament: async (input: DeleteTournamentInput) =>
         ipcRenderer.invoke('delete-tournament', input),
 
-    addBracketToTournament: async (input: AddBracketsToTournamentInput) =>
-        ipcRenderer.invoke('add-bracket-to-tournament', input),
+    addBracketsToTournament: async (input: AddBracketsToTournamentInput) =>
+        ipcRenderer.invoke('add-brackets-to-tournament', input),
 
     removeBracketFromTournament: async (input: RemoveBracketFromTournamentInput) =>
         ipcRenderer.invoke('remove-bracket-from-tournament', input),

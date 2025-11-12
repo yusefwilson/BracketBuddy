@@ -48,7 +48,7 @@ const create_window = async () => {
 ipcMain.handle('load-all-tournaments', load_all_tournaments);
 ipcMain.handle('create-tournament', create_tournament);
 ipcMain.handle('delete-tournament', delete_tournament);
-ipcMain.handle('add-bracket-to-tournament', add_brackets_to_tournament);
+ipcMain.handle('add-brackets-to-tournament', add_brackets_to_tournament);
 ipcMain.handle('remove-bracket-from-tournament', remove_bracket_from_tournament);
 ipcMain.handle('export-tournament', export_tournament);
 ipcMain.handle('import-tournament', import_tournament);

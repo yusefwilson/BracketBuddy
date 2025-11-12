@@ -26,7 +26,7 @@ declare global {
       loadAllTournaments: () => Promise<ApiResponse<TournamentDTO[]>>;
       createTournament: (input: CreateTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
       deleteTournament: (input: DeleteTournamentInput) => Promise<ApiResponse<void>>;
-      addBracketToTournament: (input: AddBracketsToTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      addBracketsToTournament: (input: AddBracketsToTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
       removeBracketFromTournament: (input: RemoveBracketFromTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
       exportTournament: (input: ExportTournamentInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
       importTournament: (input: ImportTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
