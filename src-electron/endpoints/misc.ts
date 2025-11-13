@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 
-import { shell, dialog } from 'electron';
+import { shell, dialog, BrowserWindow, webContents } from 'electron';
 
 import type { SaveKeyValueInput, ApiResponse } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
@@ -106,7 +106,38 @@ const load_file = async (_: Electron.IpcMainInvokeEvent, fileExtension: string):
     }
 };
 
-export { save_file, load_file };
+const get_zoom_level = async (event: Electron.IpcMainInvokeEvent): Promise<ApiResponse<number>> => {
+    try {
+        const zoomFactor = event.sender.getZoomFactor();
+        // Convert zoom factor to percentage (1.0 = 100%)
+        const zoomPercent = Math.round(zoomFactor * 100);
+        return successResponse(zoomPercent);
+    } catch (error) {
+        console.error('Error getting zoom level:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to get zoom level');
+    }
+};
+
+const set_zoom_level = async (event: Electron.IpcMainInvokeEvent, zoomPercent: number): Promise<ApiResponse<void>> => {
+    try {
+        // Convert percentage to zoom factor (100% = 1.0)
+        const zoomFactor = zoomPercent / 100;
+        event.sender.setZoomFactor(zoomFactor);
+
+        // Also save to persistent storage
+        const data = await readFile(SAVE_FILE_PATH, 'utf-8');
+        const parsedData = JSON.parse(data);
+        parsedData.zoomLevel = zoomPercent;
+        await writeFile(SAVE_FILE_PATH, JSON.stringify(parsedData));
+
+        return successResponse(undefined);
+    } catch (error) {
+        console.error('Error setting zoom level:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to set zoom level');
+    }
+};
+
+export { save_file, load_file, get_zoom_level, set_zoom_level };
 
 export {
     get_save_data,
