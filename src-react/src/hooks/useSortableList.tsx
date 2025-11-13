@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
   DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -11,19 +16,98 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { safeApiCall } from '../utils/apiHelpers';
 
 // Shared logic for managing a sortable list of items
-export function useSortableList<T extends { id: string }>(initialItems: T[]) {
+export function useSortableList<T extends { id: string }>(
+  initialItems: T[],
+  persistenceKey?: string
+) {
   const [items, setItems] = useState(initialItems);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  // Load saved order on mount
+  useEffect(() => {
+    if (!persistenceKey) {
+      setIsLoaded(true);
+      return;
+    }
+
+    const loadOrder = async () => {
+      const [saveData, error] = await safeApiCall(window.electron.getSaveData());
+
+      if (error) {
+        console.error('Failed to load item order:', error);
+        setItems(initialItems);
+        setIsLoaded(true);
+        return;
+      }
+
+      if (saveData) {
+        const savedOrder = saveData[persistenceKey] as string[] | undefined;
+
+        if (savedOrder && Array.isArray(savedOrder)) {
+          // Reorder items based on saved order
+          const orderedItems = [...initialItems].sort((a, b) => {
+            const indexA = savedOrder.indexOf(a.id);
+            const indexB = savedOrder.indexOf(b.id);
+            // Items not in saved order go to the end
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+          });
+          setItems(orderedItems);
+        } else {
+          setItems(initialItems);
+        }
+      } else {
+        setItems(initialItems);
+      }
+
+      setIsLoaded(true);
+    };
+
+    loadOrder();
+  }, [persistenceKey]); // Only run on mount or when persistenceKey changes
+
+  // Update items when initialItems change (e.g., brackets added/removed)
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    // Preserve the order of existing items, add new items to the end
+    const existingIds = new Set(items.map(i => i.id));
+    const newItems = initialItems.filter(i => !existingIds.has(i.id));
+    const updatedItems = items.filter(i => initialItems.some(initial => initial.id === i.id));
+
+    setItems([...updatedItems, ...newItems]);
+  }, [initialItems, isLoaded]);
+
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      setItems((prev) => {
-        const oldIndex = prev.findIndex((i) => i.id === active.id);
-        const newIndex = prev.findIndex((i) => i.id === over.id);
-        return arrayMove(prev, oldIndex, newIndex);
+      const newItems = await new Promise<T[]>((resolve) => {
+        setItems((prev) => {
+          const oldIndex = prev.findIndex((i) => i.id === active.id);
+          const newIndex = prev.findIndex((i) => i.id === over.id);
+          const newOrder = arrayMove(prev, oldIndex, newIndex);
+          resolve(newOrder);
+          return newOrder;
+        });
       });
+
+      // Persist the new order
+      if (persistenceKey) {
+        const [, error] = await safeApiCall(
+          window.electron.saveKeyValue({
+            key: persistenceKey,
+            value: newItems.map(item => item.id),
+          })
+        );
+
+        if (error) {
+          console.error('Failed to save item order:', error);
+        }
+      }
     }
   };
 
@@ -61,8 +145,41 @@ export function SortableList<T extends { id: string }>({ items, onDragEnd, rende
   renderItem: (item: T) => React.ReactNode;
   className?: string;
 }) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Configure pointer sensor with activation constraints
+  // Requires 8px of movement before drag starts, allowing clicks to work
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
+    onDragEnd(event);
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+
+  const activeItem = activeId ? items.find((item) => item.id === activeId) : null;
+
   return (
-    <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
       <SortableContext items={items} strategy={horizontalListSortingStrategy}>
         <div className={`flex gap-4 ${className || ''}`}>
           {items.map((item) => (
@@ -72,6 +189,17 @@ export function SortableList<T extends { id: string }>({ items, onDragEnd, rende
           ))}
         </div>
       </SortableContext>
+      <DragOverlay dropAnimation={null}>
+        {activeItem ? (
+          <div
+            style={{
+              cursor: 'grabbing',
+            }}
+          >
+            {renderItem(activeItem)}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }

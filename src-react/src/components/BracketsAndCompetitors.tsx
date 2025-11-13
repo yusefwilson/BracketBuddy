@@ -95,7 +95,7 @@ export default function BracketsAndCompetitors() {
         navigate('/bracket');
     };
 
-    const { items: brackets, handleDragEnd } = useSortableList(tournament.brackets);
+    const { items: brackets, handleDragEnd } = useSortableList(tournament.brackets, 'bracketsAndCompetitorsOrder');
 
     if (brackets.length === 0) {
         return (
@@ -114,11 +114,7 @@ export default function BracketsAndCompetitors() {
             <div className="flex flex-row w-full gap-4 overflow-x-auto h-full pb-2">
                 <SortableList
                     items={brackets}
-                    onDragEnd={(event) => {
-                        handleDragEnd(event);
-                        // optional: persist new order here if desired
-                        // window.electron.saveKeyValue({ key: 'bracketOrder', value: brackets.map(b => b.id) });
-                    }}
+                    onDragEnd={handleDragEnd}
                     renderItem={(bracket) => (
                         <BracketCompetitorInput
                             key={bracket.id}

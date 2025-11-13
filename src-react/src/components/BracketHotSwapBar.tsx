@@ -9,7 +9,7 @@ interface BracketHotSwapBarProps {
 
 export default function BracketHotSwapBar({ tournament, currentBracketId, onBracketChange }: BracketHotSwapBarProps) {
 
-    const { items: brackets, handleDragEnd } = useSortableList(tournament.brackets);
+    const { items: brackets, handleDragEnd } = useSortableList(tournament.brackets, 'bracketOrder');
 
     const handleBracketChange = async (bracketId: string) => {
         onBracketChange(bracketId);
