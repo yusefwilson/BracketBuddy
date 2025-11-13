@@ -32,6 +32,7 @@ export default function BracketsAndCompetitors() {
         }
 
         if (updatedTournament) {
+            console.log('updatedTournament', updatedTournament);
             setTournament(updatedTournament);
         }
     };

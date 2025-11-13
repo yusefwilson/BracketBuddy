@@ -70,14 +70,21 @@ export function useSortableList<T extends { id: string }>(
     loadOrder();
   }, [persistenceKey]); // Only run on mount or when persistenceKey changes
 
-  // Update items when initialItems change (e.g., brackets added/removed)
+  // Update items when initialItems change (e.g., brackets added/removed/modified)
   useEffect(() => {
     if (!isLoaded) return;
 
-    // Preserve the order of existing items, add new items to the end
+    // Create a map of initialItems by id for quick lookup
+    const initialItemsMap = new Map(initialItems.map(item => [item.id, item]));
+
+    // Preserve the order of existing items, update their contents, add new items to the end
     const existingIds = new Set(items.map(i => i.id));
     const newItems = initialItems.filter(i => !existingIds.has(i.id));
-    const updatedItems = items.filter(i => initialItems.some(initial => initial.id === i.id));
+
+    // Update existing items with fresh data from initialItems while preserving order
+    const updatedItems = items
+      .filter(i => initialItemsMap.has(i.id))
+      .map(i => initialItemsMap.get(i.id)!);
 
     setItems([...updatedItems, ...newItems]);
   }, [initialItems, isLoaded]);
