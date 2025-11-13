@@ -38,9 +38,9 @@ const INITIAL_VERTICAL_GAP = 100;
 const EXTRA_VERTICAL_OFFSET = 25;
 
 const WINNER_HORIZONTAL_OFFSET = 12;
-const WINNER_VERTICAL_OFFSET = 12;
+const WINNER_VERTICAL_OFFSET = 60;
 const LOSER_HORIZONTAL_OFFSET = 12;
-const LOSER_VERTICAL_OFFSET = 12;
+const LOSER_VERTICAL_OFFSET = 40;
 
 type MatchAndPosition = { match: MatchDTO, x: number, y: number };
 
