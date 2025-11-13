@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowUpTrayIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 import type { TournamentDTO } from '../../../src-shared/TournamentDTO';
 
@@ -54,7 +55,7 @@ export default function Home() {
       {/* Create Button */}
       <div className='w-full max-w-3xl flex justify-end gap-3 mb-4'>
         <button
-          className='bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-semibold transition duration-200'
+          className='bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg font-semibold transition duration-200 shadow-md hover:shadow-lg'
           onClick={async () => {
             const [result, error] = await safeApiCall(
               window.electron.importTournament({})
@@ -76,14 +77,16 @@ export default function Home() {
               }
             }
           }}
+          title="Load tournament"
         >
-          Load Tournament
+          <ArrowUpTrayIcon className='h-6 w-6' />
         </button>
         <button
-          className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-semibold transition duration-200'
+          className='bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg font-semibold transition duration-200 shadow-md hover:shadow-lg'
           onClick={() => setTournamentModalOpen(true)}
+          title="Create tournament"
         >
-          + Create Tournament
+          <PlusIcon className='h-6 w-6' />
         </button>
       </div>
 

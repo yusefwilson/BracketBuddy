@@ -1,8 +1,9 @@
 import { parse, stringify } from 'flatted';
 import { DoubleElimination } from 'tournament-pairings';
 
-import { ExperienceLevel, ExternalMatch, WeightLimit } from '../../src-shared/types.js';
+import { Gender, Hand, ExperienceLevel, ExternalMatch, WeightLimit } from '../../src-shared/types.js';
 
+import Bracket from './Bracket.js';
 import Match from './Match.js';
 
 /* MATH */
@@ -514,9 +515,17 @@ function shuffle<T>(array: T[]) {
     }
 }
 
+function bracketsAreEqual(bracketDTO: Bracket, bracketInput: { gender: Gender; experienceLevel: ExperienceLevel; hand: Hand; weightLimit: WeightLimit }) {
+    return bracketDTO.gender === bracketInput.gender &&
+        bracketDTO.experienceLevel === bracketInput.experienceLevel &&
+        bracketDTO.hand === bracketInput.hand &&
+        bracketDTO.weightLimit === bracketInput.weightLimit;
+}
+
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     serialize, deserialize,
     prepareMatches,
-    shuffle
+    shuffle,
+    bracketsAreEqual
 }

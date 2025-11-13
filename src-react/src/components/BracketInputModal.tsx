@@ -43,7 +43,7 @@ export default function BracketInputModal({ setBracketModalOpen }: BracketInputM
 
         // add bracket to tournament
         const [newTournament, error] = await safeApiCall(
-            window.electron.addBracketToTournament({
+            window.electron.addBracketsToTournament({
                 tournamentId: tournament.id,
                 brackets: [{ gender, experienceLevel, hand, weightLimit, competitorNames }]
             })

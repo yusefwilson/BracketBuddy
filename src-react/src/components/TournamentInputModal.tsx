@@ -91,45 +91,46 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
             <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
                 <div className='bg-slate-700 w-full max-w-md rounded-xl p-6 shadow-lg flex flex-col gap-4'>
 
-                <h1 className='text-xl font-semibold text-white text-center'>Enter Tournament Info</h1>
+                    <h1 className='text-xl font-semibold text-white text-center'>Enter Tournament Info</h1>
 
-                {/* Input: Name */}
-                <input
-                    className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
-                    placeholder='Tournament Name'
-                    name='name'
-                    onChange={onChange}
-                />
+                    {/* Input: Name */}
+                    <input
+                        className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
+                        placeholder='Tournament Name'
+                        name='name'
+                        onChange={onChange}
+                    />
 
-                {/* Input: Date */}
-                <input
-                    type='date'
-                    name='date'
-                    className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
-                    value={dateToLocalTimezoneString(date)}
-                    onChange={onChange}
-                />
+                    {/* Input: Date */}
+                    <input
+                        type='date'
+                        name='date'
+                        className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
+                        value={dateToLocalTimezoneString(date)}
+                        onChange={onChange}
+                    />
 
-                {/* Error Message */}
-                {error && (
-                    <p className='bg-red-500 text-white text-sm px-3 py-2 rounded-md'>{error}</p>
-                )}
+                    {/* Error Message */}
+                    {error && (
+                        <p className='bg-red-500 text-white text-sm px-3 py-2 rounded-md'>{error}</p>
+                    )}
 
-                {/* Action Buttons */}
-                <div className='flex justify-center gap-4 mt-2'>
-                    <button
-                        className='bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition'
-                        onClick={() => setTournamentModalOpen(false)}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className='bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded-md transition'
-                        onClick={onSubmit}
-                    >
-                        Create Tournament
-                    </button>
-                </div>
+                    {/* Action Buttons */}
+                    <div className='flex justify-center gap-4 mt-2'>
+                        <button
+                            className='bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition'
+                            onClick={() => setTournamentModalOpen(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className='bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-md transition'
+                            onClick={onSubmit}
+                            disabled={name.trim() === ''}
+                        >
+                            Create Tournament
+                        </button>
+                    </div>
                 </div>
             </div>
         </>

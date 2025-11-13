@@ -18,7 +18,7 @@ import Bracket from '../lib/Bracket.js';
 
 import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
 import { save_file, load_file } from './misc.js';
-import { error } from 'node:console';
+import { bracketsAreEqual } from '../lib/utils.js';
 
 const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<ApiResponse<TournamentDTO[]>> => {
     try {
@@ -80,6 +80,13 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
         const { tournamentId, brackets } = input;
         const tournament = await load_tournament(_, tournamentId);
 
+        // check if any brackets already exist in the tournament
+        for (const bracket of brackets) {
+            if (tournament.brackets.find(b => bracketsAreEqual(b, bracket))) {
+                return errorResponse('At least one of the brackets being added already exists in the tournament.');
+            }
+        }
+
         for (const bracketData of brackets) {
             const { gender, experienceLevel, hand, weightLimit, competitorNames } = bracketData;
             const bracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit);
@@ -94,10 +101,6 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
     } catch (error) {
         console.error('Error adding bracket:', error);
         const message = error instanceof Error ? error.message : 'Failed to add bracket. Please try again.';
-
-        if (message.includes('already exists')) {
-            return errorResponse('A bracket with these properties already exists in this tournament.');
-        }
         return errorResponse(message);
     }
 };

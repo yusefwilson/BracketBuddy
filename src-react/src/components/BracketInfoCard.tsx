@@ -1,53 +1,89 @@
-import { UserIcon, AcademicCapIcon, ScaleIcon, TrashIcon, HandRaisedIcon, UsersIcon } from '@heroicons/react/24/outline';
-
+import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { BracketDTO } from '../../../src-shared/BracketDTO';
 
 interface BracketInfoCardProps {
     bracket: BracketDTO;
-    onClick: () => void;
-    onRemoveClick: () => void;
+    onClick: (bracketId: string) => void;
+    onDelete: (bracketId: string) => void;
 }
 
-export default function BracketInfoCard({ bracket, onClick, onRemoveClick }: BracketInfoCardProps) {
-    return (
-        <div
-            className='bg-slate-500 hover:bg-slate-600 transition cursor-pointer p-4 rounded-xl flex flex-wrap justify-between items-center shadow-sm'
-            onClick={onClick}
-        >
-            {/* Bracket Info with Icons */}
-            <div className='flex flex-col text-white text-sm gap-2'>
-                <div className='flex items-center gap-2'>
-                    <UserIcon className='h-5 w-5 text-blue-300' />
-                    <span>{bracket.gender}</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                    <AcademicCapIcon className='h-5 w-5 text-green-300' />
-                    <span>{bracket.experienceLevel}</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                    <ScaleIcon className='h-5 w-5 text-purple-300' />
-                    <span>{bracket.weightLimit}</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                    <HandRaisedIcon className='h-5 w-5 text-yellow-300' />
-                    <span>{bracket.hand}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <UsersIcon className="h-5 w-5 text-pink-300" />
-                    <span>{bracket.competitorNames?.length ?? 0} Competitors</span>
-                </div>
-            </div>
+export default function BracketInfoCard({ bracket, onClick, onDelete }: BracketInfoCardProps) {
+    const competitorCount = bracket.competitorNames.length;
+    const isComplete = bracket.firstPlace !== undefined;
 
-            {/* Remove Button */}
+    return (
+        <div className="w-full bg-slate-600 hover:bg-slate-500 transition p-4 rounded-lg shadow-md flex items-center justify-between gap-4">
+            {/* Left side: Bracket details with inline icons */}
             <button
-                className='bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition flex items-center h-8'
-                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation();
-                    onRemoveClick();
-                }}
+                onClick={() => onClick(bracket.id)}
+                className="flex-1 flex flex-col gap-1 text-left"
             >
-                <TrashIcon className='h-4 w-4' />
+                <h3 className="text-white font-semibold text-lg flex items-center flex-wrap gap-2">
+                    <span className="flex items-center gap-1">
+                        <UserIcon className="h-5 w-5 text-blue-400" />
+                        {bracket.gender}
+                    </span>
+                    <span>|</span>
+                    <span className="flex items-center gap-1">
+                        <AcademicCapIcon className="h-5 w-5 text-green-400" />
+                        {bracket.experienceLevel}
+                    </span>
+                    <span>|</span>
+                    <span className="flex items-center gap-1">
+                        <HandRaisedIcon className="h-5 w-5 text-yellow-400" />
+                        {bracket.hand}
+                    </span>
+                    <span>|</span>
+                    <span className="flex items-center gap-1">
+                        <ScaleIcon className="h-5 w-5 text-purple-500" />
+                        {bracket.weightLimit}
+                    </span>
+                </h3>
+                <div className="flex gap-4 text-sm text-gray-300">
+                    <span>{competitorCount} competitor{competitorCount !== 1 ? 's' : ''}</span>
+                    {isComplete && (
+                        <span className="text-green-400 font-semibold">✓ Complete</span>
+                    )}
+                </div>
             </button>
+
+            {/* Right side: Placement information and delete button */}
+            <div className="flex items-center gap-4">
+                {isComplete && (
+                    <div className="flex flex-col gap-1 text-sm text-gray-300">
+                        {bracket.firstPlace && (
+                            <div className="flex gap-2">
+                                <span className="text-yellow-400 font-semibold">🥇 1st:</span>
+                                <span className="text-white">{bracket.firstPlace}</span>
+                            </div>
+                        )}
+                        {bracket.secondPlace && (
+                            <div className="flex gap-2">
+                                <span className="text-gray-400 font-semibold">🥈 2nd:</span>
+                                <span className="text-white">{bracket.secondPlace}</span>
+                            </div>
+                        )}
+                        {bracket.thirdPlace && (
+                            <div className="flex gap-2">
+                                <span className="text-orange-400 font-semibold">🥉 3rd:</span>
+                                <span className="text-white">{bracket.thirdPlace}</span>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(bracket.id);
+                    }}
+                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex-shrink-0"
+                    type="button"
+                    title="Delete bracket"
+                >
+                    <TrashIcon className="h-5 w-5" />
+                </button>
+            </div>
         </div>
     );
 }

@@ -9,58 +9,68 @@ import BracketInfoCard from './BracketInfoCard';
 
 export default function BracketList() {
     const state = useContext(CURRENT_STATE);
-    const { tournament, setBracketIndex = () => { }, setTournament = () => { } } = state || {};
+    const { tournament, setTournament = () => { }, setBracketId = () => { } } = state || {};
     const navigate = useNavigate();
     const { showError, ErrorToastContainer } = useErrorToast();
 
     if (!tournament) {
-        return null;
+        return <div>Loading tournament...</div>;
+    }
+
+    const handleBracketClick = async (bracketId: string) => {
+        setBracketId(bracketId);
+        const [, error] = await safeApiCall(
+            window.electron.saveKeyValue({ key: 'lastBracketId', value: bracketId })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        navigate('/bracket');
+    };
+
+    const handleDeleteBracket = async (bracketId: string) => {
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.removeBracketFromTournament({ tournamentId: tournament.id, bracketId })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
+    };
+
+    const brackets = tournament.brackets;
+
+    if (brackets.length === 0) {
+        return (
+            <>
+                <ErrorToastContainer />
+                <div className="flex items-center justify-center h-full text-gray-400">
+                    No brackets yet. Click "Add Brackets" to get started.
+                </div>
+            </>
+        );
     }
 
     return (
         <>
             <ErrorToastContainer />
-            <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
-                {tournament?.brackets.length ? (
-                    tournament.brackets.map((bracket, index) => (
-                        <BracketInfoCard
-                            key={index}
-                            bracket={bracket}
-                            onClick={async () => {
-                                setBracketIndex(index);
-                                const [, error] = await safeApiCall(
-                                    window.electron.saveKeyValue({ key: 'lastBracketIndex', value: index })
-                                );
-
-                                if (error) {
-                                    showError(error);
-                                    return;
-                                }
-
-                                navigate('/bracket');
-                            }}
-                            onRemoveClick={async () => {
-                                const [data, error] = await safeApiCall(
-                                    window.electron.removeBracketFromTournament({
-                                        tournamentId: tournament.id,
-                                        bracketId: bracket.id
-                                    })
-                                );
-
-                                if (error) {
-                                    showError(error);
-                                    return;
-                                }
-
-                                if (data) {
-                                    setTournament(data);
-                                }
-                            }}
-                        />
-                    ))
-                ) : (
-                    <p className="text-gray-400 text-center italic">No brackets added yet.</p>
-                )}
+            <div className="flex flex-col gap-3 w-full max-w-4xl mx-auto">
+                {brackets.map((bracket) => (
+                    <BracketInfoCard
+                        key={bracket.id}
+                        bracket={bracket}
+                        onClick={handleBracketClick}
+                        onDelete={handleDeleteBracket}
+                    />
+                ))}
             </div>
         </>
     );

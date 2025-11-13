@@ -48,128 +48,69 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
     }, [competitors.length, prevLength]);
 
     return (
-        <div className='flex flex-col justify-between h-full'>
-            <div className='flex flex-col overflow-y-auto h-full rounded-md p-4 bg-slate-800' ref={scrollContainerRef}>
-
-                <div className='flex items-center space-x-3 mb-3 justify-between'>
-                    <h2 className='text-md font-semibold text-white'>
-                        Enter Competitor Names ({competitors.length})
+        <div className="flex flex-col justify-between h-full">
+            <div className="flex flex-col overflow-y-auto h-full rounded-lg p-4 bg-slate-800 shadow-inner" ref={scrollContainerRef}>
+                <div className="flex items-center justify-between mb-4 gap-3">
+                    <h2 className="text-sm font-semibold text-white">
+                        Competitors ({competitors.length})
                     </h2>
                     <button
                         onClick={handleRandomize}
                         disabled={competitors.length < 2}
-                        className='
-                mt-3
-                bg-purple-500
-                hover:bg-purple-600
-                disabled:opacity-50
-                disabled:cursor-not-allowed
-                text-white
-                px-3
-                py-1.5
-                rounded-md
-                transition
-                duration-200
-                ease-in-out
-                '
-                        type='button'
+                        className="bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition shadow-md hover:shadow-lg"
+                        type="button"
+                        title="Randomize order"
                     >
-                        <ArrowPathRoundedSquareIcon className='h-5 w-5' />
+                        <ArrowPathRoundedSquareIcon className="h-4 w-4" />
                     </button>
                 </div>
 
-
                 {competitors.length === 0 && (
-                    <p className='text-gray-400 italic'>No competitors added yet.</p>
+                    <p className="text-gray-400 text-sm italic">No competitors yet</p>
                 )}
 
                 {competitors.map((name, index) => (
-                    <div key={index} className='flex items-center space-x-3 mb-3'>
+                    <div key={index} className="flex items-center gap-2 mb-2">
                         <input
-                            type='text'
+                            type="text"
                             value={name}
                             disabled
-                            className='
-                flex-grow
-                p-2
-                rounded-md
-                border
-                border-gray-500
-                bg-slate-600
-                text-white
-                opacity-80
-                cursor-not-allowed
-              '
+                            className="flex-grow px-3 py-2 rounded-lg bg-slate-600 text-white text-sm border border-slate-500 opacity-90 cursor-not-allowed"
                         />
                         <button
                             onClick={() => removeCompetitor(name)}
-                            className='
-                bg-red-600
-                hover:bg-red-700
-                text-white
-                px-3
-                py-1.5
-                rounded-md
-                transition
-                duration-200
-                ease-in-out
-              '
-                            type='button'
+                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex-shrink-0"
+                            type="button"
+                            title="Remove competitor"
                         >
-                            <TrashIcon className='h-5 w-5' />
+                            <TrashIcon className="h-4 w-4" />
                         </button>
                     </div>
                 ))}
 
-                {/* Ghost input always at the bottom */}
-                <div className='flex items-center space-x-3 mt-3'>
+                {/* Input for new competitor */}
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-600">
                     <input
-                        type='text'
-                        placeholder='New competitor name'
+                        type="text"
+                        placeholder="New competitor name"
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') handleAdd();
                         }}
-                        className='
-              flex-grow
-              p-2
-              rounded-md
-              border
-              border-gray-500
-              bg-slate-600
-              text-white
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-400
-              transition
-              duration-200
-              ease-in-out
-            '
+                        className="flex-grow px-3 py-2 rounded-lg bg-slate-600 text-white text-sm border border-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-400"
                     />
                     <button
                         onClick={handleAdd}
                         disabled={newName.trim() === ''}
-                        className='
-              bg-blue-500
-              hover:bg-blue-600
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-              text-white
-              px-3
-              py-1.5
-              rounded-md
-              transition
-              duration-200
-              ease-in-out
-            '
-                        type='button'
+                        className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex-shrink-0"
+                        type="button"
+                        title="Add competitor"
                     >
-                        <PlusIcon className='h-5 w-5' />
+                        <PlusIcon className="h-4 w-4" />
                     </button>
                 </div>
-
             </div>
-        </div >
+        </div>
     );
 }

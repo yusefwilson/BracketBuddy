@@ -18,6 +18,11 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     const [competitorName, setCompetitorName] = useState('');
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
 
+    const resetModal = () => {
+        setCompetitorName('');
+        setSelectedBrackets(new Set());
+    };
+
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
@@ -80,7 +85,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
             }
 
             setTournament(updatedTournament);
-            onClose();
+            resetModal();
         } catch (error) {
             console.error('Error adding competitor:', error);
             showError('An unexpected error occurred');
@@ -130,18 +135,19 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
 
                     <div className='flex justify-center gap-4 mt-4'>
                         <button
-                            className='bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition'
-                            onClick={onClose}
-                        >
-                            Cancel
-                        </button>
-                        <button
                             className='bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed'
                             onClick={handleSubmit}
                             disabled={!competitorName.trim() || selectedBrackets.size === 0}
                         >
                             Add Competitor
                         </button>
+                        <button
+                            className='bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition'
+                            onClick={onClose}
+                        >
+                            Done
+                        </button>
+                        
                     </div>
                 </div>
             </div>

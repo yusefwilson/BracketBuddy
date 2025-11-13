@@ -16,9 +16,9 @@ import Navbar from './Navbar';
 // react automatically triggers refreshes for components that consume this context when the context value changes
 export const CURRENT_STATE = createContext<{
   tournament: TournamentDTO | null,
-  bracketIndex: number | null,
+  bracketId: string | null,
   setTournament: (tournament: TournamentDTO | null) => void,
-  setBracketIndex: (index: number) => void
+  setBracketId: (id: string | null) => void
 } | null>(null);
 
 export default function App() {
@@ -26,7 +26,7 @@ export default function App() {
   //localStorage.clear(); // for when some old storage is messing things up
 
   const [tournament, setTournament] = useState<TournamentDTO | null>(null);
-  const [bracketIndex, setBracketIndex] = useState<number | null>(null);
+  const [bracketId, setBracketId] = useState<string | null>(null);
   const { showError, ErrorToastContainer } = useErrorToast();
 
   // Load latest tournament on mount
@@ -53,19 +53,19 @@ export default function App() {
       console.log('Loaded save data:', saveData);
 
       const lastTournamentIndex = (saveData?.lastTournamentIndex || 0) as number;
-      const lastBracketIndex = (saveData?.lastBracketIndex || 0) as number;
+      const lastBracketId = (saveData?.lastBracketId || null) as string | null;
 
       const latestTournament = tournaments ? tournaments[lastTournamentIndex] || null : null;
 
       setTournament(latestTournament);
-      setBracketIndex(lastBracketIndex);
+      setBracketId(lastBracketId);
     };
     console.log('App mounted');
     loadLatest();
   }, [showError]);
 
   return (
-    <CURRENT_STATE.Provider value={{ tournament, bracketIndex, setTournament, setBracketIndex }}>
+    <CURRENT_STATE.Provider value={{ tournament, bracketId, setTournament, setBracketId }}>
       <ErrorToastContainer />
       <Router>
         <Navbar />
