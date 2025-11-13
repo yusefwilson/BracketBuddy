@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+import { useSortableList, SortableList } from '../hooks/useSortableList';
 
 import { CURRENT_STATE } from './App';
 import BracketCompetitorInput from './BracketCompetitorInput';
@@ -94,7 +95,7 @@ export default function BracketsAndCompetitors() {
         navigate('/bracket');
     };
 
-    const brackets = tournament.brackets;
+    const { items: brackets, handleDragEnd } = useSortableList(tournament.brackets);
 
     if (brackets.length === 0) {
         return (
@@ -111,17 +112,25 @@ export default function BracketsAndCompetitors() {
         <>
             <ErrorToastContainer />
             <div className="flex flex-row w-full gap-4 overflow-x-auto h-full pb-2">
-                {brackets.map((bracket) => (
-                    <BracketCompetitorInput
-                        key={bracket.id}
-                        bracket={bracket}
-                        onAddCompetitor={handleAddCompetitor}
-                        onRemoveCompetitor={handleRemoveCompetitor}
-                        onRandomize={handleRandomize}
-                        onRemoveBracket={handleRemoveBracket}
-                        onBracketClick={handleBracketClick}
-                    />
-                ))}
+                <SortableList
+                    items={brackets}
+                    onDragEnd={(event) => {
+                        handleDragEnd(event);
+                        // optional: persist new order here if desired
+                        // window.electron.saveKeyValue({ key: 'bracketOrder', value: brackets.map(b => b.id) });
+                    }}
+                    renderItem={(bracket) => (
+                        <BracketCompetitorInput
+                            key={bracket.id}
+                            bracket={bracket}
+                            onAddCompetitor={handleAddCompetitor}
+                            onRemoveCompetitor={handleRemoveCompetitor}
+                            onRandomize={handleRandomize}
+                            onRemoveBracket={handleRemoveBracket}
+                            onBracketClick={handleBracketClick}
+                        />
+                    )}
+                />
             </div>
         </>
     );
