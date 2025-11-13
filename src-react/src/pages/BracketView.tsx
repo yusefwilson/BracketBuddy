@@ -19,6 +19,7 @@ export default function BracketView() {
   const { showError, ErrorToastContainer } = useErrorToast();
   const [finalRematchJustSpawned, setFinalRematchJustSpawned] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(true);
+  const [placingsOpen, setPlacingsOpen] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,13 +78,22 @@ export default function BracketView() {
       <ErrorToastContainer />
       <div className='flex flex-col h-full gap-4 p-8 bg-slate-800 shadow-inner'>
 
-      {/* Toggle Button */}
+      {/* Left Toggle Button */}
       <button
         onClick={() => setControlsOpen(!controlsOpen)}
-        className='absolute left-4 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 shadow-md transition'
+        className='absolute left-4 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 shadow-md transition z-10'
         title={controlsOpen ? 'Collapse panel' : 'Expand panel'}
       >
         {controlsOpen ? <ChevronLeftIcon className='h-4 w-4' strokeWidth={4} /> : <ChevronRightIcon className='h-4 w-4' strokeWidth={4} />}
+      </button>
+
+      {/* Right Toggle Button */}
+      <button
+        onClick={() => setPlacingsOpen(!placingsOpen)}
+        className='absolute right-4 top-1/2 translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 shadow-md transition z-10'
+        title={placingsOpen ? 'Collapse panel' : 'Expand panel'}
+      >
+        {placingsOpen ? <ChevronRightIcon className='h-4 w-4' strokeWidth={4} /> : <ChevronLeftIcon className='h-4 w-4' strokeWidth={4} />}
       </button>
 
       {/* Top: Controls + Bracket Display */}
@@ -91,14 +101,14 @@ export default function BracketView() {
 
         {/* Controls Panel */}
         <div
-          className={`flex flex-col bg-slate-700 rounded-lg p-4 shadow-md gap-4 items-center
-            ${controlsOpen ? '' : 'w-0 opacity-0 h-0'}`}
+          className={`flex flex-col bg-slate-700 rounded-lg p-4 shadow-md gap-4 items-center transition-all
+            ${controlsOpen ? 'min-w-[300px]' : 'w-0 opacity-0 p-0 overflow-hidden'}`}
         >
           <p className='text-lg font-bold'>
             {bracket.gender + ' | ' + bracket.hand + ' | ' + bracket.experienceLevel + ' | ' + bracket.weightLimit}
           </p>
-          
-          <div className='h-64'>
+
+          <div className='flex-1 w-full min-h-0'>
             <CompetitorInput
               competitors={bracket.competitorNames ?? []}
               addCompetitor={async (name) => {
@@ -159,8 +169,6 @@ export default function BracketView() {
               }}
             />
           </div>
-
-          <FinalPlacings first={bracket.firstPlace} second={bracket.secondPlace} third={bracket.thirdPlace} />
         </div>
 
         {/* Bracket Display */}
@@ -187,6 +195,15 @@ export default function BracketView() {
               )}
             </>
           )}
+        </div>
+
+        {/* Placings Panel */}
+        <div
+          className={`flex flex-col bg-slate-700 rounded-lg p-4 shadow-md gap-4 items-center transition-all
+            ${placingsOpen ? 'overflow-y-auto' : 'w-0 opacity-0 p-0 overflow-hidden'}`}
+        >
+          <p className='text-lg font-bold'>Final Placings</p>
+          <FinalPlacings first={bracket.firstPlace} second={bracket.secondPlace} third={bracket.thirdPlace} />
         </div>
       </div>
 

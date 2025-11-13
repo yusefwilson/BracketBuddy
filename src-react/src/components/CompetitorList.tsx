@@ -2,6 +2,7 @@ import { useState, useContext, useMemo, useEffect } from 'react';
 import { UserIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
 
 import { CURRENT_STATE } from './App';
 import CompetitorClassModal from './CompetitorClassModal';
@@ -10,11 +11,13 @@ import CompetitorInfoCard from './CompetitorInfoCard';
 
 export default function CompetitorList() {
     const state = useContext(CURRENT_STATE);
-    const { tournament } = state || {};
+    const { tournament, setTournament = () => { } } = state || {};
+    const { showError, ErrorToastContainer } = useErrorToast();
 
     const [selectedCompetitor, setSelectedCompetitor] = useState<string | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [competitorToRemove, setCompetitorToRemove] = useState<{ name: string; brackets: Array<{ id: string; name: string }> } | null>(null);
 
     // Load saved modal state on mount
     useEffect(() => {
@@ -90,6 +93,36 @@ export default function CompetitorList() {
         });
     }, [allCompetitors, searchTerm]);
 
+    // Handle removing competitor from all brackets
+    const handleRemoveCompetitor = async (competitorName: string, brackets: Array<{ id: string; name: string }>) => {
+        if (!tournament) return;
+
+        // Remove from each bracket sequentially
+        let currentTournament = tournament;
+        for (const bracket of brackets) {
+            const [updatedTournament, error] = await safeApiCall(
+                window.electron.removeCompetitorFromBracket({
+                    tournamentId: currentTournament.id,
+                    bracketId: bracket.id,
+                    competitorName
+                })
+            );
+
+            if (error) {
+                showError(error);
+                return;
+            }
+
+            if (updatedTournament) {
+                currentTournament = updatedTournament;
+            }
+        }
+
+        // Update tournament after all removals
+        setTournament(currentTournament);
+        setCompetitorToRemove(null);
+    };
+
     if (!tournament) {
         return (
             <div className="text-gray-400 text-center italic">
@@ -100,6 +133,7 @@ export default function CompetitorList() {
 
     return (
         <div className="w-full flex flex-col gap-4">
+            <ErrorToastContainer />
             {/* Header and Search */}
             <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
@@ -148,6 +182,7 @@ export default function CompetitorList() {
                             bracketCount={competitor.bracketCount}
                             brackets={competitor.brackets}
                             onClick={() => setSelectedCompetitor(competitor.name)}
+                            onRemove={() => setCompetitorToRemove({ name: competitor.name, brackets: competitor.brackets })}
                         />
                     ))}
                 </div>
@@ -165,6 +200,40 @@ export default function CompetitorList() {
                 <AddCompetitorModal
                     onClose={() => handleModalToggle(false)}
                 />
+            )}
+
+            {/* Confirmation Modal for Removal */}
+            {competitorToRemove && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-slate-700 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+                        <h3 className="text-xl font-bold text-white mb-4">Remove Competitor</h3>
+                        <p className="text-gray-300 mb-2">
+                            Are you sure you want to remove <span className="font-semibold text-white">{competitorToRemove.name}</span> from all brackets?
+                        </p>
+                        <p className="text-gray-400 text-sm mb-6">
+                            This will remove them from {competitorToRemove.brackets.length} {competitorToRemove.brackets.length === 1 ? 'class' : 'classes'}:
+                        </p>
+                        <ul className="text-gray-300 text-sm mb-6 max-h-32 overflow-y-auto">
+                            {competitorToRemove.brackets.map((bracket) => (
+                                <li key={bracket.id} className="mb-1">• {bracket.name}</li>
+                            ))}
+                        </ul>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setCompetitorToRemove(null)}
+                                className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-md transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleRemoveCompetitor(competitorToRemove.name, competitorToRemove.brackets)}
+                                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
