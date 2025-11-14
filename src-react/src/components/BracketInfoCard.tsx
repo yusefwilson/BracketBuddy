@@ -41,36 +41,30 @@ export default function BracketInfoCard({ bracket, onClick, onDelete }: BracketI
                 </h3>
                 <div className="flex gap-4 text-sm text-gray-300">
                     <span>{competitorCount} competitor{competitorCount !== 1 ? 's' : ''}</span>
-                    {isComplete && (
+                    {isComplete ? (
                         <span className="text-green-400 font-semibold">✓ Complete</span>
+                    ) : (
+                        <span className="text-yellow-400 font-semibold">⏳ In Progress</span>
                     )}
                 </div>
             </button>
 
             {/* Right side: Placement information and delete button */}
             <div className="flex items-center gap-4">
-                {isComplete && (
-                    <div className="flex flex-col gap-1 text-sm text-gray-300">
-                        {bracket.firstPlace && (
-                            <div className="flex gap-2">
-                                <span className="text-yellow-400 font-semibold">🥇 1st:</span>
-                                <span className="text-white">{bracket.firstPlace}</span>
-                            </div>
-                        )}
-                        {bracket.secondPlace && (
-                            <div className="flex gap-2">
-                                <span className="text-gray-400 font-semibold">🥈 2nd:</span>
-                                <span className="text-white">{bracket.secondPlace}</span>
-                            </div>
-                        )}
-                        {bracket.thirdPlace && (
-                            <div className="flex gap-2">
-                                <span className="text-orange-400 font-semibold">🥉 3rd:</span>
-                                <span className="text-white">{bracket.thirdPlace}</span>
-                            </div>
-                        )}
+                <div className="flex flex-col gap-1 text-sm text-gray-300">
+                    <div className="flex gap-2">
+                        <span className="text-yellow-400 font-semibold">🥇 1st:</span>
+                        <span className={bracket.firstPlace ? "text-white" : "text-white"}>{bracket.firstPlace || "TBD"}</span>
                     </div>
-                )}
+                    <div className="flex gap-2">
+                        <span className="text-gray-400 font-semibold">🥈 2nd:</span>
+                        <span className={bracket.secondPlace ? "text-white" : "text-white"}>{bracket.secondPlace || "TBD"}</span>
+                    </div>
+                    <div className="flex gap-2">
+                        <span className="text-orange-400 font-semibold">🥉 3rd:</span>
+                        <span className={bracket.thirdPlace ? "text-white" : "text-white"}>{bracket.thirdPlace || "TBD"}</span>
+                    </div>
+                </div>
 
                 <button
                     onClick={(e) => {
