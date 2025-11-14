@@ -23,10 +23,8 @@ export default function BracketCompetitorInput({
     return (
         <div
             key={bracket.id}
-            className="flex flex-col rounded-xl p-5 bg-slate-600 shadow-lg transition [&:not(:has(:hover))]:hover:bg-slate-500 [&:not(:has(:hover))]:hover:cursor-pointer [&:not(:has(:hover))]:hover:shadow-xl min-w-[320px] h-full"
-            onClick={async (e) => {
-                // Only trigger if the click happened directly on this div, not a child
-                if (e.target !== e.currentTarget) return;
+            className="flex flex-col rounded-xl p-5 bg-slate-600 shadow-lg transition hover:bg-slate-500 hover:cursor-pointer hover:shadow-xl min-w-[320px] h-full"
+            onClick={async () => {
                 await onBracketClick(bracket.id);
             }}
         >
