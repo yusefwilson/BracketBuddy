@@ -45,6 +45,8 @@ declare global {
       saveCsv: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
       saveFile: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
       loadFile: (fileExtension: string) => Promise<ApiResponse<{ canceled: boolean; data?: string; filePath?: string }>>;
+      getZoomLevel: () => Promise<ApiResponse<number>>;
+      setZoomLevel: (zoomPercent: number) => Promise<ApiResponse<void>>;
 
       // aers
       exportToAERS: (input: ExportToAERSInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;

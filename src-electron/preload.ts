@@ -70,6 +70,11 @@ contextBridge.exposeInMainWorld('electron', {
     loadFile: async (fileExtension: string) =>
         ipcRenderer.invoke('load-file', fileExtension),
 
+    getZoomLevel: async () => ipcRenderer.invoke('get-zoom-level'),
+
+    setZoomLevel: async (zoomPercent: number) =>
+        ipcRenderer.invoke('set-zoom-level', zoomPercent),
+
     // aers
     exportToAERS: async (input: ExportToAERSInput) => ipcRenderer.invoke('export-to-AERS', input),
 });

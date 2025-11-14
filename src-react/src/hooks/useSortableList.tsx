@@ -129,13 +129,14 @@ export function SortableItem({
   id: string;
   children: React.ReactNode;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     cursor: 'grab',
+    opacity: isDragging ? 0 : 1,
   };
 
   return (

@@ -71,7 +71,7 @@ export default function BracketView() {
     }
   };
 
-  const { winnerMatches, loserMatches, final, finalRematch } = calculateAllMatchPositions(bracket);
+  const { winnerMatches, loserMatches, final, finalRematch, WINNERS_BOTTOM } = calculateAllMatchPositions(bracket);
 
   return (
     <>
@@ -181,12 +181,40 @@ export default function BracketView() {
             </div>
           ) : (
             <>
+              {/* Winners Bracket Label */}
+              <div className='absolute top-0 left-0 text-white font-bold text-lg bg-slate-600 px-3 py-1 rounded'>
+                Winners Bracket
+              </div>
+
+              {/* Winners Bracket Matches */}
               {winnerMatches?.map(({ match, x, y }) => (
                 <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket.currentMatchNumber} />
               ))}
+
+              {/* Dividing Line */}
+              {WINNERS_BOTTOM > 0 && (
+                <div
+                  className='absolute left-0 right-0 border-t-2 border-slate-400'
+                  style={{ top: `${WINNERS_BOTTOM}px` }}
+                />
+              )}
+
+              {/* Losers Bracket Label */}
+              {WINNERS_BOTTOM > 0 && (
+                <div
+                  className='absolute left-0 text-white font-bold text-lg bg-slate-600 px-3 py-1 rounded'
+                  style={{ top: `${WINNERS_BOTTOM + 2}px` }}
+                >
+                  Losers Bracket
+                </div>
+              )}
+
+              {/* Losers Bracket Matches */}
               {loserMatches?.map(({ match, x, y }) => (
                 <MatchView match={match} updateMatch={updateMatch} x={x} y={y} currentMatchId={bracket.currentMatchNumber} />
               ))}
+
+              {/* Finals */}
               {final.match && (
                 <MatchView match={final.match} updateMatch={updateMatch} x={final.x} y={final.y} currentMatchId={bracket.currentMatchNumber} />
               )}
