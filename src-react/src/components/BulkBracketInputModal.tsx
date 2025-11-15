@@ -14,6 +14,7 @@ interface BulkBracketInputModalProps {
 }
 
 const defaultWeights: WeightLimit[] = [154, 165, 176, 187, 198, 209, 220, 231, 242, 'Superheavyweight'];
+const standardWeights: WeightLimit[] = [154, 165, 176, 187, 198, 209, 220, 231, 242, 'Superheavyweight'];
 
 // Helper to create a unique key for a bracket
 const getBracketKey = (bracket: { gender: Gender; experienceLevel: ExperienceLevel; hand: Hand; weightLimit: WeightLimit }) => {
@@ -27,6 +28,27 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
 
     const [weightOptions, setWeightOptions] = useState<WeightLimit[]>(defaultWeights);
 
+    // Load custom weights from saved data on mount
+    useEffect(() => {
+        const loadCustomWeights = async () => {
+            const [saveData, error] = await safeApiCall(window.electron.getSaveData());
+            if (!error && saveData?.customWeights) {
+                const customWeights: number[] = saveData.customWeights;
+                // Combine standard weights with custom weights, ensuring no duplicates
+                const allWeights = [...standardWeights];
+                customWeights.forEach(weight => {
+                    if (!allWeights.includes(weight)) {
+                        allWeights.push(weight);
+                    }
+                });
+                // Sort: Superheavyweight first, then ascending numbers
+                const sorted = allWeights.filter(w => w !== 'Superheavyweight').sort((a, b) => (a as number) - (b as number));
+                setWeightOptions(['Superheavyweight', ...sorted]);
+            }
+        };
+        loadCustomWeights();
+    }, []);
+
     const [selectedGenders, setSelectedGenders] = useState<Gender[]>(['Male']);
     const [selectedExperienceLevels, setSelectedExperienceLevels] = useState<ExperienceLevel[]>(['Novice']);
     const [selectedHands, setSelectedHands] = useState<Hand[]>(['Right']);
@@ -35,16 +57,29 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
     const [bracketsToAdd, setBracketsToAdd] = useState<Set<string>>(new Set());
     const [manuallyExcluded, setManuallyExcluded] = useState<Set<string>>(new Set());
 
-    const addCustomWeight = (value: number) => {
+    const addCustomWeight = async (value: number) => {
         if (!weightOptions.includes(value)) {
             const newWeights = [...weightOptions.filter(w => w !== 'Superheavyweight'), value].sort();
             setWeightOptions(['Superheavyweight', ...newWeights]);
+
+            // Save custom weights (only non-standard ones)
+            const customWeights = newWeights.filter(w => !standardWeights.includes(w)) as number[];
+            await safeApiCall(window.electron.saveKeyValue({ key: 'customWeights', value: customWeights }));
         }
     };
 
-    const removeCustomWeight = (value: number | 'Superheavyweight') => {
-        setWeightOptions(weightOptions.filter(w => w !== value));
+    const removeCustomWeight = async (value: number | 'Superheavyweight') => {
+        // Prevent deletion of standard weight classes
+        if (standardWeights.includes(value)) {
+            return;
+        }
+        const updatedWeights = weightOptions.filter(w => w !== value);
+        setWeightOptions(updatedWeights);
         setSelectedWeights(selectedWeights.filter(w => w !== value));
+
+        // Save custom weights (only non-standard ones)
+        const customWeights = updatedWeights.filter(w => w !== 'Superheavyweight' && !standardWeights.includes(w)) as number[];
+        await safeApiCall(window.electron.saveKeyValue({ key: 'customWeights', value: customWeights }));
     };
 
     const toggleSelect = <T,>(item: T, list: T[], setList: (list: T[]) => void) => {
@@ -203,6 +238,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
                         selectedHands={selectedHands}
                         setSelectedHands={setSelectedHands}
                         weightOptions={weightOptions}
+                        standardWeights={standardWeights}
                         selectedWeights={selectedWeights}
                         setSelectedWeights={setSelectedWeights}
                         addCustomWeight={addCustomWeight}
