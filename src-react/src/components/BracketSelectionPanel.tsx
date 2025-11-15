@@ -1,4 +1,4 @@
-import { UserIcon, AcademicCapIcon, HandRaisedIcon, PlusIcon, ScaleIcon } from '@heroicons/react/24/outline';
+import { UserIcon, AcademicCapIcon, HandRaisedIcon, PlusIcon, ScaleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
 
 interface BracketSelectionPanelProps {
@@ -9,6 +9,7 @@ interface BracketSelectionPanelProps {
     selectedHands: Hand[];
     setSelectedHands: (hands: Hand[]) => void;
     weightOptions: WeightLimit[];
+    standardWeights: WeightLimit[];
     selectedWeights: WeightLimit[];
     setSelectedWeights: (weights: WeightLimit[]) => void;
     addCustomWeight: (value: number) => void;
@@ -27,6 +28,7 @@ export default function BracketSelectionPanel({
     selectedHands,
     setSelectedHands,
     weightOptions,
+    standardWeights,
     selectedWeights,
     setSelectedWeights,
     addCustomWeight,
@@ -36,10 +38,12 @@ export default function BracketSelectionPanel({
     onCancel,
     isAddDisabled
 }: BracketSelectionPanelProps) {
-    // Helper to sort weight buttons: Superheavyweight first, then ascending numbers
-    const sortedWeights = [...weightOptions].sort((a, b) =>
-        (a === 'Superheavyweight' ? -1 : b === 'Superheavyweight' ? 1 : (a as number) - (b as number))
-    );
+    // Helper to sort weight buttons: standard weights first (in order), then custom weights (in ascending order)
+    const sortedWeights = (() => {
+        const standard = standardWeights.filter(w => weightOptions.includes(w));
+        const custom = weightOptions.filter(w => !standardWeights.includes(w)).sort((a, b) => (a as number) - (b as number));
+        return [...standard, ...custom];
+    })();
 
     return (
         <div className="flex-1 flex flex-col gap-6 overflow-y-auto">
@@ -138,29 +142,32 @@ export default function BracketSelectionPanel({
                     </button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                    {sortedWeights.map(w => (
-                        <button
-                            key={w.toString()}
-                            className={`px-3 py-1 rounded-md font-semibold ${selectedWeights.includes(w)
-                                ? 'bg-purple-500 text-white'
-                                : 'bg-gray-500 text-white'
-                                }`}
-                            onClick={() => toggleSelect(w, selectedWeights, setSelectedWeights)}
-                        >
-                            {w}
-                            {typeof w === 'number' && w > 0 ? (
-                                <span
-                                    className="ml-1 cursor-pointer text-red-200"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeCustomWeight(w);
-                                    }}
-                                >
-                                    ×
-                                </span>
-                            ) : null}
-                        </button>
-                    ))}
+                    {sortedWeights.map(w => {
+                        const isCustomWeight = !standardWeights.includes(w);
+                        return (
+                            <button
+                                key={w.toString()}
+                                className={`px-3 py-1 rounded-md font-semibold flex flex-row items-center ${selectedWeights.includes(w)
+                                    ? 'bg-purple-500 text-white'
+                                    : 'bg-gray-500 text-white'
+                                    }`}
+                                onClick={() => toggleSelect(w, selectedWeights, setSelectedWeights)}
+                            >
+                                <div className="">{w}</div>
+                                {isCustomWeight ? (
+                                    <span
+                                        className="ml-2 px-1 rounded-full bg-red-500 hover:bg-red-600 hover:scale-110 text-white font-bold transition-all duration-150 cursor-pointer text-center"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            removeCustomWeight(w);
+                                        }}
+                                    >
+                                        <XMarkIcon className="h-4 w-4" />
+                                    </span>
+                                ) : null}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
