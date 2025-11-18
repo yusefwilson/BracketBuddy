@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { XMarkIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { HiXMark as XMarkIcon, HiExclamationTriangle as ExclamationTriangleIcon } from 'react-icons/hi2';
 
 interface ErrorToastProps {
     message: string;

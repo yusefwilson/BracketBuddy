@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { HiChevronDown as ChevronDownIcon } from 'react-icons/hi2';
 
 interface DropdownProps<T extends string> {
     options: T[];

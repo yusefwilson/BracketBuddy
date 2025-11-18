@@ -1,4 +1,4 @@
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { HiTrash as TrashIcon } from 'react-icons/hi2';
 import { BracketDTO } from '../../../src-shared/BracketDTO';
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
 

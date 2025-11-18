@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useEffect } from 'react';
-import { UserIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { HiUser as UserIcon, HiPlus as PlusIcon } from 'react-icons/hi2';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';

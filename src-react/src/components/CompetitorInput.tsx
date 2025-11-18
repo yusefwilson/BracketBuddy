@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { TrashIcon, PlusIcon, ArrowPathRoundedSquareIcon } from '@heroicons/react/24/solid';
+import { HiTrash as TrashIcon, HiPlus as PlusIcon, HiArrowPath as ArrowPathRoundedSquareIcon } from 'react-icons/hi2';
 
 function usePrevious<T>(value: T): T | undefined {
     const ref = useRef<T>();

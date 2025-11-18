@@ -1,4 +1,4 @@
-import { TrophyIcon } from '@heroicons/react/24/solid';
+import { HiTrophy as TrophyIcon } from 'react-icons/hi2';
 
 interface FinalPlacingsProps {
     first?: string;

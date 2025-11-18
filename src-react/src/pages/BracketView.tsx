@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { HiChevronLeft as ChevronLeftIcon, HiChevronRight as ChevronRightIcon, HiExclamationTriangle as ExclamationTriangleIcon } from 'react-icons/hi2';
 
 import { calculateAllMatchPositions } from '../../../src-shared/utils';
 

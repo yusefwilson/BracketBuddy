@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUpTrayIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { HiArrowUpTray as ArrowUpTrayIcon, HiPlus as PlusIcon } from 'react-icons/hi2';
 
 import type { TournamentDTO } from '../../../src-shared/TournamentDTO';
 
@@ -77,7 +77,7 @@ export default function Home() {
               }
             }
           }}
-          title="Load tournament"
+          title="Load tournament from save file"
         >
           <ArrowUpTrayIcon className='h-6 w-6' />
         </button>
