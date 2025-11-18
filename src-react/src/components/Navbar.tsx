@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ChevronLeftIcon, HomeIcon, HeartIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon } from '@heroicons/react/24/solid';
+import { HiChevronLeft as ChevronLeftIcon, HiHome as HomeIcon, HiHeart as HeartIcon, HiMagnifyingGlassMinus as MagnifyingGlassMinusIcon, HiMagnifyingGlassPlus as MagnifyingGlassPlusIcon } from 'react-icons/hi2';
 import { safeApiCall } from '../utils/apiHelpers';
 
 export default function Navbar() {

@@ -1,4 +1,4 @@
-import { UserIcon, AcademicCapIcon, HandRaisedIcon, PlusIcon, ScaleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { HiUser as UserIcon, HiAcademicCap as AcademicCapIcon, HiHandRaised as HandRaisedIcon, HiPlus as PlusIcon, HiScale as ScaleIcon, HiXMark as XMarkIcon } from 'react-icons/hi2';
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
 
 interface BracketSelectionPanelProps {

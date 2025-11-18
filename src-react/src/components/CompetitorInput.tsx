@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { TrashIcon, PlusIcon, ArrowPathRoundedSquareIcon } from '@heroicons/react/24/solid';
+import { HiTrash as TrashIcon, HiPlus as PlusIcon, HiArrowPath as ArrowPathRoundedSquareIcon } from 'react-icons/hi2';
 
 function usePrevious<T>(value: T): T | undefined {
     const ref = useRef<T>();
@@ -14,9 +14,11 @@ interface CompetitorInputProps {
     addCompetitor: (name: string) => Promise<void>;
     removeCompetitor: (name: string) => Promise<void>;
     randomizeCompetitors: () => Promise<void>;
+    bracketStarted: boolean;
+    onShowWarning: (message: string, onConfirm: () => void) => void;
 }
 
-export default function CompetitorInput({ competitors, addCompetitor, removeCompetitor, randomizeCompetitors, }: CompetitorInputProps) {
+export default function CompetitorInput({ competitors, addCompetitor, removeCompetitor, randomizeCompetitors, bracketStarted, onShowWarning }: CompetitorInputProps) {
     const [newName, setNewName] = useState('');
 
     // This is a dummy div that we use to auto-scroll to the bottom when competitors update
@@ -25,13 +27,44 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
 
     // Add a new competitor
     const handleAdd = async () => {
-        // add competitor
-        await addCompetitor(newName);
-        setNewName('');
+        if (bracketStarted) {
+            onShowWarning(
+                'Adding a competitor will reset the entire bracket and all match results will be lost.',
+                async () => {
+                    await addCompetitor(newName);
+                    setNewName('');
+                }
+            );
+        } else {
+            await addCompetitor(newName);
+            setNewName('');
+        }
+    };
+
+    const handleRemove = async (name: string) => {
+        if (bracketStarted) {
+            onShowWarning(
+                'Removing a competitor will reset the entire bracket and all match results will be lost.',
+                async () => {
+                    await removeCompetitor(name);
+                }
+            );
+        } else {
+            await removeCompetitor(name);
+        }
     };
 
     const handleRandomize = async () => {
-        await randomizeCompetitors();
+        if (bracketStarted) {
+            onShowWarning(
+                'Randomizing competitors will reset the entire bracket and all match results will be lost.',
+                async () => {
+                    await randomizeCompetitors();
+                }
+            );
+        } else {
+            await randomizeCompetitors();
+        }
     };
 
     // Auto-scroll to bottom when competitors update, but only scroll when a competitor was added
@@ -55,7 +88,11 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                         Competitors ({competitors.length})
                     </h2>
                     <button
-                        onClick={handleRandomize}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleRandomize();
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()}
                         disabled={competitors.length < 2}
                         className="bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition shadow-md hover:shadow-lg"
                         type="button"
@@ -78,7 +115,11 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                             className="flex-grow px-3 py-2 rounded-lg bg-slate-600 text-white text-sm border border-slate-500 opacity-90 cursor-not-allowed"
                         />
                         <button
-                            onClick={() => removeCompetitor(name)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemove(name);
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
                             className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex-shrink-0"
                             type="button"
                             title="Remove competitor"
@@ -98,10 +139,16 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') handleAdd();
                         }}
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
                         className="flex-grow px-3 py-2 rounded-lg bg-slate-600 text-white text-sm border border-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-400"
                     />
                     <button
-                        onClick={handleAdd}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleAdd();
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()}
                         disabled={newName.trim() === ''}
                         className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex-shrink-0"
                         type="button"

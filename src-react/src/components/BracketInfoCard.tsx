@@ -1,4 +1,4 @@
-import { UserIcon, AcademicCapIcon, HandRaisedIcon, ScaleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { HiUser as UserIcon, HiAcademicCap as AcademicCapIcon, HiHandRaised as HandRaisedIcon, HiScale as ScaleIcon, HiTrash as TrashIcon } from 'react-icons/hi2';
 import { BracketDTO } from '../../../src-shared/BracketDTO';
 
 interface BracketInfoCardProps {

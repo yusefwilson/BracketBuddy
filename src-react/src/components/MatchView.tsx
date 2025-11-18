@@ -1,4 +1,4 @@
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { HiExclamationTriangle as ExclamationTriangleIcon } from 'react-icons/hi2';
 import { MatchDTO } from '../../../src-shared/MatchDTO';
 import { MatchStatus } from '../../../src-shared/types';
 

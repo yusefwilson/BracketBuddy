@@ -1,4 +1,4 @@
-import { CalendarDaysIcon, UserGroupIcon, TrashIcon, TrophyIcon } from '@heroicons/react/24/outline';
+import { HiCalendarDays as CalendarDaysIcon, HiUserGroup as UserGroupIcon, HiTrash as TrashIcon, HiTrophy as TrophyIcon } from 'react-icons/hi2';
 
 import { TournamentDTO } from '../../../src-shared/TournamentDTO';
 

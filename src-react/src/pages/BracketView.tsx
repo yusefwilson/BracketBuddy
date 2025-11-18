@@ -1,16 +1,18 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { HiChevronLeft as ChevronLeftIcon, HiChevronRight as ChevronRightIcon, HiExclamationTriangle as ExclamationTriangleIcon } from 'react-icons/hi2';
 
 import { calculateAllMatchPositions } from '../../../src-shared/utils';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+import { isBracketStarted } from '../../../src-shared/bracketHelpers';
 
 import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
 import MatchView from '../components/MatchView';
 import FinalPlacings from '../components/FinalPlacings';
 import BracketHotSwapBar from '../components/BracketHotSwapBar';
+import BracketResetWarningModal from '../components/BracketResetWarningModal';
 import { MatchStatus } from '@shared/types';
 
 export default function BracketView() {
@@ -21,6 +23,11 @@ export default function BracketView() {
   const [controlsOpen, setControlsOpen] = useState(true);
   const [placingsOpen, setPlacingsOpen] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [warningModal, setWarningModal] = useState<{ isOpen: boolean; message: string; onConfirm: () => void }>({
+    isOpen: false,
+    message: '',
+    onConfirm: () => { }
+  });
 
   useEffect(() => {
     if (finalRematchJustSpawned) {
@@ -76,6 +83,12 @@ export default function BracketView() {
   return (
     <>
       <ErrorToastContainer />
+      <BracketResetWarningModal
+        isOpen={warningModal.isOpen}
+        onClose={() => setWarningModal({ ...warningModal, isOpen: false })}
+        onConfirm={warningModal.onConfirm}
+        message={warningModal.message}
+      />
       <div className='flex flex-col h-full gap-4 p-8 bg-slate-800 shadow-inner'>
 
       {/* Left Toggle Button */}
@@ -111,6 +124,7 @@ export default function BracketView() {
           <div className='flex-1 w-full min-h-0'>
             <CompetitorInput
               competitors={bracket.competitorNames ?? []}
+              bracketStarted={isBracketStarted(bracket)}
               addCompetitor={async (name) => {
                 console.log('about to add competitor to bracket: ', name);
                 const [newTournament, error] = await safeApiCall(
@@ -167,7 +181,19 @@ export default function BracketView() {
                   setTournament(newTournament);
                 }
               }}
+              onShowWarning={(message, onConfirm) => {
+                setWarningModal({ isOpen: true, message, onConfirm });
+              }}
             />
+          </div>
+
+          {/* Legend/Key */}
+          <div className='w-full bg-slate-800 rounded-lg p-3 shadow-inner'>
+            <h3 className='text-white text-sm font-semibold mb-2'>Key</h3>
+            <div className='flex items-center gap-2 text-gray-300 text-xs'>
+              <ExclamationTriangleIcon className='h-4 w-4 text-red-500' />
+              <span>Dropout/Injury/No-show</span>
+            </div>
           </div>
         </div>
 

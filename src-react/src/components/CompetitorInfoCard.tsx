@@ -1,4 +1,4 @@
-import { UserIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { HiUser as UserIcon, HiTrash as TrashIcon } from 'react-icons/hi2';
 
 interface CompetitorRowProps {
     name: string;
