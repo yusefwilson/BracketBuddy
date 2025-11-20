@@ -10,7 +10,6 @@ import type {
   UpdateBracketInput,
   AddCompetitorToBracketInput,
   RemoveCompetitorFromBracketInput,
-  StartBracketInput,
   RandomizeCompetitorsInput,
   SaveKeyValueInput,
   ExportToAERSInput,
@@ -34,7 +33,6 @@ declare global {
       // bracket
       addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<ApiResponse<TournamentDTO>>;
       removeCompetitorFromBracket: (input: RemoveCompetitorFromBracketInput) => Promise<ApiResponse<TournamentDTO>>;
-      startBracket: (input: StartBracketInput) => Promise<ApiResponse<TournamentDTO>>;
       enterResult: (input: UpdateBracketInput) => Promise<ApiResponse<TournamentDTO>>;
       randomizeCompetitors: (input: RandomizeCompetitorsInput) => Promise<ApiResponse<TournamentDTO>>;
 

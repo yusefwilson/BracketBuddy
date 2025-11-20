@@ -60,8 +60,12 @@ class Tournament {
         };
     }
 
-    getBracket(bracketId: string): Bracket | undefined {
-        return this.brackets.find(bracket => bracket.id === bracketId);
+    getBracket(bracketId: string): Bracket {
+        const bracket = this.brackets.find(bracket => bracket.id === bracketId);
+        if (!bracket) {
+            throw new Error('Bracket not found');
+        }
+        return bracket;
     }
 
     getAllBrackets(): Bracket[] {
