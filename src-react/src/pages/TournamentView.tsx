@@ -26,9 +26,9 @@ export default function TournamentView() {
   // Load saved view on mount
   useEffect(() => {
     const loadView = async () => {
-      const [saveData, error] = await safeApiCall(window.electron.getSaveData());
-      if (!error && saveData?.currentView) {
-        setCurrentView(saveData.currentView);
+      const [currentViewValue, error] = await safeApiCall(window.electron.getSavedValue('currentView'));
+      if (!error && currentViewValue) {
+        setCurrentView(currentViewValue);
       }
     };
     loadView();

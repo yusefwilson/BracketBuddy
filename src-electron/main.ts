@@ -11,7 +11,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 
 import { load_all_tournaments, create_tournament, delete_tournament, add_brackets_to_tournament, remove_bracket_from_tournament, export_to_AERS, export_tournament, import_tournament } from './endpoints/tournament.js';
 import { add_competitor_to_bracket, remove_competitor_from_bracket, update_bracket, randomize_competitors } from './endpoints/bracket.js';
-import { ensure_save_environment, get_save_data, save_key_value, get_constants, open_url, save_file, load_file, get_zoom_level, set_zoom_level } from './endpoints/misc.js';
+import { ensure_save_environment, get_saved_value, save_key_value, get_constants, open_url, save_file, load_file, get_zoom_level, set_zoom_level } from './endpoints/misc.js';
 import { readFile } from 'fs/promises';
 import { SAVE_FILE_PATH } from './constants.js';
 
@@ -75,7 +75,7 @@ ipcMain.handle('remove-competitor-from-bracket', remove_competitor_from_bracket)
 ipcMain.handle('randomize-competitors', randomize_competitors);
 
 // misc
-ipcMain.handle('get-save-data', get_save_data);
+ipcMain.handle('get-saved-value', get_saved_value);
 ipcMain.handle('save-key-value', save_key_value);
 ipcMain.handle('get-constants', get_constants);
 ipcMain.handle('open-url', open_url);

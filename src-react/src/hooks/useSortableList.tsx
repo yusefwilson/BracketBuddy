@@ -34,7 +34,7 @@ export function useSortableList<T extends { id: string }>(
     }
 
     const loadOrder = async () => {
-      const [saveData, error] = await safeApiCall(window.electron.getSaveData());
+      const [savedOrder, error] = await safeApiCall(window.electron.getSavedValue(persistenceKey));
 
       if (error) {
         console.error('Failed to load item order:', error);
@@ -43,23 +43,17 @@ export function useSortableList<T extends { id: string }>(
         return;
       }
 
-      if (saveData) {
-        const savedOrder = saveData[persistenceKey] as string[] | undefined;
-
-        if (savedOrder && Array.isArray(savedOrder)) {
-          // Reorder items based on saved order
-          const orderedItems = [...initialItems].sort((a, b) => {
-            const indexA = savedOrder.indexOf(a.id);
-            const indexB = savedOrder.indexOf(b.id);
-            // Items not in saved order go to the end
-            if (indexA === -1) return 1;
-            if (indexB === -1) return -1;
-            return indexA - indexB;
-          });
-          setItems(orderedItems);
-        } else {
-          setItems(initialItems);
-        }
+      if (savedOrder && Array.isArray(savedOrder)) {
+        // Reorder items based on saved order
+        const orderedItems = [...initialItems].sort((a, b) => {
+          const indexA = savedOrder.indexOf(a.id);
+          const indexB = savedOrder.indexOf(b.id);
+          // Items not in saved order go to the end
+          if (indexA === -1) return 1;
+          if (indexB === -1) return -1;
+          return indexA - indexB;
+        });
+        setItems(orderedItems);
       } else {
         setItems(initialItems);
       }

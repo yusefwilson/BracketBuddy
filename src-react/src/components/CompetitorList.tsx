@@ -22,9 +22,9 @@ export default function CompetitorList() {
     // Load saved modal state on mount
     useEffect(() => {
         const loadModalState = async () => {
-            const [saveData, error] = await safeApiCall(window.electron.getSaveData());
-            if (!error && saveData?.isAddCompetitorModalOpen !== undefined) {
-                setIsAddModalOpen(saveData.isAddCompetitorModalOpen);
+            const [isAddCompetitorModalOpen, error] = await safeApiCall(window.electron.getSavedValue('isAddCompetitorModalOpen'));
+            if (!error && isAddCompetitorModalOpen !== undefined) {
+                setIsAddModalOpen(isAddCompetitorModalOpen);
             }
         };
         loadModalState();

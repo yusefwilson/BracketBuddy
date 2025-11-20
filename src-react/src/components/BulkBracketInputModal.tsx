@@ -31,12 +31,12 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
     // Load custom weights from saved data on mount
     useEffect(() => {
         const loadCustomWeights = async () => {
-            const [saveData, error] = await safeApiCall(window.electron.getSaveData());
-            if (!error && saveData?.customWeights) {
-                const customWeights: number[] = saveData.customWeights;
+            const [customWeights, error] = await safeApiCall(window.electron.getSavedValue('customWeights'));
+            if (!error && customWeights) {
+                const customWeightsArray: number[] = customWeights;
                 // Combine standard weights with custom weights, ensuring no duplicates
                 const allWeights = [...standardWeights];
-                customWeights.forEach(weight => {
+                customWeightsArray.forEach(weight => {
                     if (!allWeights.includes(weight)) {
                         allWeights.push(weight);
                     }

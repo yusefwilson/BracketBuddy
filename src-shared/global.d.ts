@@ -37,7 +37,7 @@ declare global {
       randomizeCompetitors: (input: RandomizeCompetitorsInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // misc
-      getSaveData: () => Promise<ApiResponse<Record<string, any>>>;
+      getSavedValue: (key: string) => Promise<ApiResponse<any>>;
       saveKeyValue: (input: SaveKeyValueInput) => Promise<ApiResponse<Record<string, any>>>;
       openUrl: (url: string) => Promise<void>;
       saveCsv: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;

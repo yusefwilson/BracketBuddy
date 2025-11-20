@@ -1,22 +1,21 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 
-import { shell, dialog, BrowserWindow, webContents } from 'electron';
+import { shell, dialog } from 'electron';
 
 import type { SaveKeyValueInput, ApiResponse } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
 
 import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
 
-/* MISC */
-
-const get_save_data = async (_: Electron.IpcMainInvokeEvent): Promise<ApiResponse<Record<string, any>>> => {
+const get_saved_value = async (_: Electron.IpcMainInvokeEvent, key: string): Promise<ApiResponse<any>> => {
     try {
         const data = await readFile(SAVE_FILE_PATH, 'utf-8');
-        return successResponse(JSON.parse(data));
+        const parsedData = JSON.parse(data);
+        return successResponse(parsedData[key]);
     } catch (error) {
-        console.error('Error reading save data:', error);
-        return errorResponse(error instanceof Error ? error.message : 'Failed to read save data');
+        console.error('Error reading saved value:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to read saved value');
     }
 };
 
@@ -140,7 +139,7 @@ const set_zoom_level = async (event: Electron.IpcMainInvokeEvent, zoomPercent: n
 export { save_file, load_file, get_zoom_level, set_zoom_level };
 
 export {
-    get_save_data,
+    get_saved_value,
     save_key_value,
     get_constants,
     ensure_save_environment,

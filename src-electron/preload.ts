@@ -53,7 +53,7 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.invoke('randomize-competitors', input),
 
     // misc
-    getSaveData: async () => ipcRenderer.invoke('get-save-data'),
+    getSavedValue: async (key: string) => ipcRenderer.invoke('get-saved-value', key),
 
     saveKeyValue: async (input: SaveKeyValueInput) =>
         ipcRenderer.invoke('save-key-value', input),

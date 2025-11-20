@@ -34,31 +34,38 @@ export default function App() {
 
     const loadLatest = async () => {
 
-      // load saved data from disk. Tournament class has static method to load all tournaments, and getSaveData() is a helper function to read the save file
+      // load saved data from disk. Tournament class has static method to load all tournaments
       console.log('loading all tournaments');
       const [tournaments, tournamentsError] = await safeApiCall(window.electron.loadAllTournaments());
-      const [saveData, saveDataError] = await safeApiCall(window.electron.getSaveData());
+      const [lastTournamentIndex, lastTournamentIndexError] = await safeApiCall(window.electron.getSavedValue('lastTournamentIndex'));
+      const [lastBracketId, lastBracketIdError] = await safeApiCall(window.electron.getSavedValue('lastBracketId'));
 
       if (tournamentsError) {
         showError(tournamentsError);
         return;
       }
 
-      if (saveDataError) {
-        showError(saveDataError);
+      if (lastTournamentIndexError) {
+        showError(lastTournamentIndexError);
+        return;
+      }
+
+      if (lastBracketIdError) {
+        showError(lastBracketIdError);
         return;
       }
 
       console.log('Loaded tournaments:', tournaments);
-      console.log('Loaded save data:', saveData);
+      console.log('Loaded lastTournamentIndex:', lastTournamentIndex);
+      console.log('Loaded lastBracketId:', lastBracketId);
 
-      const lastTournamentIndex = (saveData?.lastTournamentIndex || 0) as number;
-      const lastBracketId = (saveData?.lastBracketId || null) as string | null;
+      const tournamentIndex = (lastTournamentIndex || 0) as number;
+      const bracketId = (lastBracketId || null) as string | null;
 
-      const latestTournament = tournaments ? tournaments[lastTournamentIndex] || null : null;
+      const latestTournament = tournaments ? tournaments[tournamentIndex] || null : null;
 
       setTournament(latestTournament);
-      setBracketId(lastBracketId);
+      setBracketId(bracketId);
     };
     console.log('App mounted');
     loadLatest();
