@@ -10,7 +10,6 @@ import type {
   UpdateBracketInput,
   AddCompetitorToBracketInput,
   RemoveCompetitorFromBracketInput,
-  StartBracketInput,
   RandomizeCompetitorsInput,
   SaveKeyValueInput,
   ExportToAERSInput,
@@ -34,12 +33,11 @@ declare global {
       // bracket
       addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<ApiResponse<TournamentDTO>>;
       removeCompetitorFromBracket: (input: RemoveCompetitorFromBracketInput) => Promise<ApiResponse<TournamentDTO>>;
-      startBracket: (input: StartBracketInput) => Promise<ApiResponse<TournamentDTO>>;
       enterResult: (input: UpdateBracketInput) => Promise<ApiResponse<TournamentDTO>>;
       randomizeCompetitors: (input: RandomizeCompetitorsInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // misc
-      getSaveData: () => Promise<ApiResponse<Record<string, any>>>;
+      getSavedValue: (key: string) => Promise<ApiResponse<any>>;
       saveKeyValue: (input: SaveKeyValueInput) => Promise<ApiResponse<Record<string, any>>>;
       openUrl: (url: string) => Promise<void>;
       saveCsv: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;

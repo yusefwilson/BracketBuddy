@@ -1,25 +1,27 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 
-import { shell, dialog, BrowserWindow, webContents } from 'electron';
+import { shell, dialog } from 'electron';
 
 import type { SaveKeyValueInput, ApiResponse } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
 
 import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
 
-/* MISC */
-
-const get_save_data = async (_: Electron.IpcMainInvokeEvent): Promise<ApiResponse<Record<string, any>>> => {
+// scan save file for requested keys
+const get_saved_value = async (_: Electron.IpcMainInvokeEvent, key: string): Promise<ApiResponse<any>> => {
     try {
         const data = await readFile(SAVE_FILE_PATH, 'utf-8');
-        return successResponse(JSON.parse(data));
+        const parsedData = JSON.parse(data);
+
+        return successResponse(parsedData[key]);
     } catch (error) {
-        console.error('Error reading save data:', error);
-        return errorResponse(error instanceof Error ? error.message : 'Failed to read save data');
+        console.error('Error reading saved value:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to read saved value');
     }
 };
 
+// save key-value pair to save file
 const save_key_value = async (_: Electron.IpcMainInvokeEvent, input: SaveKeyValueInput): Promise<ApiResponse<Record<string, any>>> => {
     try {
         const { key, value } = input;
@@ -36,31 +38,19 @@ const save_key_value = async (_: Electron.IpcMainInvokeEvent, input: SaveKeyValu
     }
 };
 
+// get constants
 const get_constants = async (_: Electron.IpcMainInvokeEvent) => {
     return {
         SAVE_FILE_NAME,
     };
 };
 
-const ensure_save_environment = () => {
-    // create save directory if it doesn't exist
-    if (!existsSync(SAVE_DIR)) {
-        mkdirSync(SAVE_DIR, { recursive: true });
-        console.log('Created save directory at:', SAVE_DIR);
-    }
-
-    // create save file if it doesn't exist
-    if (!existsSync(SAVE_FILE_PATH)) {
-        writeFileSync(SAVE_FILE_PATH, '{}', 'utf-8');
-        console.log('Created empty save file:', SAVE_FILE_PATH);
-    }
-};
-
+// open url in default browser
 const open_url = async (_: Electron.IpcMainInvokeEvent, url: string) => {
     await shell.openExternal(url);
 };
 
-
+// open file dialog to save file
 const save_file = async (_: Electron.IpcMainInvokeEvent, filename: string, data: string): Promise<ApiResponse<{ canceled: boolean; filePath?: string }>> => {
     try {
         const { filePath, canceled } = await dialog.showSaveDialog({
@@ -71,9 +61,8 @@ const save_file = async (_: Electron.IpcMainInvokeEvent, filename: string, data:
             return successResponse({ canceled: true });
         }
 
-        console.log('about to write file: ', filePath, 'with data: ', data);
         await writeFile(filePath, data, 'utf-8');
-        console.log('just wrote file: ', filePath);
+
         return successResponse({ canceled: false, filePath });
     } catch (error) {
         console.error('Error saving file:', error);
@@ -81,6 +70,7 @@ const save_file = async (_: Electron.IpcMainInvokeEvent, filename: string, data:
     }
 };
 
+// open file dialog to load file
 const load_file = async (_: Electron.IpcMainInvokeEvent, fileExtension: string): Promise<ApiResponse<{ canceled: boolean; data?: string; filePath?: string }>> => {
     try {
         const { filePaths, canceled } = await dialog.showOpenDialog({
@@ -96,9 +86,7 @@ const load_file = async (_: Electron.IpcMainInvokeEvent, fileExtension: string):
         }
 
         const filePath = filePaths[0];
-        console.log('about to read file: ', filePath);
         const data = await readFile(filePath, 'utf-8');
-        console.log('just read file: ', filePath);
         return successResponse({ canceled: false, data, filePath });
     } catch (error) {
         console.error('Error loading file:', error);
@@ -106,6 +94,7 @@ const load_file = async (_: Electron.IpcMainInvokeEvent, fileExtension: string):
     }
 };
 
+// get zoom level
 const get_zoom_level = async (event: Electron.IpcMainInvokeEvent): Promise<ApiResponse<number>> => {
     try {
         const zoomFactor = event.sender.getZoomFactor();
@@ -118,6 +107,7 @@ const get_zoom_level = async (event: Electron.IpcMainInvokeEvent): Promise<ApiRe
     }
 };
 
+// set zoom level
 const set_zoom_level = async (event: Electron.IpcMainInvokeEvent, zoomPercent: number): Promise<ApiResponse<void>> => {
     try {
         // Convert percentage to zoom factor (100% = 1.0)
@@ -137,10 +127,25 @@ const set_zoom_level = async (event: Electron.IpcMainInvokeEvent, zoomPercent: n
     }
 };
 
+const ensure_save_environment = () => {
+    // create save directory if it doesn't exist
+    if (!existsSync(SAVE_DIR)) {
+        mkdirSync(SAVE_DIR, { recursive: true });
+        console.log('Created save directory at:', SAVE_DIR);
+    }
+
+    // create save file if it doesn't exist
+    if (!existsSync(SAVE_FILE_PATH)) {
+        writeFileSync(SAVE_FILE_PATH, '{}', 'utf-8');
+        console.log('Created empty save file:', SAVE_FILE_PATH);
+    }
+};
+
+
 export { save_file, load_file, get_zoom_level, set_zoom_level };
 
 export {
-    get_save_data,
+    get_saved_value,
     save_key_value,
     get_constants,
     ensure_save_environment,

@@ -50,12 +50,6 @@ interface RemoveCompetitorFromBracketInput {
     bracketId: string;
     competitorName: string;
 }
-
-interface StartBracketInput {
-    tournamentId: string;
-    bracketId: string;
-}
-
 interface RandomizeCompetitorsInput {
     tournamentId: string;
     bracketId: string;
@@ -119,7 +113,7 @@ interface ApiError {
 export type {
     Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus,
     ExternalMatch, SlotCoordinates,
-    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, StartBracketInput, RandomizeCompetitorsInput,
+    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
     SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput,
     ApiResponse

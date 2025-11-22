@@ -70,7 +70,6 @@ class Bracket {
 
     setCompetitorNames(competitorNames: string[]) {
 
-        //console.log('setting competitor names');
         this.competitorNames = competitorNames;
 
         // reinitialize bracket
@@ -78,11 +77,12 @@ class Bracket {
     }
 
     addCompetitor(competitorName: string) {
-        // prevent duplicate competitors
 
+        // prevent duplicate competitors
         if (this.competitorNames.includes(competitorName)) {
             throw new Error('Competitor already exists!');
         }
+
         this.setCompetitorNames([...this.competitorNames, competitorName]);
     }
 
@@ -92,6 +92,7 @@ class Bracket {
 
     randomizeCompetitors() {
         shuffle(this.competitorNames);
+        this.setCompetitorNames(this.competitorNames); // ugly way to trigger bracket initialization
     }
 
     updateMatchById(matchId: string, status: MatchStatus) {

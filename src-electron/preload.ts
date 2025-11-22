@@ -8,7 +8,6 @@ import type {
     UpdateBracketInput,
     AddCompetitorToBracketInput,
     RemoveCompetitorFromBracketInput,
-    StartBracketInput,
     RandomizeCompetitorsInput,
     SaveKeyValueInput,
     ExportToAERSInput,
@@ -50,14 +49,11 @@ contextBridge.exposeInMainWorld('electron', {
     removeCompetitorFromBracket: async (input: RemoveCompetitorFromBracketInput) =>
         ipcRenderer.invoke('remove-competitor-from-bracket', input),
 
-    startBracket: async (input: StartBracketInput) =>
-        ipcRenderer.invoke('start-bracket', input),
-
     randomizeCompetitors: async (input: RandomizeCompetitorsInput) =>
         ipcRenderer.invoke('randomize-competitors', input),
 
     // misc
-    getSaveData: async () => ipcRenderer.invoke('get-save-data'),
+    getSavedValue: async (key: string) => ipcRenderer.invoke('get-saved-value', key),
 
     saveKeyValue: async (input: SaveKeyValueInput) =>
         ipcRenderer.invoke('save-key-value', input),
