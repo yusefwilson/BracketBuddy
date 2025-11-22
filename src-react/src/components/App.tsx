@@ -55,10 +55,6 @@ export default function App() {
         return;
       }
 
-      console.log('Loaded tournaments:', tournaments);
-      console.log('Loaded lastTournamentIndex:', lastTournamentIndex);
-      console.log('Loaded lastBracketId:', lastBracketId);
-
       const tournamentIndex = (lastTournamentIndex || 0) as number;
       const bracketId = (lastBracketId || null) as string | null;
 
