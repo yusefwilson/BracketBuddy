@@ -85,6 +85,7 @@ export default function Home() {
           className='bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg font-semibold transition duration-200 shadow-md hover:shadow-lg'
           onClick={() => setTournamentModalOpen(true)}
           title="Create tournament"
+          style={allTournaments.length === 0 ? { animation: 'flash 2s ease-in-out infinite' } : {}}
         >
           <PlusIcon className='h-6 w-6' />
         </button>

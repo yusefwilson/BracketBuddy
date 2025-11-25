@@ -54,70 +54,73 @@ export default function TournamentView() {
   return (
     <>
       <ErrorToastContainer />
-      <div className="bg-slate-700 flex flex-col w-full mx-auto h-full overflow-y-auto">
-        {/* Compact Header/Toolbar */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-800 border-b border-slate-600 flex-shrink-0">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold text-white">
-              <span className="text-blue-400">{tournament?.name}</span>
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 flex flex-col w-full mx-auto h-full">
+        {/* Sleek Header/Toolbar */}
+        <div className="flex items-center justify-between px-8 py-5 bg-slate-900/80 backdrop-blur-sm border-b border-slate-700/50 flex-shrink-0 shadow-lg">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="text-3xl font-bold tracking-tight">
+              <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">{tournament?.name}</span>
             </h1>
-            <h2 className="text-sm text-gray-300">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
               {dateToLocalTimezoneString(tournament?.date)}
-            </h2>
+            </div>
           </div>
 
           {/* Toolbar Buttons */}
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-4 items-center">
 
             {/* View Toggle Buttons */}
-            <div className="flex gap-2 items-center">
-              <div className="text-sm text-gray-400 font-semibold">Views</div>
-              <div className="flex gap-1 bg-slate-600 rounded-md p-1.5 shadow-inner h-[50px] items-center">
+            <div className="flex gap-3 items-center">
+              <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">View</div>
+              <div className="flex gap-1 bg-slate-800 rounded-lg p-1 shadow-lg border border-slate-700/50">
                 <button
                   onClick={() => handleViewChange('both')}
-                  className={`px-4 py-2 rounded transition-all duration-200 ${currentView === 'both'
-                    ? 'bg-blue-500 text-white shadow-md'
-                    : 'text-gray-300 hover:text-white hover:bg-slate-500'
+                  className={`px-4 py-2.5 rounded-md transition-all duration-200 ${currentView === 'both'
+                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                    : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
                     }`}
                   type="button"
                   title="View both brackets and competitors"
                 >
-                  <FaRegRectangleList className='h-6 w-6' />
+                  <FaRegRectangleList className='h-5 w-5' />
                 </button>
                 <button
                   onClick={() => handleViewChange('brackets')}
-                  className={`px-4 py-2 rounded transition-all duration-200 ${currentView === 'brackets'
-                    ? 'bg-blue-500 text-white shadow-md'
-                    : 'text-gray-300 hover:text-white hover:bg-slate-500'
+                  className={`px-4 py-2.5 rounded-md transition-all duration-200 ${currentView === 'brackets'
+                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                    : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
                     }`}
                   type="button"
                   title="View brackets/classes list"
                 >
-                  <TbTournament className='h-6 w-6' />
+                  <TbTournament className='h-5 w-5' />
                 </button>
                 <button
                   onClick={() => handleViewChange('competitor-list')}
-                  className={`px-4 py-2 rounded transition-all duration-200 ${currentView === 'competitor-list'
-                    ? 'bg-blue-500 text-white shadow-md'
-                    : 'text-gray-300 hover:text-white hover:bg-slate-500'
+                  className={`px-4 py-2.5 rounded-md transition-all duration-200 ${currentView === 'competitor-list'
+                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                    : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
                     }`}
                   type="button"
                   title="View all competitors"
                 >
-                  <UserIcon className='h-6 w-6' />
+                  <UserIcon className='h-5 w-5' />
                 </button>
               </div>
             </div>
 
             <button
               onClick={() => setBulkBracketModalOpen(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition h-[50px] flex items-center justify-center"
+              className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-blue-500/50 hover:scale-105 flex items-center justify-center gap-2"
               style={tournament?.brackets.length === 0 ? { animation: 'flash 2s ease-in-out infinite' } : {}}
               type="button"
               title="Add brackets/classes"
             >
-              <PlusIcon className='h-6 w-6' />
+              <PlusIcon className='h-5 w-5' />
             </button>
+
+            <div className="h-8 w-px bg-slate-700"></div>
 
             <button
               onClick={async () => {
@@ -136,11 +139,11 @@ export default function TournamentView() {
                   console.log('❌ Save canceled');
                 }
               }}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition h-[50px] flex items-center justify-center"
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
               type="button"
               title="Download save file"
             >
-              <ArrowDownTrayIcon className='h-6 w-6' />
+              <ArrowDownTrayIcon className='h-5 w-5' />
             </button>
             <button
               onClick={async () => {
@@ -160,29 +163,31 @@ export default function TournamentView() {
                 }
               }
               }
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition h-[50px] flex items-center justify-center"
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
               type="button"
               title="Export to AERS"
             >
-              <img src={AERSLogo} className='w-24' alt="AERS" />
+              <img src={AERSLogo} className='w-16' alt="AERS" />
             </button>
           </div>
         </div>
 
         {/* Main Content Area */}
-        <div className={`p-6 flex-1 flex flex-col ${currentView === 'both' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <div className={`p-8 flex-1 flex flex-col ${currentView === 'both' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {/* Modals */}
           {bulkBracketModalOpen && (
             <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
           )}
 
-          {currentView === 'both' ? (
-            <BracketsAndCompetitors />
-          ) : currentView === 'brackets' ? (
-            <BracketList />
-          ) : (
-            <CompetitorList />
-          )}
+          <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 shadow-2xl p-6 h-full flex flex-col backdrop-blur-sm">
+            {currentView === 'both' ? (
+              <BracketsAndCompetitors />
+            ) : currentView === 'brackets' ? (
+              <BracketList />
+            ) : (
+              <CompetitorList />
+            )}
+          </div>
         </div>
       </div>
     </>
