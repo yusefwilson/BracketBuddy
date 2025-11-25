@@ -158,6 +158,7 @@ export default function CompetitorList() {
                     <button
                         onClick={() => handleModalToggle(true)}
                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 font-semibold"
+                        style={allCompetitors.length === 0 ? { animation: 'flash 2s ease-in-out infinite' } : {}}
                     >
                         <PlusIcon className="h-5 w-5" />
                         Add Competitor

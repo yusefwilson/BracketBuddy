@@ -112,6 +112,7 @@ export default function TournamentView() {
             <button
               onClick={() => setBulkBracketModalOpen(true)}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition h-[50px] flex items-center justify-center"
+              style={tournament?.brackets.length === 0 ? { animation: 'flash 2s ease-in-out infinite' } : {}}
               type="button"
               title="Add brackets/classes"
             >
