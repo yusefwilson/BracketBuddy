@@ -9,6 +9,9 @@ import CompetitorClassModal from './CompetitorClassModal';
 import AddCompetitorModal from './AddCompetitorModal';
 import CompetitorInfoCard from './CompetitorInfoCard';
 
+import { HiPlus } from 'react-icons/hi2';
+import { CgArrowUp } from 'react-icons/cg';
+
 export default function CompetitorList() {
     const state = useContext(CURRENT_STATE);
     const { tournament, setTournament = () => { } } = state || {};
@@ -167,11 +170,25 @@ export default function CompetitorList() {
 
             {/* Competitor List */}
             {filteredCompetitors.length === 0 ? (
-                <div className="flex items-center justify-center h-full text-gray-400">
-                    {searchTerm.trim()
-                        ? `No competitors found matching "${searchTerm}"`
-                        : 'No brackets yet. Click "Add Brackets" to get started.'
-                    }
+                <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                    {searchTerm.trim() ? (
+                        <div className="text-lg">{`No competitors found matching "${searchTerm}"`}</div>
+                    ) : (
+                        <>
+                            <div className="text-lg">No competitors yet</div>
+                            <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                                <div className="flex flex-row items-center gap-2 justify-center">
+                                    <span>Click the</span>
+                                    <span className="bg-blue-500 text-white px-3 py-1 rounded-md flex items-center gap-1">
+                                        <HiPlus className="h-5 w-5" />
+                                        <span className='font-semibold p-1'>Add Competitor</span>
+                                    </span>
+                                    <span>button above to create your first competitor</span>
+                                    <CgArrowUp className="h-8 w-8 text-white" />
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             ) : (
                 <div className="flex flex-col gap-2">
