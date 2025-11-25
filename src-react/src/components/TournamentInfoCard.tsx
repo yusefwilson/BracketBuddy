@@ -49,7 +49,6 @@ export default function TournamentInfoCard({ tournament, onClick, onRemoveClick 
                 }}
             >
                 <TrashIcon className='h-4 w-4' />
-                Remove
             </button>
         </div>
     );
