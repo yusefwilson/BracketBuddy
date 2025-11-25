@@ -15,6 +15,9 @@ import AERSLogo from '../../../assets/AERS_Logo.png'
 import { HiArrowDownTray as ArrowDownTrayIcon, HiPlus as PlusIcon, HiUser as UserIcon } from 'react-icons/hi2';
 import { TbTournament } from 'react-icons/tb';
 
+import { FaRegRectangleList } from "react-icons/fa6";
+
+
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
   const { tournament } = state || {};
@@ -64,50 +67,51 @@ export default function TournamentView() {
           </div>
 
           {/* Toolbar Buttons */}
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
 
             {/* View Toggle Buttons */}
-            <div className="flex gap-1 bg-slate-600 rounded-md p-1">
-              <button
-                onClick={() => handleViewChange('both')}
-                className={`flex flex-row items-center gap-1 px-4 py-1 rounded transition font-semibold ${currentView === 'both'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-300 hover:text-white'
-                  }`}
-                type="button"
-                title="View both brackets and competitors"
-              >
-                <TbTournament className='h-5 w-5' />
-                <PlusIcon className='h-5 w-5' />
-                <UserIcon className='h-5 w-5' />
-              </button>
-              <button
-                onClick={() => handleViewChange('brackets')}
-                className={`px-4 py-1 rounded transition font-semibold ${currentView === 'brackets'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-300 hover:text-white'
-                  }`}
-                type="button"
-                title="View brackets/classes"
-              >
-                <TbTournament className='h-5 w-5' />
-              </button>
-              <button
-                onClick={() => handleViewChange('competitor-list')}
-                className={`px-4 py-1 rounded transition font-semibold ${currentView === 'competitor-list'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-300 hover:text-white'
-                  }`}
-                type="button"
-                title="View competitors"
-              >
-                <UserIcon className='h-5 w-5' />
-              </button>
+            <div className="flex gap-2 items-center">
+              <div className="text-sm text-gray-400 font-semibold">Views</div>
+              <div className="flex gap-1 bg-slate-600 rounded-md p-1.5 shadow-inner h-[50px] items-center">
+                <button
+                  onClick={() => handleViewChange('both')}
+                  className={`px-4 py-2 rounded transition-all duration-200 ${currentView === 'both'
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'text-gray-300 hover:text-white hover:bg-slate-500'
+                    }`}
+                  type="button"
+                  title="View both brackets and competitors"
+                >
+                  <FaRegRectangleList className='h-6 w-6' />
+                </button>
+                <button
+                  onClick={() => handleViewChange('brackets')}
+                  className={`px-4 py-2 rounded transition-all duration-200 ${currentView === 'brackets'
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'text-gray-300 hover:text-white hover:bg-slate-500'
+                    }`}
+                  type="button"
+                  title="View brackets/classes list"
+                >
+                  <TbTournament className='h-6 w-6' />
+                </button>
+                <button
+                  onClick={() => handleViewChange('competitor-list')}
+                  className={`px-4 py-2 rounded transition-all duration-200 ${currentView === 'competitor-list'
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'text-gray-300 hover:text-white hover:bg-slate-500'
+                    }`}
+                  type="button"
+                  title="View all competitors"
+                >
+                  <UserIcon className='h-6 w-6' />
+                </button>
+              </div>
             </div>
 
             <button
               onClick={() => setBulkBracketModalOpen(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition h-[50px] flex items-center justify-center"
               type="button"
               title="Add brackets/classes"
             >
@@ -131,7 +135,7 @@ export default function TournamentView() {
                   console.log('❌ Save canceled');
                 }
               }}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition h-[50px] flex items-center justify-center"
               type="button"
               title="Download save file"
             >
@@ -155,7 +159,7 @@ export default function TournamentView() {
                 }
               }
               }
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-md transition h-[50px] flex items-center justify-center"
               type="button"
               title="Export to AERS"
             >

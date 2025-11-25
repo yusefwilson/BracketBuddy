@@ -10,8 +10,8 @@ export async function safeApiCall<T>(
     try {
         const response = await apiCall;
 
-        if (response.success && response.data !== undefined) {
-            return [response.data, null];
+        if (response.success) {
+            return [response.data ?? null, null];
         }
 
         if (response.error) {

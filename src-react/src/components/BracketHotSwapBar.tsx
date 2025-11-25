@@ -25,7 +25,7 @@ export default function BracketHotSwapBar({ tournament, currentBracketId, onBrac
                     <button
                         key={bracket.id}
                         onClick={() => handleBracketChange(bracket.id)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-md font-semibold transition-transform duration-150 text-sm
+                        className={`flex-shrink-0 px-4 py-2 rounded-md font-semibold transition-transform duration-150 text-sm whitespace-nowrap
               ${bracket.id === currentBracketId
                                 ? 'bg-blue-600 text-white shadow-lg'
                                 : 'bg-blue-500 text-white hover:bg-blue-400 hover:scale-105'}`}
