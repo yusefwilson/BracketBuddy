@@ -157,7 +157,7 @@ export default function CompetitorList() {
                     />
                     <button
                         onClick={() => handleModalToggle(true)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 font-semibold"
+                        className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-blue-500/50 hover:scale-105 flex items-center justify-center gap-2"
                         style={allCompetitors.length === 0 ? { animation: 'flash 2s ease-in-out infinite' } : {}}
                     >
                         <PlusIcon className="h-5 w-5" />
