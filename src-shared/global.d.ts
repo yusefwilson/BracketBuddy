@@ -48,6 +48,12 @@ declare global {
 
       // aers
       exportToAERS: (input: ExportToAERSInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+
+      // window controls
+      windowMinimize: () => Promise<void>;
+      windowMaximize: () => Promise<void>;
+      windowClose: () => Promise<void>;
+      windowIsMaximized: () => Promise<boolean>;
     };
   }
 }

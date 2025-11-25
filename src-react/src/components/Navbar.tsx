@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { HiChevronLeft as ChevronLeftIcon, HiHome as HomeIcon, HiHeart as HeartIcon, HiMagnifyingGlassMinus as MagnifyingGlassMinusIcon, HiMagnifyingGlassPlus as MagnifyingGlassPlusIcon } from 'react-icons/hi2';
+import { HiChevronLeft as ChevronLeftIcon, HiHome as HomeIcon, HiHeart as HeartIcon, HiMagnifyingGlassMinus as MagnifyingGlassMinusIcon, HiMagnifyingGlassPlus as MagnifyingGlassPlusIcon, HiMinus as MinusIcon, HiXMark as XMarkIcon } from 'react-icons/hi2';
+import { VscChromeMaximize, VscChromeRestore } from 'react-icons/vsc';
 import { safeApiCall } from '../utils/apiHelpers';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [isMaximized, setIsMaximized] = useState(false);
 
   // Load current zoom level on mount and poll for changes (for View menu sync)
   useEffect(() => {
@@ -16,10 +18,19 @@ export default function Navbar() {
       }
     };
 
-    updateZoom();
+    const updateMaximized = async () => {
+      const maximized = await window.electron.windowIsMaximized();
+      setIsMaximized(maximized);
+    };
 
-    // Poll every 500ms to detect zoom changes from View menu
-    const interval = setInterval(updateZoom, 500);
+    updateZoom();
+    updateMaximized();
+
+    // Poll every 500ms to detect zoom changes from View menu and window state
+    const interval = setInterval(() => {
+      updateZoom();
+      updateMaximized();
+    }, 500);
 
     return () => clearInterval(interval);
   }, []);
@@ -42,31 +53,35 @@ export default function Navbar() {
   };
 
   return (
-    <nav className='bg-slate-900/95 backdrop-blur-sm flex justify-between items-center h-16 px-6 text-white shadow-lg border-b border-slate-700/50 p-4'>
+    <nav className='bg-slate-900/95 backdrop-blur-sm flex justify-between items-center h-12 px-4 text-white shadow-lg border-b border-slate-700/50 select-none'>
+      {/* Left section with navigation buttons */}
       <div className='flex items-center gap-3'>
         <button
           onClick={() => navigate(-1)}
           aria-label='Go back'
-          className='bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg p-2 transition-all duration-200 hover:border-slate-600'
+          className='bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg p-1.5 transition-all duration-200 hover:border-slate-600'
           type='button'
         >
-          <ChevronLeftIcon className='h-6 w-6' />
+          <ChevronLeftIcon className='h-5 w-5' />
         </button>
         <button
           onClick={() => navigate('/')}
           aria-label='Go home'
-          className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg p-2 transition-all duration-200 shadow-md hover:shadow-lg'
+          className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg p-1.5 transition-all duration-200 shadow-md hover:shadow-lg'
           type='button'
         >
-          <HomeIcon className='h-6 w-6' />
+          <HomeIcon className='h-5 w-5' />
         </button>
       </div>
 
-      <h1 className='font-extrabold text-2xl select-none'>
-        <span className='bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent'>BracketBuddy</span>
-      </h1>
+      {/* Center section - draggable title bar */}
+      <div className='flex-1 flex justify-center items-center' style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+        <h1 className='font-extrabold text-xl'>
+          <span className='bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent'>BracketBuddy</span>
+        </h1>
+      </div>
 
-      {/* Zoom Controls and Heart Donation Button */}
+      {/* Right section with zoom controls, heart button, and window controls */}
       <div className='flex items-center gap-3'>
         {/* Zoom Controls */}
         <div className='flex items-center gap-2 bg-slate-800 rounded-lg p-1 border border-slate-700/50 shadow-md'>
@@ -102,11 +117,46 @@ export default function Navbar() {
         <button
           onClick={() => window.electron.openUrl('https://yusefwilson.com')}
           aria-label='Donate with heart'
-          className='bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg p-2 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1'
+          className='bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg p-1.5 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1'
           type='button'
         >
-          <HeartIcon className='h-5 w-5' />
+          <HeartIcon className='h-4 w-4' />
         </button>
+
+        {/* Window Control Buttons */}
+        <div className='flex items-center ml-2'>
+          <button
+            onClick={() => window.electron.windowMinimize()}
+            aria-label='Minimize window'
+            className='hover:bg-slate-700 p-2 transition-colors'
+            type='button'
+          >
+            <MinusIcon className='h-4 w-4' />
+          </button>
+          <button
+            onClick={() => {
+              window.electron.windowMaximize();
+              setIsMaximized(!isMaximized);
+            }}
+            aria-label='Maximize window'
+            className='hover:bg-slate-700 p-2 transition-colors'
+            type='button'
+          >
+            {isMaximized ? (
+              <VscChromeRestore className='h-4 w-4' />
+            ) : (
+              <VscChromeMaximize className='h-4 w-4' />
+            )}
+          </button>
+          <button
+            onClick={() => window.electron.windowClose()}
+            aria-label='Close window'
+            className='hover:bg-red-600 p-2 transition-colors'
+            type='button'
+          >
+            <XMarkIcon className='h-4 w-4' />
+          </button>
+        </div>
       </div>
     </nav>
   );

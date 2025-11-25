@@ -18,18 +18,24 @@ import { SAVE_FILE_PATH } from './constants.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+let mainWindow: BrowserWindow | null = null;
+
 const create_window = async () => {
 
     console.log('preload path: ' + path.join(__dirname, 'preload.js'))
-    const window = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 1800,
         height: 1000,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'), //keep in mind all paths like this are relative to the main.js file
         },
         title: 'BracketBuddy',
-        icon: path.join(process.resourcesPath, 'assets/icon.ico')
+        icon: path.join(process.resourcesPath, 'assets/icon.ico'),
+        frame: false,
+        titleBarStyle: 'hidden'
     });
+
+    const window = mainWindow;
 
     if (app.isPackaged) {
         // Try MSI / Squirrel / unpacked locations
@@ -83,6 +89,29 @@ ipcMain.handle('save-file', save_file);
 ipcMain.handle('load-file', load_file);
 ipcMain.handle('get-zoom-level', get_zoom_level);
 ipcMain.handle('set-zoom-level', set_zoom_level);
+
+// window controls
+ipcMain.handle('window-minimize', () => {
+    if (mainWindow) mainWindow.minimize();
+});
+
+ipcMain.handle('window-maximize', () => {
+    if (mainWindow) {
+        if (mainWindow.isMaximized()) {
+            mainWindow.unmaximize();
+        } else {
+            mainWindow.maximize();
+        }
+    }
+});
+
+ipcMain.handle('window-close', () => {
+    if (mainWindow) mainWindow.close();
+});
+
+ipcMain.handle('window-is-maximized', () => {
+    return mainWindow ? mainWindow.isMaximized() : false;
+});
 
 const main = async () => {
     await app.whenReady();
