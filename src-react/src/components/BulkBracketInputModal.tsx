@@ -227,8 +227,8 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
     return (
         <>
             <ErrorToastContainer />
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-slate-700 w-full max-w-6xl p-6 rounded-xl shadow-lg flex gap-6 h-3/4">
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50">
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-6xl p-6 rounded-xl shadow-2xl border border-slate-700/50 flex gap-6 h-3/4">
                     {/* Left Panel: Selection Controls */}
                     <BracketSelectionPanel
                         selectedGenders={selectedGenders}

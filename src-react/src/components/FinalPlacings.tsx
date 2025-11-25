@@ -15,34 +15,34 @@ export default function FinalPlacings({ first, second, third }: FinalPlacingsPro
 
                 {/* 1st Place */}
                 <div className='flex flex-col items-center scale-110'>
-                    <div className='bg-yellow-500 text-black px-3 py-2 rounded-md shadow-lg w-36 text-center font-semibold'>
+                    <div className='bg-gradient-to-br from-yellow-400 to-yellow-500 text-black px-4 py-3 rounded-lg shadow-xl w-40 text-center font-bold border-2 border-yellow-300'>
                         {first || 'TBD'}
                     </div>
-                    <div className='flex items-center gap-1 mt-1 text-sm text-black bg-yellow-400 px-2 py-1 rounded-b-md w-24 justify-center'>
+                    <div className='flex items-center gap-1 mt-1 text-sm text-black bg-yellow-400 px-2 py-1 rounded-b-lg w-28 justify-center shadow-md'>
                         <TrophyIcon className='w-4 h-4 text-yellow-700' />
-                        <span>1st</span>
+                        <span className='font-semibold'>1st</span>
                     </div>
                 </div>
 
                 {/* 2nd Place */}
                 <div className='flex flex-col items-center'>
-                    <div className='bg-slate-400 text-white px-3 py-2 rounded-md shadow-md w-32 text-center'>
+                    <div className='bg-gradient-to-br from-slate-400 to-slate-500 text-white px-4 py-3 rounded-lg shadow-lg w-36 text-center font-semibold border-2 border-slate-300'>
                         {second || 'TBD'}
                     </div>
-                    <div className='flex items-center gap-1 mt-1 text-sm text-white bg-slate-600 px-2 py-1 rounded-b-md w-24 justify-center'>
+                    <div className='flex items-center gap-1 mt-1 text-sm text-white bg-slate-600 px-2 py-1 rounded-b-lg w-28 justify-center shadow-md'>
                         🥈
-                        <span>2nd</span>
+                        <span className='font-semibold'>2nd</span>
                     </div>
                 </div>
 
                 {/* 3rd Place */}
                 <div className='flex flex-col items-center'>
-                    <div className='bg-stone-400 text-white px-3 py-2 rounded-md shadow-md w-32 text-center'>
+                    <div className='bg-gradient-to-br from-orange-400 to-orange-500 text-white px-4 py-3 rounded-lg shadow-lg w-36 text-center font-semibold border-2 border-orange-300'>
                         {third || 'TBD'}
                     </div>
-                    <div className='flex items-center gap-1 mt-1 text-sm text-white bg-orange-500 px-2 py-1 rounded-b-md w-24 justify-center'>
+                    <div className='flex items-center gap-1 mt-1 text-sm text-white bg-orange-600 px-2 py-1 rounded-b-lg w-28 justify-center shadow-md'>
                         🥉
-                        <span>3rd</span>
+                        <span className='font-semibold'>3rd</span>
                     </div>
                 </div>
 

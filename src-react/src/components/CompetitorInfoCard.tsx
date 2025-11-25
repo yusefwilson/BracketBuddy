@@ -12,13 +12,13 @@ export default function CompetitorInfoCard({ name, bracketCount, brackets, onCli
     return (
         <button
             onClick={onClick}
-            className="bg-slate-600 hover:bg-slate-500 px-6 py-4 rounded-lg transition-all duration-200 border-2 border-transparent hover:border-blue-400 group w-full"
+            className="bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 px-6 py-4 rounded-xl transition-all duration-200 border border-slate-600/50 hover:border-blue-500/50 hover:shadow-lg group w-full shadow-md"
         >
             <div className="grid grid-cols-[250px_1fr_120px_auto] items-center gap-4">
                 {/* Name column - fixed width with truncation */}
                 <div className="flex items-center gap-3 min-w-0">
                     <UserIcon className="h-5 w-5 text-blue-400 flex-shrink-0" />
-                    <span className="text-white font-semibold text-lg group-hover:text-blue-300 truncate">
+                    <span className="text-white font-semibold text-lg group-hover:text-blue-300 truncate transition-colors">
                         {name}
                     </span>
                 </div>
@@ -30,7 +30,7 @@ export default function CompetitorInfoCard({ name, bracketCount, brackets, onCli
 
                 {/* Count column - fixed width */}
                 <div className="text-sm text-gray-300 whitespace-nowrap text-right">
-                    <span className="font-medium text-blue-300">{bracketCount}</span>
+                    <span className="font-medium text-blue-400">{bracketCount}</span>
                     {' '}
                     {bracketCount === 1 ? 'class' : 'classes'}
                 </div>
@@ -41,7 +41,7 @@ export default function CompetitorInfoCard({ name, bracketCount, brackets, onCli
                         e.stopPropagation();
                         onRemove();
                     }}
-                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex items-center flex-shrink-0"
+                    className="bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center flex-shrink-0"
                     type="button"
                     title="Remove from all brackets"
                 >

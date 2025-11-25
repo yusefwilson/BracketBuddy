@@ -82,7 +82,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
 
     return (
         <div className="flex flex-col justify-between h-full">
-            <div className="flex flex-col overflow-y-auto h-full rounded-lg p-4 bg-slate-800 shadow-inner" ref={scrollContainerRef}>
+            <div className="flex flex-col overflow-y-auto h-full rounded-xl p-4 bg-slate-900/50 border border-slate-700/30" ref={scrollContainerRef}>
                 <div className="flex items-center justify-between mb-4 gap-3">
                     <h2 className="text-sm font-semibold text-white">
                         Competitors ({competitors.length})
@@ -94,7 +94,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                         }}
                         onPointerDown={(e) => e.stopPropagation()}
                         disabled={competitors.length < 2}
-                        className="bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition shadow-md hover:shadow-lg"
+                        className="bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
                         type="button"
                         title="Randomize order"
                     >
@@ -112,7 +112,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                             type="text"
                             value={name}
                             disabled
-                            className="flex-grow px-3 py-2 rounded-lg bg-slate-600 text-white text-sm border border-slate-500 opacity-90 cursor-not-allowed"
+                            className="flex-grow px-3 py-2 rounded-lg bg-slate-700 text-white text-sm border border-slate-600/50 opacity-90 cursor-not-allowed"
                         />
                         <button
                             onClick={(e) => {
@@ -120,7 +120,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                                 handleRemove(name);
                             }}
                             onPointerDown={(e) => e.stopPropagation()}
-                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex-shrink-0"
+                            className="bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex-shrink-0"
                             type="button"
                             title="Remove competitor"
                         >
@@ -130,7 +130,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                 ))}
 
                 {/* Input for new competitor */}
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-600">
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-700/50">
                     <input
                         type="text"
                         placeholder="New competitor name"
@@ -141,7 +141,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onPointerDown={(e) => e.stopPropagation()}
-                        className="flex-grow px-3 py-2 rounded-lg bg-slate-600 text-white text-sm border border-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-400"
+                        className="flex-grow px-3 py-2 rounded-lg bg-slate-700 text-white text-sm border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400"
                     />
                     <button
                         onClick={(e) => {
@@ -150,7 +150,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                         }}
                         onPointerDown={(e) => e.stopPropagation()}
                         disabled={newName.trim() === ''}
-                        className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex-shrink-0"
+                        className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex-shrink-0"
                         type="button"
                         title="Add competitor"
                     >

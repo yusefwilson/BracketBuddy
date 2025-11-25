@@ -107,11 +107,11 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
     return (
         <>
             <ErrorToastContainer />
-            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-                <div className='bg-slate-700 w-full max-w-3xl p-6 rounded-xl shadow-lg flex flex-col gap-4 max-h-[80vh]'>
+            <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50'>
+                <div className='bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-3xl p-6 rounded-xl shadow-2xl border border-slate-700/50 flex flex-col gap-4 max-h-[80vh]'>
 
-                    <h1 className='text-2xl font-semibold text-white text-center'>
-                        Manage Classes for <span className='text-blue-400'>{competitorName}</span>
+                    <h1 className='text-2xl font-bold text-white text-center'>
+                        Manage Classes for <span className='bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent'>{competitorName}</span>
                     </h1>
 
                     <p className='text-gray-300 text-center text-sm'>
@@ -129,7 +129,7 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
 
                     <div className='flex justify-center gap-4 mt-4'>
                         <button
-                            className='bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition'
+                            className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl'
                             onClick={onClose}
                             disabled={loading}
                         >

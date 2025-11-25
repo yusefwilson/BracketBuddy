@@ -39,7 +39,7 @@ export default function BracketCompetitorInput({
             />
             <div
                 key={bracket.id}
-                className="flex flex-col rounded-xl p-5 bg-slate-600 shadow-lg transition hover:bg-slate-500 hover:cursor-pointer hover:shadow-xl min-w-[320px] h-full"
+                className="flex flex-col rounded-xl p-5 bg-gradient-to-br from-slate-700 to-slate-800 border border-slate-600/50 shadow-xl transition-all duration-200 hover:from-slate-600 hover:to-slate-700 hover:cursor-pointer hover:shadow-2xl hover:border-slate-500/50 min-w-[320px] h-full"
                 onClick={async () => {
                     await onBracketClick(bracket.id);
                 }}
@@ -58,7 +58,7 @@ export default function BracketCompetitorInput({
                             e.stopPropagation();
                             await onRemoveBracket(bracket.id);
                         }}
-                        className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition shadow-md hover:shadow-lg flex items-center flex-shrink-0"
+                        className="bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center flex-shrink-0"
                         type="button"
                         title="Delete bracket"
                     >

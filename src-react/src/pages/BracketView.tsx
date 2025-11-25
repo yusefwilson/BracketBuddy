@@ -89,12 +89,12 @@ export default function BracketView() {
         onConfirm={warningModal.onConfirm}
         message={warningModal.message}
       />
-      <div className='flex flex-col h-full gap-4 p-8 bg-slate-800 shadow-inner'>
+      <div className='flex flex-col h-full gap-4 p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-inner'>
 
       {/* Left Toggle Button */}
       <button
         onClick={() => setControlsOpen(!controlsOpen)}
-        className='absolute left-4 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 shadow-md transition z-10'
+        className='absolute left-4 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full p-1.5 shadow-lg hover:shadow-xl transition-all duration-200 z-10'
         title={controlsOpen ? 'Collapse panel' : 'Expand panel'}
       >
         {controlsOpen ? <ChevronLeftIcon className='h-4 w-4' strokeWidth={4} /> : <ChevronRightIcon className='h-4 w-4' strokeWidth={4} />}
@@ -103,7 +103,7 @@ export default function BracketView() {
       {/* Right Toggle Button */}
       <button
         onClick={() => setPlacingsOpen(!placingsOpen)}
-        className='absolute right-4 top-1/2 translate-x-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 shadow-md transition z-10'
+        className='absolute right-4 top-1/2 translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full p-1.5 shadow-lg hover:shadow-xl transition-all duration-200 z-10'
         title={placingsOpen ? 'Collapse panel' : 'Expand panel'}
       >
         {placingsOpen ? <ChevronRightIcon className='h-4 w-4' strokeWidth={4} /> : <ChevronLeftIcon className='h-4 w-4' strokeWidth={4} />}
@@ -114,10 +114,10 @@ export default function BracketView() {
 
         {/* Controls Panel */}
         <div
-          className={`flex flex-col bg-slate-700 rounded-lg p-4 shadow-md gap-4 items-center transition-all
+          className={`flex flex-col bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 shadow-xl gap-4 items-center transition-all
             ${controlsOpen ? 'min-w-[300px]' : 'w-0 opacity-0 p-0 overflow-hidden'}`}
         >
-          <p className='text-lg font-bold'>
+          <p className='text-lg font-bold text-white'>
             {bracket.gender + ' | ' + bracket.hand + ' | ' + bracket.experienceLevel + ' | ' + bracket.weightLimit}
           </p>
 
@@ -188,7 +188,7 @@ export default function BracketView() {
           </div>
 
           {/* Legend/Key */}
-          <div className='w-full bg-slate-800 rounded-lg p-3 shadow-inner'>
+          <div className='w-full bg-slate-900/50 rounded-lg p-3 border border-slate-600/30'>
             <h3 className='text-white text-sm font-semibold mb-2'>Key</h3>
             <div className='flex items-center gap-2 text-gray-300 text-xs'>
               <ExclamationTriangleIcon className='h-4 w-4 text-red-500' />
@@ -198,7 +198,7 @@ export default function BracketView() {
         </div>
 
         {/* Bracket Display */}
-        <div className='bg-slate-700 rounded-lg p-4 shadow-md relative overflow-auto flex-1' ref={containerRef}>
+        <div className='bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 shadow-xl relative overflow-auto flex-1' ref={containerRef}>
           {bracket.competitorNames && bracket.competitorNames.length < 2 ? (
             <div className='text-white text-center font-semibold text-lg py-12'>
               Not enough competitors yet.
@@ -253,10 +253,10 @@ export default function BracketView() {
 
         {/* Placings Panel */}
         <div
-          className={`flex flex-col bg-slate-700 rounded-lg p-4 shadow-md gap-4 items-center transition-all
+          className={`flex flex-col bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 shadow-xl gap-4 items-center transition-all
             ${placingsOpen ? 'overflow-y-auto' : 'w-0 opacity-0 p-0 overflow-hidden'}`}
         >
-          <p className='text-lg font-bold'>Final Placings</p>
+          <p className='text-lg font-bold text-white'>Final Placings</p>
           <FinalPlacings first={bracket.firstPlace} second={bracket.secondPlace} third={bracket.thirdPlace} />
         </div>
       </div>

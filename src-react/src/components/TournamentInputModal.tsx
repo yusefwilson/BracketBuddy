@@ -88,14 +88,16 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
     return (
         <>
             <ErrorToastContainer />
-            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-                <div className='bg-slate-700 w-full max-w-md rounded-xl p-6 shadow-lg flex flex-col gap-4'>
+            <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50'>
+                <div className='bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-md rounded-xl p-6 shadow-2xl border border-slate-700/50 flex flex-col gap-5'>
 
-                    <h1 className='text-xl font-semibold text-white text-center'>Enter Tournament Info</h1>
+                    <h1 className='text-2xl font-bold text-white text-center'>
+                        <span className='bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent'>Enter Tournament Info</span>
+                    </h1>
 
                     {/* Input: Name */}
                     <input
-                        className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
+                        className='bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
                         placeholder='Tournament Name'
                         name='name'
                         onChange={onChange}
@@ -105,26 +107,26 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
                     <input
                         type='date'
                         name='date'
-                        className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
+                        className='bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
                         value={dateToLocalTimezoneString(date)}
                         onChange={onChange}
                     />
 
                     {/* Error Message */}
                     {error && (
-                        <p className='bg-red-500 text-white text-sm px-3 py-2 rounded-md'>{error}</p>
+                        <p className='bg-gradient-to-br from-red-500 to-red-600 text-white text-sm px-4 py-2 rounded-lg shadow-md'>{error}</p>
                     )}
 
                     {/* Action Buttons */}
-                    <div className='flex justify-center gap-4 mt-2'>
+                    <div className='flex justify-center gap-3 mt-2'>
                         <button
-                            className='bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition'
+                            className='bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-lg border border-slate-600/50 transition-all duration-200 hover:border-slate-500'
                             onClick={() => setTournamentModalOpen(false)}
                         >
                             Cancel
                         </button>
                         <button
-                            className='bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-md transition'
+                            className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl'
                             onClick={onSubmit}
                             disabled={name.trim() === ''}
                         >

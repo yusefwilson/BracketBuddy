@@ -42,45 +42,47 @@ export default function Navbar() {
   };
 
   return (
-    <nav className='bg-gray-700 flex justify-between items-center h-16 px-6 text-white shadow-md p-4'>
-      <div className='flex items-center gap-4'>
+    <nav className='bg-slate-900/95 backdrop-blur-sm flex justify-between items-center h-16 px-6 text-white shadow-lg border-b border-slate-700/50 p-4'>
+      <div className='flex items-center gap-3'>
         <button
           onClick={() => navigate(-1)}
           aria-label='Go back'
-          className='bg-blue-500 hover:bg-blue-600 rounded-md p-1.5 transition'
+          className='bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg p-2 transition-all duration-200 hover:border-slate-600'
           type='button'
         >
-          <ChevronLeftIcon className='h-8 w-8' />
+          <ChevronLeftIcon className='h-6 w-6' />
         </button>
         <button
           onClick={() => navigate('/')}
           aria-label='Go home'
-          className='bg-blue-500 hover:bg-blue-600 rounded-md p-1.5 transition'
+          className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg p-2 transition-all duration-200 shadow-md hover:shadow-lg'
           type='button'
         >
-          <HomeIcon className='h-8 w-8' />
+          <HomeIcon className='h-6 w-6' />
         </button>
       </div>
 
-      <p className='font-extrabold text-2xl select-none'>BracketBuddy</p>
+      <h1 className='font-extrabold text-2xl select-none'>
+        <span className='bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent'>BracketBuddy</span>
+      </h1>
 
       {/* Zoom Controls and Heart Donation Button */}
-      <div className='flex items-center gap-4'>
+      <div className='flex items-center gap-3'>
         {/* Zoom Controls */}
-        <div className='flex items-center gap-2 bg-slate-600 rounded-md p-1'>
+        <div className='flex items-center gap-2 bg-slate-800 rounded-lg p-1 border border-slate-700/50 shadow-md'>
           <button
             onClick={handleZoomOut}
             aria-label='Zoom out'
-            className='bg-blue-500 hover:bg-blue-600 rounded p-1 transition'
+            className='bg-slate-700 hover:bg-slate-600 rounded p-1.5 transition disabled:opacity-50 disabled:cursor-not-allowed'
             type='button'
             disabled={zoomLevel <= 50}
           >
-            <MagnifyingGlassMinusIcon className='h-5 w-5' />
+            <MagnifyingGlassMinusIcon className='h-4 w-4' />
           </button>
           <button
             onClick={handleZoomReset}
             aria-label='Reset zoom'
-            className='text-white hover:text-blue-300 px-2 text-sm font-semibold transition min-w-[3rem]'
+            className='text-white hover:text-blue-400 px-3 text-sm font-semibold transition min-w-[3rem]'
             type='button'
           >
             {zoomLevel}%
@@ -88,11 +90,11 @@ export default function Navbar() {
           <button
             onClick={handleZoomIn}
             aria-label='Zoom in'
-            className='bg-blue-500 hover:bg-blue-600 rounded p-1 transition'
+            className='bg-slate-700 hover:bg-slate-600 rounded p-1.5 transition disabled:opacity-50 disabled:cursor-not-allowed'
             type='button'
             disabled={zoomLevel >= 200}
           >
-            <MagnifyingGlassPlusIcon className='h-5 w-5' />
+            <MagnifyingGlassPlusIcon className='h-4 w-4' />
           </button>
         </div>
 
@@ -100,10 +102,10 @@ export default function Navbar() {
         <button
           onClick={() => window.electron.openUrl('https://yusefwilson.com')}
           aria-label='Donate with heart'
-          className='bg-red-500 hover:bg-red-600 rounded-md p-1.5 transition flex items-center gap-1'
+          className='bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg p-2 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1'
           type='button'
         >
-          <HeartIcon className='h-6 w-6' />
+          <HeartIcon className='h-5 w-5' />
         </button>
       </div>
     </nav>

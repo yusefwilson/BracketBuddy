@@ -12,34 +12,37 @@ interface TournamentInfoCardProps {
 export default function TournamentInfoCard({ tournament, onClick, onRemoveClick }: TournamentInfoCardProps) {
     return (
         <div
-            className='bg-slate-500 hover:bg-slate-600 p-4 rounded-xl cursor-pointer shadow-md transition duration-200 flex flex-col gap-3 group'
+            className='bg-gradient-to-br from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 p-5 rounded-xl cursor-pointer shadow-lg border border-slate-600/50 transition-all duration-200 flex flex-row gap-3 group hover:shadow-xl hover:border-slate-500/50 justify-between items-center'
             onClick={onClick}
         >
-            {/* Name */}
-            <div className='flex items-center gap-2'>
-                <TrophyIcon className='h-5 w-5 text-yellow-400' />
-                <span className='text-lg font-semibold text-white'>{tournament.name}</span>
+            <div className="flex flex-row gap-3">
+                {/* Name */}
+                <div className='flex items-center gap-2'>
+                    <TrophyIcon className='h-6 w-6 text-yellow-400 drop-shadow-md' />
+                    <span className='text-xl font-bold text-white group-hover:text-blue-300 transition-colors'>{tournament.name}</span>
+                </div>
+
+                {/* Date */}
+                <div className='flex items-center gap-2'>
+                    <CalendarDaysIcon className='h-5 w-5 text-blue-400' />
+                    <span className='text-gray-200'>
+                        {tournament.date.toLocaleDateString('en-US')}
+                    </span>
+                </div>
+
+                {/* Number of Brackets */}
+                <div className='flex items-center gap-2'>
+                    <UserGroupIcon className='h-5 w-5 text-green-400' />
+                    <span className='text-gray-200'>
+                        {tournament.brackets.length} class{tournament.brackets.length !== 1 ? 'es' : ''}
+                    </span>
+                </div>
             </div>
 
-            {/* Date */}
-            <div className='flex items-center gap-2'>
-                <CalendarDaysIcon className='h-5 w-5 text-blue-300' />
-                <span className='text-white'>
-                    {tournament.date.toLocaleDateString('en-US')}
-                </span>
-            </div>
-
-            {/* Number of Brackets */}
-            <div className='flex items-center gap-2'>
-                <UserGroupIcon className='h-5 w-5 text-green-300' />
-                <span className='text-white'>
-                    {tournament.brackets.length} class{tournament.brackets.length !== 1 ? 'es' : ''}
-                </span>
-            </div>
 
             {/* Remove Button */}
             <button
-                className='flex items-center gap-1 self-start bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded-md mt-2 transition duration-150'
+                className='flex items-center gap-1.5 self-start bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-semibold px-4 py-2 rounded-lg mt-2 transition-all duration-200 shadow-md hover:shadow-lg'
                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
                     onRemoveClick();

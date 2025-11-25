@@ -95,11 +95,11 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     return (
         <>
             <ErrorToastContainer />
-            <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-                <div className='bg-slate-700 w-full max-w-3xl p-6 rounded-xl shadow-lg flex flex-col gap-4 max-h-[80vh] overflow-y-auto'>
+            <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50'>
+                <div className='bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-3xl p-6 rounded-xl shadow-2xl border border-slate-700/50 flex flex-col gap-5 max-h-[80vh]'>
 
-                    <h1 className='text-2xl font-semibold text-white text-center'>
-                        Add New Competitor
+                    <h1 className='text-2xl font-bold text-white text-center'>
+                        <span className='bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent'>Add New Competitor</span>
                     </h1>
 
                     <div className='flex flex-col gap-2'>
@@ -111,7 +111,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                             placeholder='Enter competitor name...'
                             value={competitorName}
                             onChange={(e) => setCompetitorName(e.target.value)}
-                            className='bg-slate-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
+                            className='bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
                             autoFocus
                         />
                     </div>
@@ -133,21 +133,21 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                         />
                     </div>
 
-                    <div className='flex justify-center gap-4 mt-4'>
+                    <div className='flex justify-center gap-3 mt-4'>
                         <button
-                            className='bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed'
+                            className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
                             onClick={handleSubmit}
                             disabled={!competitorName.trim() || selectedBrackets.size === 0}
                         >
                             Add Competitor
                         </button>
                         <button
-                            className='bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition'
+                            className='bg-slate-700 hover:bg-slate-600 text-white px-6 py-2.5 rounded-lg border border-slate-600/50 transition-all duration-200 hover:border-slate-500'
                             onClick={onClose}
                         >
                             Done
                         </button>
-                        
+
                     </div>
                 </div>
             </div>

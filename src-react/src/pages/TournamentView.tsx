@@ -163,7 +163,7 @@ export default function TournamentView() {
                 }
               }
               }
-              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
               type="button"
               title="Export to AERS"
             >
