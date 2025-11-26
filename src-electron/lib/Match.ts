@@ -39,7 +39,7 @@ class Match {
 
     // for now, a match can only be decided if it has been filled
     isDecided() {
-        return this.status !== 'UNDECIDED' && this.player1 !== null && this.player2 !== null;
+        return (this.status !== 'UNDECIDED' && this.player1 !== null && this.player2 !== null) || this.status === 'PLAYER_1_DROPOUT' || this.status === 'PLAYER_2_DROPOUT';
     }
 
     getGenericWinner() {
@@ -79,6 +79,10 @@ class Match {
 
     getStatus() {
         return this.status;
+    }
+
+    hasDropout() {
+        return this.status === 'PLAYER_1_DROPOUT' || this.status === 'PLAYER_2_DROPOUT';
     }
 
     toDTO(): MatchDTO {
@@ -121,18 +125,11 @@ class Match {
 
         console.log('updating status of match ' + this.id + ' to ' + status);
 
-        // validate status
-        const validStatuses: MatchStatus[] = ['UNDECIDED', 'PLAYER_1_WON', 'PLAYER_2_WON', 'PLAYER_1_DROPOUT', 'PLAYER_2_DROPOUT', 'PLAYER_1_NO_SHOW', 'PLAYER_2_NO_SHOW'];
-        if (!validStatuses.includes(status)) {
-            throw new Error('Invalid status: ' + status);
-        }
-
         // make sure that status can only be updated if match is filled
         if (this.player1 === null || this.player2 === null) {
             throw new Error('Match cannot be updated because it is not filled');
         }
 
-        console.log('updating status of match ' + this.id + ' to ' + status);
         this.status = status;
 
         if (this.winChild) {
@@ -144,16 +141,31 @@ class Match {
             //console.log('updating loser child which has id ' + this.loserChild.id);
             this.lossChild.updatePlayers();
         }
+
+        if (this.status === 'PLAYER_1_DROPOUT') {
+            if (this.lossChild) {
+                this.loss?.slot === 1 ? this.lossChild.status = 'PLAYER_1_DROPOUT' : this.lossChild.status = 'PLAYER_2_DROPOUT';
+                console.log('just updated loss child: ' + this.lossChild + ', status: ' + this.lossChild.status);
+                this.lossChild.updatePlayers();
+            }
+        }
+        else if (this.status === 'PLAYER_2_DROPOUT') {
+            if (this.lossChild) {
+                this.loss?.slot === 1 ? this.lossChild.status = 'PLAYER_1_DROPOUT' : this.lossChild.status = 'PLAYER_2_DROPOUT';
+                this.lossChild.updatePlayers();
+            }
+        }
+
     }
 
     // update the players of the current match if and only if the parent matches have been decided
     updatePlayers() {
 
-        console.log('updating players of match ' + this.id);
-        console.log('slot1Parent: ', this.slot1Parent?.id);
-        console.log('slot2Parent: ', this.slot2Parent?.id);
-        console.log('slot1Parent.isDecided(): ', this.slot1Parent?.isDecided());
-        console.log('slot2Parent.isDecided(): ', this.slot2Parent?.isDecided());
+        // console.log('updating players of match ' + this.id);
+        // console.log('slot1Parent: ', this.slot1Parent?.id);
+        // console.log('slot2Parent: ', this.slot2Parent?.id);
+        // console.log('slot1Parent.isDecided(): ', this.slot1Parent?.isDecided());
+        // console.log('slot2Parent.isDecided(): ', this.slot2Parent?.isDecided());
 
         // if the parent match exists and has been decided, update the player of this match
         if (this.slot1Parent && this.slot1Parent.isDecided()) {
@@ -165,14 +177,18 @@ class Match {
             this.player2 = this.slot2PreviouslyWinner ? this.slot2Parent.getWinningPlayer() : this.slot2Parent.getLosingPlayer();
         }
 
-        // if the parent match exist and has not been decided, then make the player of this match null
-        if (this.slot1Parent && !this.slot1Parent.isDecided()) {
-            this.status = 'UNDECIDED';
+        // if the parent match exists and has not been decided, then make the player of this match null
+        if (this.slot1Parent && !this.slot1Parent.isDecided() && !this.slot1Parent.hasDropout()) {
             this.player1 = null;
+            if (!this.slot1Parent.hasDropout() && !this.slot2Parent?.hasDropout()) {
+                this.status = 'UNDECIDED';
+            }
         }
-        if (this.slot2Parent && !this.slot2Parent.isDecided()) {
-            this.status = 'UNDECIDED';
+        if (this.slot2Parent && !this.slot2Parent.isDecided() && !this.slot2Parent.hasDropout()) {
             this.player2 = null;
+            if (!this.slot1Parent?.hasDropout() && !this.slot2Parent.hasDropout()) {
+                this.status = 'UNDECIDED';
+            }
         }
 
         if (this.winChild) {
