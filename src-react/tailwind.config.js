@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       height: {
-        'screen-navbar': 'calc(100vh - 64px)',
+        'screen-navbar': 'calc(100vh - 48px)',
       },
     },
   },
