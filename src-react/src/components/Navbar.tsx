@@ -53,14 +53,15 @@ export default function Navbar() {
   };
 
   return (
-    <nav className='bg-slate-900/95 backdrop-blur-sm flex justify-between items-center h-12 px-4 text-white shadow-lg border-b border-slate-700/50 select-none'>
-      {/* Left section with navigation buttons */}
+    <nav className='bg-slate-900/95 backdrop-blur-sm flex justify-between items-center h-12 px-4 text-white shadow-lg border-b border-slate-700/50 select-none' style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+      {/* Left section with navigation buttons and title */}
       <div className='flex items-center gap-3'>
         <button
           onClick={() => navigate(-1)}
           aria-label='Go back'
           className='bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg p-1.5 transition-all duration-200 hover:border-slate-600'
           type='button'
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           <ChevronLeftIcon className='h-5 w-5' />
         </button>
@@ -69,20 +70,21 @@ export default function Navbar() {
           aria-label='Go home'
           className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg p-1.5 transition-all duration-200 shadow-md hover:shadow-lg'
           type='button'
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           <HomeIcon className='h-5 w-5' />
         </button>
-      </div>
-
-      {/* Center section - draggable title bar */}
-      <div className='flex-1 flex justify-center items-center' style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
         <h1 className='font-extrabold text-xl'>
           <span className='bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent'>BracketBuddy</span>
         </h1>
       </div>
 
+      {/* Center section - draggable title bar */}
+      <div className='flex-1'>
+      </div>
+
       {/* Right section with zoom controls, heart button, and window controls */}
-      <div className='flex items-center gap-3'>
+      <div className='flex items-center gap-3' style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
         {/* Zoom Controls */}
         <div className='flex items-center gap-2 bg-slate-800 rounded-lg p-1 border border-slate-700/50 shadow-md'>
           <button

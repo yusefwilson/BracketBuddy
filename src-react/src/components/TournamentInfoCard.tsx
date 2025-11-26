@@ -42,7 +42,7 @@ export default function TournamentInfoCard({ tournament, onClick, onRemoveClick 
 
             {/* Remove Button */}
             <button
-                className='flex items-center gap-1.5 self-start bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-semibold px-4 py-2 rounded-lg mt-2 transition-all duration-200 shadow-md hover:shadow-lg'
+                className='flex items-center gap-1.5 bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg'
                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
                     onRemoveClick();

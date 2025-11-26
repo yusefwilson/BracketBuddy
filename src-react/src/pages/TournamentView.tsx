@@ -24,7 +24,7 @@ export default function TournamentView() {
   const { showError, ErrorToastContainer } = useErrorToast();
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<'both' | 'brackets' | 'competitor-list'>('both');
+  const [currentView, setCurrentView] = useState<'both' | 'brackets' | 'competitor-list' | null>(null);
 
   // Load saved view on mount
   useEffect(() => {
@@ -32,6 +32,9 @@ export default function TournamentView() {
       const [currentViewValue, error] = await safeApiCall(window.electron.getSavedValue('currentView'));
       if (!error && currentViewValue) {
         setCurrentView(currentViewValue);
+      } else {
+        // Default to 'both' if no saved value
+        setCurrentView('both');
       }
     };
     loadView();
@@ -180,7 +183,11 @@ export default function TournamentView() {
           )}
 
           <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 shadow-2xl p-6 h-full flex flex-col backdrop-blur-sm">
-            {currentView === 'both' ? (
+            {currentView === null ? (
+              <div className="flex items-center justify-center h-full">
+                {/* Blank loading state */}
+              </div>
+            ) : currentView === 'both' ? (
               <BracketsAndCompetitors />
             ) : currentView === 'brackets' ? (
               <BracketList />

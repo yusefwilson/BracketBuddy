@@ -57,7 +57,7 @@ class Match {
         }
 
         // assert that player1 and player2 are not null because we passed isDecided() check
-        if (this.status === 'PLAYER_1_WON' || this.status === 'PLAYER_2_DROPOUT') {
+        if (this.status === 'PLAYER_1_WON' || this.status === 'PLAYER_2_DROPOUT' || this.status === 'PLAYER_2_NO_SHOW') {
             return this.player1 as string;
         } else {
             return this.player2 as string;
@@ -70,7 +70,7 @@ class Match {
             throw new Error('Match ' + this.id + ' is undecided: ');
         }
         // assert that player1 and player2 are not null because we passed isDecided() check
-        if (this.status === 'PLAYER_1_WON' || this.status === 'PLAYER_2_DROPOUT') {
+        if (this.status === 'PLAYER_1_WON' || this.status === 'PLAYER_2_DROPOUT' || this.status === 'PLAYER_2_NO_SHOW') {
             return this.player2 as string;
         } else {
             return this.player1 as string;
@@ -122,7 +122,7 @@ class Match {
         console.log('updating status of match ' + this.id + ' to ' + status);
 
         // validate status
-        const validStatuses: MatchStatus[] = ['UNDECIDED', 'PLAYER_1_WON', 'PLAYER_2_WON', 'PLAYER_1_DROPOUT', 'PLAYER_2_DROPOUT'];
+        const validStatuses: MatchStatus[] = ['UNDECIDED', 'PLAYER_1_WON', 'PLAYER_2_WON', 'PLAYER_1_DROPOUT', 'PLAYER_2_DROPOUT', 'PLAYER_1_NO_SHOW', 'PLAYER_2_NO_SHOW'];
         if (!validStatuses.includes(status)) {
             throw new Error('Invalid status: ' + status);
         }
