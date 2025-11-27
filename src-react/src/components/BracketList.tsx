@@ -72,7 +72,7 @@ export default function BracketList() {
     return (
         <>
             <ErrorToastContainer />
-            <div className="flex flex-col gap-3 w-full max-w-4xl mx-auto">
+            <div className="flex flex-col gap-3 w-full max-w-4xl mx-auto overflow-auto">
                 {brackets.map((bracket) => (
                     <BracketInfoCard
                         key={bracket.id}
