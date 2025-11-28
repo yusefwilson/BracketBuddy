@@ -80,6 +80,16 @@ export default function BracketView() {
 
   const { winnerMatches, loserMatches, final, finalRematch, WINNERS_BOTTOM } = calculateAllMatchPositions(bracket);
 
+  // Calculate the full width needed for the dividing line
+  const allXPositions = [
+    ...winnerMatches.map(m => m.x),
+    ...loserMatches.map(m => m.x),
+    final.x,
+    ...(finalRematch.match ? [finalRematch.x] : [])
+  ];
+  const maxX = Math.max(...allXPositions, 0);
+  const dividingLineWidth = maxX + 275; // Add buffer for match card width
+
   return (
     <>
       <ErrorToastContainer />
@@ -220,8 +230,8 @@ export default function BracketView() {
               {/* Dividing Line */}
               {WINNERS_BOTTOM > 0 && (
                 <div
-                  className='absolute left-0 right-0 border-t-2 border-slate-400'
-                  style={{ top: `${WINNERS_BOTTOM}px` }}
+                  className='absolute left-0 border-t-2 border-slate-400'
+                  style={{ top: `${WINNERS_BOTTOM}px`, width: `${dividingLineWidth}px` }}
                 />
               )}
 
