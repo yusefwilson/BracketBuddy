@@ -157,8 +157,9 @@ export default function CompetitorList() {
                     />
                     <button
                         onClick={() => handleModalToggle(true)}
-                        className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-blue-500/50 hover:scale-105 flex items-center justify-center gap-2"
+                        className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-blue-500/50 hover:scale-105 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
                         style={tournament.brackets.length > 0 && allCompetitors.length === 0 ? { animation: 'flash 2s ease-in-out infinite' } : {}}
+                        disabled={tournament.brackets.length === 0}
                     >
                         <PlusIcon className="h-5 w-5" />
                         Add Competitor
@@ -170,41 +171,56 @@ export default function CompetitorList() {
             </div>
 
             {/* Competitor List */}
-            {filteredCompetitors.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                    {searchTerm.trim() ? (
-                        <div className="text-lg">{`No competitors found matching "${searchTerm}"`}</div>
+            {
+                tournament.brackets.length === 0 ?
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                        <div className="text-lg">No classes created yet</div>
+                        <div className="flex flex-row items-center gap-2 justify-center">
+                            <span>Click the</span>
+                            <span className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-1">
+                                <HiPlus className="h-5 w-5" />
+                            </span>
+                            <span>button above to create your first class</span>
+                            <CgArrowUp className="h-8 w-8 text-white" />
+                        </div>
+                    </div>
+                    : (filteredCompetitors.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                            {searchTerm.trim() ? (
+                                <div className="text-lg">{`No competitors found matching "${searchTerm}"`}</div>
+                            ) : (
+                                <>
+                                    <div className="text-lg">No competitors yet</div>
+                                    <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                                        <div className="flex flex-row items-center gap-2 justify-center">
+                                            <span>Click the</span>
+                                            <span className="bg-blue-500 text-white px-3 py-1 rounded-md flex items-center gap-1">
+                                                <HiPlus className="h-5 w-5" />
+                                                <span className='font-semibold p-1'>Add Competitor</span>
+                                            </span>
+                                            <span>button above to create your first competitor</span>
+                                            <CgArrowUp className="h-8 w-8 text-white" />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     ) : (
-                        <>
-                            <div className="text-lg">No competitors yet</div>
-                            <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                                <div className="flex flex-row items-center gap-2 justify-center">
-                                    <span>Click the</span>
-                                    <span className="bg-blue-500 text-white px-3 py-1 rounded-md flex items-center gap-1">
-                                        <HiPlus className="h-5 w-5" />
-                                        <span className='font-semibold p-1'>Add Competitor</span>
-                                    </span>
-                                    <span>button above to create your first competitor</span>
-                                    <CgArrowUp className="h-8 w-8 text-white" />
-                                </div>
-                            </div>
-                        </>
-                    )}
-                </div>
-            ) : (
-                <div className="flex flex-col gap-2">
-                    {filteredCompetitors.map((competitor) => (
-                        <CompetitorInfoCard
-                            key={competitor.name}
-                            name={competitor.name}
-                            bracketCount={competitor.bracketCount}
-                            brackets={competitor.brackets}
-                            onClick={() => setSelectedCompetitor(competitor.name)}
-                            onRemove={() => setCompetitorToRemove({ name: competitor.name, brackets: competitor.brackets })}
-                        />
-                    ))}
-                </div>
-            )}
+                        <div className="flex flex-col gap-2">
+                            {filteredCompetitors.map((competitor) => (
+                                <CompetitorInfoCard
+                                    key={competitor.name}
+                                    name={competitor.name}
+                                    bracketCount={competitor.bracketCount}
+                                    brackets={competitor.brackets}
+                                    onClick={() => setSelectedCompetitor(competitor.name)}
+                                    onRemove={() => setCompetitorToRemove({ name: competitor.name, brackets: competitor.brackets })}
+                                />
+                            ))}
+                        </div>
+                    ))
+
+            }
 
             {/* Modals */}
             {selectedCompetitor && (

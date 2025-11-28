@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { HiTrash as TrashIcon, HiPlus as PlusIcon, HiArrowPath as ArrowPathRoundedSquareIcon } from 'react-icons/hi2';
+import { HiTrash as TrashIcon, HiPlus as PlusIcon } from 'react-icons/hi2';
+import { FaShuffle } from "react-icons/fa6";
 
 function usePrevious<T>(value: T): T | undefined {
     const ref = useRef<T>();
@@ -98,7 +99,7 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
                         type="button"
                         title="Randomize order"
                     >
-                        <ArrowPathRoundedSquareIcon className="h-4 w-4" />
+                        <FaShuffle className="h-4 w-4" />
                     </button>
                 </div>
 

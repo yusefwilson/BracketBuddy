@@ -111,13 +111,13 @@ export default function Home() {
           <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 shadow-2xl p-6 backdrop-blur-sm">
             {allTournaments.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                <div className="text-lg">No classes created yet</div>
+                <div className="text-lg">No tournaments created yet</div>
                 <div className="flex flex-row items-center gap-2 justify-center">
                   <span>Click the</span>
                   <span className="bg-blue-500 text-white px-4 py-2 rounded-md">
                     <HiPlus className="h-5 w-5" />
                   </span>
-                  <span>button above to create your first class</span>
+                  <span>button above to create your first tournament!</span>
                   <CgArrowUp className="h-8 w-8 text-white" />
                 </div>
               </div>
