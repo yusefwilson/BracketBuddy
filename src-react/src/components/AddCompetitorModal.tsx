@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { HiCheck as CheckIcon } from 'react-icons/hi2';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
@@ -17,6 +18,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
 
     const [competitorName, setCompetitorName] = useState('');
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
+    const [showSuccessFeedback, setShowSuccessFeedback] = useState(false);
 
     const resetModal = () => {
         setCompetitorName('');
@@ -85,6 +87,11 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
             }
 
             setTournament(updatedTournament);
+
+            // Show success feedback
+            setShowSuccessFeedback(true);
+            setTimeout(() => setShowSuccessFeedback(false), 1000);
+
             resetModal();
         } catch (error) {
             console.error('Error adding competitor:', error);
@@ -95,6 +102,16 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     return (
         <>
             <ErrorToastContainer />
+
+            {/* Success Feedback Animation */}
+            {showSuccessFeedback && (
+                <div className='fixed inset-0 flex justify-center items-center z-[60] pointer-events-none'>
+                    <div className='animate-[scale-up_0.3s_ease-out] bg-green-500 rounded-full p-6 shadow-2xl'>
+                        <CheckIcon className='h-16 w-16 text-white animate-[pop_0.4s_ease-out]' strokeWidth={3} />
+                    </div>
+                </div>
+            )}
+
             <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50'>
                 <div className='bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-3xl p-6 rounded-xl shadow-2xl border border-slate-700/50 flex flex-col gap-5 max-h-[80vh]'>
 

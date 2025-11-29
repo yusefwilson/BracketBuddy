@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect, useMemo } from 'react';
+import { HiCheck as CheckIcon } from 'react-icons/hi2';
 
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
 
@@ -56,6 +57,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
 
     const [bracketsToAdd, setBracketsToAdd] = useState<Set<string>>(new Set());
     const [manuallyExcluded, setManuallyExcluded] = useState<Set<string>>(new Set());
+    const [showSuccessFeedback, setShowSuccessFeedback] = useState(false);
 
     const addCustomWeight = async (value: number) => {
         if (!weightOptions.includes(value)) {
@@ -170,6 +172,11 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
 
         if (data) {
             setTournament(data);
+
+            // Show success feedback
+            setShowSuccessFeedback(true);
+            setTimeout(() => setShowSuccessFeedback(false), 1000);
+
             // Clear selections after successful add
             setSelectedGenders([]);
             setSelectedExperienceLevels([]);
@@ -227,6 +234,16 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
     return (
         <>
             <ErrorToastContainer />
+
+            {/* Success Feedback Animation */}
+            {showSuccessFeedback && (
+                <div className='fixed inset-0 flex justify-center items-center z-[60] pointer-events-none'>
+                    <div className='animate-[scale-up_0.3s_ease-out] bg-green-500 rounded-full p-6 shadow-2xl'>
+                        <CheckIcon className='h-16 w-16 text-white animate-[pop_0.4s_ease-out]' strokeWidth={3} />
+                    </div>
+                </div>
+            )}
+
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50">
                 <div className="bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-6xl p-6 rounded-xl shadow-2xl border border-slate-700/50 flex gap-6 h-3/4">
                     {/* Left Panel: Selection Controls */}
