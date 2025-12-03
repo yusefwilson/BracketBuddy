@@ -19,11 +19,19 @@ jobs:
             arch: x64
             artifact_path: out/make/squirrel.windows/x64/BracketBuddy-Setup.exe
             artifact_name: BracketBuddy-Setup.exe
-          - os: macos-latest
-            platform: darwin
-            arch: universal
-            artifact_path: out/make/BracketBuddy*.dmg
-            artifact_name: BracketBuddy-macOS-Universal.dmg
+            # macOS arm64
+            - os: macos-latest
+              platform: darwin
+              arch: arm64
+              artifact_path: out/make/BracketBuddy*.dmg
+              artifact_name: BracketBuddy-macOS-arm64.dmg
+
+            # macOS x64
+            - os: macos-latest
+              platform: darwin
+              arch: x64
+              artifact_path: out/make/BracketBuddy*.dmg
+              artifact_name: BracketBuddy-macOS-x64.dmg
 
     runs-on: ${{ matrix.os }}
 
