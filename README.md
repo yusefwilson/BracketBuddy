@@ -10,7 +10,16 @@ A desktop application for managing (primarily arm wrestling) tournament brackets
 3. Run the .exe
 4. That's it! Launch BracketBuddy from your Start Menu or Desktop
 
-**Mac and Linux support coming soon!**
+### macOS
+1. Head to the [**Releases**](../../releases) page
+2. Download the latest `BracketBuddy-macOS-Universal.dmg`
+3. Open the .dmg file
+4. Drag BracketBuddy to your Applications folder
+5. Right-click the app and select "Open" (first launch only, for unsigned apps)
+
+**Note:** macOS builds are universal binaries supporting both Intel and Apple Silicon Macs.
+
+**Linux support coming soon!**
 
 ## Features
 

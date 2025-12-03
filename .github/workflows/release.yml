@@ -1,56 +1,76 @@
-name: Build & Release BracketBuddy EXE
+name: Build & Release BracketBuddy
 
 on:
   push:
     branches:
       - release
 
-
 permissions:
-  contents: write   # <-- 👈 THIS LINE gives permission to publish releases
+  contents: write
 
 jobs:
   build-and-release:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win32
+            arch: x64
+            artifact_path: out/make/squirrel.windows/x64/BracketBuddy-Setup.exe
+            artifact_name: BracketBuddy-Setup.exe
+          - os: macos-latest
+            platform: darwin
+            arch: universal
+            artifact_path: out/make/BracketBuddy*.dmg
+            artifact_name: BracketBuddy-macOS-Universal.dmg
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-      # 1️⃣ Checkout your repository
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 3️⃣ Install root dependencies
       - name: Install root dependencies
         run: npm ci
 
-      # 4️⃣ Install React app dependencies
       - name: Install React app dependencies
         run: |
           cd src-react
           npm ci
 
-      # 4️⃣ Build your EXE
-      - name: Build EXE
-        run: npm run make
+      - name: Build ${{ matrix.platform }} ${{ matrix.arch }}
+        run: npm run make -- --arch=${{ matrix.arch }} --platform=${{ matrix.platform }}
 
-      # 🏷️ Update "latest" tag to current commit
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
+
       - name: Move 'latest' tag to current commit
+        if: matrix.os == 'windows-latest'
         run: |
           git tag -f latest
           git push origin latest --force
 
-      # 5️⃣ Create/update GitHub release and upload EXE
       - name: Publish Release
         uses: ncipollo/release-action@v1
         with:
           tag: latest
           name: Latest Release
-          body: Automated release of BracketBuddy
-          artifacts: out/make/squirrel.windows/x64/BracketBuddy-Setup.exe
-          allowUpdates: true     # ✅ allows overwriting "latest"
-          replacesArtifacts: true # ✅ updates the .exe file each time
+          body: |
+            Automated release of BracketBuddy
+
+            **Downloads:**
+            - Windows: BracketBuddy-Setup.exe
+            - macOS (Universal): BracketBuddy-macOS-Universal.dmg
+          artifacts: ${{ matrix.artifact_path }}
+          allowUpdates: true
+          replacesArtifacts: false

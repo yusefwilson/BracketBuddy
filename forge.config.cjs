@@ -7,6 +7,9 @@ module.exports = {
     extraResource: ["./build-react", "./assets"],
     icon: "./assets/icon",
     executableName: "BracketBuddy", // <-- ensures the exe is BracketBuddy.exe
+    osxUniversal: {
+      mergeASARs: true,
+    },
   },
   rebuildConfig: {},
   makers: [
@@ -35,7 +38,12 @@ module.exports = {
       }
     },
     {
-      name: '@electron-forge/maker-zip',
+      name: '@electron-forge/maker-dmg',
+      config: {
+        format: 'ULFO',
+        name: 'BracketBuddy',
+        icon: './assets/icon.icns',
+      },
       platforms: ['darwin'],
     },
     {

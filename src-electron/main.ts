@@ -30,7 +30,11 @@ const create_window = async () => {
             preload: path.join(__dirname, 'preload.js'), //keep in mind all paths like this are relative to the main.js file
         },
         title: 'BracketBuddy',
-        icon: path.join(process.resourcesPath, 'assets/icon.ico'),
+        icon: path.join(
+            process.resourcesPath,
+            'assets',
+            process.platform === 'win32' ? 'icon.ico' : 'icon.icns'
+        ),
         frame: false,
         titleBarStyle: 'hidden'
     });

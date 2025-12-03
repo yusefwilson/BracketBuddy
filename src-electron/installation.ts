@@ -36,6 +36,13 @@ function sleep(ms: number): Promise<void> {
 export const check = async (): Promise<boolean> => {
     log('App starting...');
     log('Process argv: ' + process.argv.join(' '));
+    log('Platform: ' + process.platform);
+
+    // Squirrel is Windows-only - skip checks on other platforms
+    if (process.platform !== 'win32') {
+        log('Non-Windows platform detected, skipping Squirrel checks');
+        return true;
+    }
 
     // Handle uninstall - prevent app from launching
     if (cmd === '--squirrel-uninstall') {
