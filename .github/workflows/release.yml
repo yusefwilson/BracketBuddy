@@ -55,11 +55,45 @@ jobs:
       - name: Build ${{ matrix.platform }} ${{ matrix.arch }}
         run: npm run make -- --arch=${{ matrix.arch }} --platform=${{ matrix.platform }}
 
+      - name: Debug - List output files
+        shell: bash
+        run: |
+          echo "Listing out/make directory:"
+          ls -R out/make/ || true
+
+      - name: Rename artifact (Windows)
+        if: matrix.platform == 'win32'
+        shell: bash
+        run: |
+          # Find the Setup.exe file
+          SETUP_FILE=$(find out/make -name "*Setup.exe" -type f | head -n 1)
+          if [ -n "$SETUP_FILE" ]; then
+            cp "$SETUP_FILE" "${{ matrix.artifact_name }}"
+            echo "Copied $SETUP_FILE to ${{ matrix.artifact_name }}"
+          else
+            echo "Error: No Setup.exe file found"
+            exit 1
+          fi
+
+      - name: Rename artifact (macOS)
+        if: matrix.platform == 'darwin'
+        shell: bash
+        run: |
+          # Find the DMG file and rename it
+          DMG_FILE=$(find out/make -name "*.dmg" -type f | head -n 1)
+          if [ -n "$DMG_FILE" ]; then
+            cp "$DMG_FILE" "${{ matrix.artifact_name }}"
+            echo "Renamed $DMG_FILE to ${{ matrix.artifact_name }}"
+          else
+            echo "Error: No DMG file found"
+            exit 1
+          fi
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_path }}
+          path: ${{ matrix.artifact_name }}
           if-no-files-found: error
 
       - name: Move 'latest' tag to current commit
