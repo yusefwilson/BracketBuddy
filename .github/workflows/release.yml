@@ -79,6 +79,6 @@ jobs:
             **Downloads:**
             - Windows: BracketBuddy-Setup.exe
             - macOS (Universal): BracketBuddy-macOS-Universal.dmg
-          artifacts: ${{ matrix.artifact_path }}
+          artifacts: ${{ matrix.artifact_name }}
           allowUpdates: true
           replacesArtifacts: false
