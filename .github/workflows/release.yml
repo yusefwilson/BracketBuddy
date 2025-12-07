@@ -112,7 +112,8 @@ jobs:
 
             **Downloads:**
             - Windows: BracketBuddy-Setup.exe
-            - macOS (Universal): BracketBuddy-macOS-Universal.dmg
+            - macOS (M Chips: BracketBuddy-macOS-arm64.dmg
+            - macOS (Intel): BracketBuddy-macOS-x64.dmg
           artifacts: ${{ matrix.artifact_name }}
           allowUpdates: true
           replacesArtifacts: false
