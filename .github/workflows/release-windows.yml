@@ -77,4 +77,4 @@ jobs:
             - macOS (Intel): BracketBuddy-macOS-x64.dmg
           artifacts: BracketBuddy-Setup.exe
           allowUpdates: true
-          replacesArtifacts: false
+          replacesArtifacts: true
