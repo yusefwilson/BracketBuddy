@@ -60,7 +60,7 @@ jobs:
           echo "=== Step 8: Importing certificate into keychain ==="
           security import $RUNNER_TEMP/certificate.p12 \
             -P "$APPLE_CERTIFICATE_PASSWORD" \
-            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH" -v
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
           IMPORT_RESULT=$?
           echo "Import exit code: $IMPORT_RESULT"
 
