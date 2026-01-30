@@ -7,9 +7,23 @@ module.exports = {
     extraResource: ["./build-react", "./assets"],
     icon: "./assets/icon",
     executableName: "BracketBuddy", // <-- ensures the exe is BracketBuddy.exe
+    appBundleId: "com.yusefwilson.bracketbuddy",
     osxUniversal: {
       mergeASARs: true,
     },
+    osxSign: {
+      identity: "Developer ID Application",
+      identityValidation: true,
+      hardenedRuntime: true,
+      gatekeeperAssess: false,
+      entitlements: "./entitlements.plist",
+      entitlementsInherit: "./entitlements.plist",
+    },
+    osxNotarize: process.env.APPLE_ID ? {
+      appleId: process.env.APPLE_ID,
+      appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,
+      teamId: process.env.APPLE_TEAM_ID,
+    } : undefined,
   },
   rebuildConfig: {},
   makers: [
