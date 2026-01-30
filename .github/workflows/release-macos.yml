@@ -26,20 +26,57 @@ jobs:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
+          set -x  # Enable command tracing
+
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
 
+          echo "=== Step 1: Creating keychain ==="
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          echo "=== Step 2: Setting keychain settings ==="
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+
+          echo "=== Step 3: Unlocking keychain ==="
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
+          echo "=== Step 4: Checking if APPLE_CERTIFICATE secret is set ==="
+          if [ -z "$APPLE_CERTIFICATE" ]; then
+            echo "ERROR: APPLE_CERTIFICATE secret is empty or not set!"
+            exit 1
+          fi
+          echo "APPLE_CERTIFICATE secret is set (length: ${#APPLE_CERTIFICATE} chars)"
+
+          echo "=== Step 5: Decoding certificate ==="
           echo "$APPLE_CERTIFICATE" | base64 --decode > $RUNNER_TEMP/certificate.p12
+
+          echo "=== Step 6: Checking decoded certificate file ==="
+          ls -la $RUNNER_TEMP/certificate.p12
+          file $RUNNER_TEMP/certificate.p12
+
+          echo "=== Step 7: Verifying p12 file structure (without extracting) ==="
+          openssl pkcs12 -in $RUNNER_TEMP/certificate.p12 -passin pass:"$APPLE_CERTIFICATE_PASSWORD" -info -nokeys -nocerts 2>&1 | head -20 || echo "Could not parse p12 info"
+
+          echo "=== Step 8: Importing certificate into keychain ==="
           security import $RUNNER_TEMP/certificate.p12 \
             -P "$APPLE_CERTIFICATE_PASSWORD" \
-            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH" -v
+          IMPORT_RESULT=$?
+          echo "Import exit code: $IMPORT_RESULT"
 
+          echo "=== Step 9: Setting keychain search list ==="
           security list-keychain -d user -s "$KEYCHAIN_PATH"
+
+          echo "=== Step 10: Listing all identities in keychain (before partition list) ==="
+          security find-identity -v "$KEYCHAIN_PATH"
+
+          echo "=== Step 11: Listing all keys in keychain ==="
+          security find-key -a "$KEYCHAIN_PATH" 2>&1 || echo "No keys found or command failed"
+
+          echo "=== Step 12: Setting key partition list ==="
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          echo "=== Step 13: Final identity check ==="
           security find-identity -v -p codesigning "$KEYCHAIN_PATH"
 
       - name: Install root dependencies
