@@ -8,6 +8,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [zoomLevel, setZoomLevel] = useState(100);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isMac, setIsMac] = useState(false);
 
   // Load current zoom level on mount and poll for changes (for View menu sync)
   useEffect(() => {
@@ -25,6 +26,9 @@ export default function Navbar() {
 
     updateZoom();
     updateMaximized();
+
+    // Detect macOS platform
+    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
 
     // Poll every 500ms to detect zoom changes from View menu and window state
     const interval = setInterval(() => {
@@ -55,7 +59,8 @@ export default function Navbar() {
   return (
     <nav className='bg-slate-900/95 backdrop-blur-sm flex justify-between items-center h-12 px-4 text-white shadow-lg border-b border-slate-700/50 select-none' style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
       {/* Left section with navigation buttons and title */}
-      <div className='flex items-center gap-3'>
+      {/* Add left padding on Mac to account for traffic light buttons */}
+      <div className='flex items-center gap-3' style={{ paddingLeft: isMac ? '70px' : '0' }}>
         <button
           onClick={() => navigate(-1)}
           aria-label='Go back'
@@ -125,40 +130,42 @@ export default function Navbar() {
           <HeartIcon className='h-4 w-4' />
         </button>
 
-        {/* Window Control Buttons */}
-        <div className='flex items-center ml-2'>
-          <button
-            onClick={() => window.electron.windowMinimize()}
-            aria-label='Minimize window'
-            className='hover:bg-slate-700 p-2 transition-colors'
-            type='button'
-          >
-            <MinusIcon className='h-4 w-4' />
-          </button>
-          <button
-            onClick={() => {
-              window.electron.windowMaximize();
-              setIsMaximized(!isMaximized);
-            }}
-            aria-label='Maximize window'
-            className='hover:bg-slate-700 p-2 transition-colors'
-            type='button'
-          >
-            {isMaximized ? (
-              <VscChromeRestore className='h-4 w-4' />
-            ) : (
-              <VscChromeMaximize className='h-4 w-4' />
-            )}
-          </button>
-          <button
-            onClick={() => window.electron.windowClose()}
-            aria-label='Close window'
-            className='hover:bg-red-600 p-2 transition-colors'
-            type='button'
-          >
-            <XMarkIcon className='h-4 w-4' />
-          </button>
-        </div>
+        {/* Window Control Buttons - hidden on Mac since traffic light handles this */}
+        {!isMac && (
+          <div className='flex items-center ml-2'>
+            <button
+              onClick={() => window.electron.windowMinimize()}
+              aria-label='Minimize window'
+              className='hover:bg-slate-700 p-2 transition-colors'
+              type='button'
+            >
+              <MinusIcon className='h-4 w-4' />
+            </button>
+            <button
+              onClick={() => {
+                window.electron.windowMaximize();
+                setIsMaximized(!isMaximized);
+              }}
+              aria-label='Maximize window'
+              className='hover:bg-slate-700 p-2 transition-colors'
+              type='button'
+            >
+              {isMaximized ? (
+                <VscChromeRestore className='h-4 w-4' />
+              ) : (
+                <VscChromeMaximize className='h-4 w-4' />
+              )}
+            </button>
+            <button
+              onClick={() => window.electron.windowClose()}
+              aria-label='Close window'
+              className='hover:bg-red-600 p-2 transition-colors'
+              type='button'
+            >
+              <XMarkIcon className='h-4 w-4' />
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );
