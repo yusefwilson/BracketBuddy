@@ -8,11 +8,18 @@ module.exports = {
     icon: "./assets/icon",
     executableName: "BracketBuddy", // <-- ensures the exe is BracketBuddy.exe
     appBundleId: "com.yusefwilson.bracketbuddy",
+    ignore: [
+      /^\/src-react($|\/)/,
+      /^\/\.github($|\/)/,
+      /^\/\.git($|\/)/,
+      /^\/node_modules\/\.cache($|\/)/
+    ],
     asarUnpack: [
       '**/*.node'
     ],
     osxUniversal: {
-      mergeASARs: true
+      mergeASARs: true,
+      x64ArchFiles: '**/node_modules/**/*.node'
     },
     osxSign: {
       identity: "Developer ID Application",
