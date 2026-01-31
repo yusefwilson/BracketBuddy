@@ -8,11 +8,14 @@ module.exports = {
     icon: "./assets/icon",
     executableName: "BracketBuddy", // <-- ensures the exe is BracketBuddy.exe
     appBundleId: "com.yusefwilson.bracketbuddy",
+    asarUnpack: [
+      '**/node_modules/@rollup/**/*.node'
+    ],  
     osxUniversal: {
       mergeASARs: true,
       x64ArchFiles: [
-      'app.asar.unpacked/src-react/node_modules/@rollup/rollup-darwin-arm64/rollup.darwin-arm64.node'
-    ]
+        '**/node_modules/@rollup/**/*.node'
+      ]
     },
     osxSign: {
       identity: "Developer ID Application",
