@@ -9,12 +9,12 @@ module.exports = {
     executableName: "BracketBuddy", // <-- ensures the exe is BracketBuddy.exe
     appBundleId: "com.yusefwilson.bracketbuddy",
     asarUnpack: [
-      '**/node_modules/@rollup/**/*.node'
-    ],  
+      '**/*.node'
+    ],
     osxUniversal: {
       mergeASARs: true,
       x64ArchFiles: [
-        '**/node_modules/@rollup/**/*.node'
+        '**/*.node'
       ]
     },
     osxSign: {
