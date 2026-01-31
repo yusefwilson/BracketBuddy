@@ -17,23 +17,18 @@ module.exports = {
     asarUnpack: [
       '**/*.node'
     ],
-    osxUniversal: {
-      mergeASARs: true,
-      x64ArchFiles: '**/node_modules/**/*.node'
-    },
     osxSign: {
       identity: "Developer ID Application",
-      identityValidation: true,
       hardenedRuntime: true,
-      gatekeeperAssess: false,
       entitlements: "./entitlements.plist",
-      entitlementsInherit: "./entitlements.plist",
+      entitlementsInherit: "./entitlements.plist"
     },
-    osxNotarize: process.env.APPLE_ID ? {
+    // Only notarize in CI when credentials are available
+    osxNotarize: {
       appleId: process.env.APPLE_ID,
       appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,
       teamId: process.env.APPLE_TEAM_ID,
-    } : undefined,
+    },
   },
   rebuildConfig: {},
   makers: [
