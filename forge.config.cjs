@@ -5,14 +5,14 @@ module.exports = {
   packagerConfig: {
     asar: true,
     extraResource: ["./build-react", "./assets"],
-    x64ArchFiles: [
-      'Contents/Resources/app.asar.unpacked/src-react/node_modules/@rollup/rollup-darwin-arm64/rollup.darwin-arm64.node'
-    ],
     icon: "./assets/icon",
     executableName: "BracketBuddy", // <-- ensures the exe is BracketBuddy.exe
     appBundleId: "com.yusefwilson.bracketbuddy",
     osxUniversal: {
       mergeASARs: true,
+      x64ArchFiles: [
+      'app.asar.unpacked/src-react/node_modules/@rollup/rollup-darwin-arm64/rollup.darwin-arm64.node'
+    ]
     },
     osxSign: {
       identity: "Developer ID Application",
