@@ -12,10 +12,7 @@ module.exports = {
       '**/*.node'
     ],
     osxUniversal: {
-      mergeASARs: true,
-      x64ArchFiles: [
-        '**/*.node'
-      ]
+      mergeASARs: true
     },
     osxSign: {
       identity: "Developer ID Application",
