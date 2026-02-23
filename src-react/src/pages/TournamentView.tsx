@@ -68,6 +68,9 @@ export default function TournamentView() {
               <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
               {dateToLocalTimezoneString(tournament?.date)}
             </div>
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+              {'Entries: ' + tournament.brackets.reduce((acc, bracket) => acc + bracket.competitorNames.length, 0)}            </div>
           </div>
 
           {/* Toolbar Buttons */}
