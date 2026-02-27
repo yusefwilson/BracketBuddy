@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import { HiCheck as CheckIcon } from 'react-icons/hi2';
 
 import { safeApiCall } from '../utils/apiHelpers';
@@ -19,6 +19,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     const [competitorName, setCompetitorName] = useState('');
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
     const [showSuccessFeedback, setShowSuccessFeedback] = useState(false);
+    const [bracketSearch, setBracketSearch] = useState('');
 
     const resetModal = () => {
         setCompetitorName('');
@@ -41,6 +42,16 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     if (!tournament) {
         return null;
     }
+
+    const filteredBrackets = useMemo(() => {
+        const term = bracketSearch.toLowerCase();
+        return tournament.brackets.filter((b) => {
+            const weightLabel = b.weightLimit === 'Superheavyweight' ? 'shw superheavyweight' : `${b.weightLimit} lbs`;
+            return [b.gender, b.experienceLevel, b.hand, weightLabel].some((f) =>
+                f.toLowerCase().includes(term)
+            );
+        });
+    }, [tournament.brackets, bracketSearch]);
 
     const toggleBracket = (bracketId: string) => {
         const newSelected = new Set(selectedBrackets);
@@ -112,8 +123,8 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                 </div>
             )}
 
-            <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50'>
-                <div className='bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-3xl p-6 rounded-xl shadow-2xl border border-slate-700/50 flex flex-col gap-5 max-h-[80vh]'>
+            <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-2'>
+                <div className='bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-3xl p-6 rounded-xl shadow-2xl border border-slate-700/50 flex flex-col gap-5 h-[90%] overflow-y-auto'>
 
                     <h1 className='text-2xl font-bold text-white text-center'>
                         <span className='bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent'>Add New Competitor</span>
@@ -137,14 +148,18 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                         <label className='text-gray-300 text-sm font-medium'>
                             Select Classes
                         </label>
-                        <p className='text-gray-400 text-xs'>
-                            Click on classes to add the competitor to them
-                        </p>
+                        <input
+                            type='text'
+                            placeholder='Search classes...'
+                            value={bracketSearch}
+                            onChange={(e) => setBracketSearch(e.target.value)}
+                            className='bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm'
+                        />
                     </div>
 
-                    <div className='max-h-96 overflow-y-auto'>
+                    <div className='max-h-96 overflow-y-auto min-h-36'>
                         <BracketCheckboxList
-                            brackets={tournament.brackets}
+                            brackets={filteredBrackets}
                             selectedBracketIds={selectedBrackets}
                             onToggle={toggleBracket}
                         />
