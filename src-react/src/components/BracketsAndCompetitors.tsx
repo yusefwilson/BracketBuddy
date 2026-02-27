@@ -99,7 +99,7 @@ export default function BracketsAndCompetitors() {
         navigate('/bracket');
     };
 
-    const { items: brackets, handleDragEnd } = useSortableList(tournament.brackets, 'bracketsAndCompetitorsOrder');
+    const { items: brackets, handleDragEnd } = useSortableList(tournament.brackets, 'bracketOrder');
 
     if (brackets.length === 0) {
         return (
