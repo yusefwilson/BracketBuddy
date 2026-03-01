@@ -16,6 +16,7 @@ import { HiArrowDownTray as ArrowDownTrayIcon, HiPlus as PlusIcon, HiUser as Use
 import { TbTournament } from 'react-icons/tb';
 
 import { FaRegRectangleList } from "react-icons/fa6";
+import { FaRegFileAlt } from "react-icons/fa";
 
 
 export default function TournamentView() {
@@ -174,6 +175,29 @@ export default function TournamentView() {
               title="Export to AERS"
             >
               <img src={AERSLogo} className='w-16' alt="AERS" />
+            </button>
+            <button
+              onClick={async () => {
+                const [result, error] = await safeApiCall(
+                  window.electron.exportToPDF({ tournamentId: tournament.id })
+                );
+
+                if (error) {
+                  showError(error);
+                  return;
+                }
+
+                if (result && !result.canceled) {
+                  console.log(`✅ Saved PDF to: ${result.filePath}`);
+                } else {
+                  console.log('❌ Save canceled');
+                }
+              }}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
+              type="button"
+              title="Export to PDF"
+            >
+              <FaRegFileAlt />
             </button>
           </div>
         </div>

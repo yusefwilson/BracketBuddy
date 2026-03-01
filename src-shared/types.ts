@@ -90,6 +90,10 @@ interface ExportTournamentInput {
     tournamentId: string;
 }
 
+interface ExportToPDFInput {
+    tournamentId: string;
+}
+
 // misc
 
 interface SaveKeyValueInput {
@@ -115,6 +119,6 @@ export type {
     ExternalMatch, SlotCoordinates,
     UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
-    SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput,
+    SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput, ExportToPDFInput,
     ApiResponse
 };

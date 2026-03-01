@@ -14,6 +14,7 @@ import type {
   SaveKeyValueInput,
   ExportToAERSInput,
   ExportTournamentInput,
+  ExportToPDFInput,
   ImportTournamentInput,
   ApiResponse
 } from './types';
@@ -48,6 +49,7 @@ declare global {
 
       // aers
       exportToAERS: (input: ExportToAERSInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      exportToPDF: (input: ExportToPDFInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
 
       // window controls
       windowMinimize: () => Promise<void>;

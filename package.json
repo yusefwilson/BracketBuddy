@@ -27,6 +27,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.9.0",
     "@electron-forge/plugin-fuses": "^7.9.0",
     "@electron/fuses": "^1.8.0",
+    "@types/pdfkit": "^0.17.5",
     "concurrently": "^9.1.2",
     "electron": "^33.2.1",
     "electron-icon-builder": "^2.0.1",
@@ -39,6 +40,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@types/electron-squirrel-startup": "^1.0.2",
     "flatted": "^3.3.3",
+    "pdfkit": "^0.17.2",
     "tournament-pairings": "^2.0.1",
     "util": "^0.12.5"
   }

@@ -12,6 +12,7 @@ import type {
     SaveKeyValueInput,
     ExportToAERSInput,
     ExportTournamentInput,
+    ExportToPDFInput,
 } from '../src-shared/types.js';
 
 contextBridge.exposeInMainWorld('electron', {
@@ -73,6 +74,8 @@ contextBridge.exposeInMainWorld('electron', {
 
     // aers
     exportToAERS: async (input: ExportToAERSInput) => ipcRenderer.invoke('export-to-AERS', input),
+
+    exportToPDF: async (input: ExportToPDFInput) => ipcRenderer.invoke('export-to-pdf', input),
 
     // window controls
     windowMinimize: () => ipcRenderer.invoke('window-minimize'),
