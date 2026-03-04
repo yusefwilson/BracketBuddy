@@ -85,14 +85,50 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
 
     // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
     if (!isPowerOfTwo(numberOfCompetitors)) {
-        matches.push(subBracket[0].map((match, index) => {
+
+        const firstRoundMatchAndPositions = subBracket[0].map((match, index) => {
             let [x, y] = calculateMatchPosition(0, index, true, horizontal_offset, vertical_offset);
             return { match, x, y };
-        }));
-        matches.push(subBracket[1].map((match, index) => {
-            let [x, y] = calculateMatchPosition(1, index, false, horizontal_offset, vertical_offset);
-            return { match, x, y };
-        }));
+        });
+        matches.push(firstRoundMatchAndPositions);
+
+        let secondRoundMatches = Object.assign([], subBracket[1]) as MatchDTO[];
+        const secondRoundMatchAndPositions = [];
+
+        //TODO: calculate positions based on real parents. only the first ever rounds should be calculated independently
+        let secondRoundIndex = 0;
+        // for each match in the first round, find the corresponding child (there should only be one)
+        for (let match of firstRoundMatchAndPositions) {
+            // we are only interested in the winChild here, because the lossChild is non-existent or in a different bracket
+            console.log('findinng win child for match: ', match);
+            const childMatch = findWinChildMatch(subBracket[1], match.match);
+            console.log('found win child: ', childMatch);
+            if (!childMatch) {
+                console.warn(`No child match found for match ${match.match} in bracket ${bracket}`);
+                continue;
+            }
+            // render that child below the parent match
+            const [x, y] = calculateMatchPosition(1, secondRoundIndex++, false, horizontal_offset, vertical_offset);
+            console.log('rendering child match: ', childMatch, ' at position: ', [x, y]);
+            secondRoundMatchAndPositions.push({ match: childMatch, x, y });
+            // remove this match from the secondRoundMatches we need to process
+            console.log('removing match with id: ', childMatch.id, ' from secondRoundMatches: ', secondRoundMatches);
+            secondRoundMatches = secondRoundMatches.filter(m => m.id !== childMatch.id);
+            console.log('secondRoundMatches after removing match: ', secondRoundMatches);
+
+            // if there are no more potential child matches left, we are done
+            if (secondRoundMatches.length === 0) {
+                break;
+            }
+        }
+
+        // once all first round matches are rendered, render parentless matches in the second round
+        secondRoundMatches.forEach((match, index) => {
+            let [x, y] = calculateMatchPosition(1, index + secondRoundIndex, false, horizontal_offset, vertical_offset);
+            secondRoundMatchAndPositions.push({ match, x, y });
+        });
+
+        matches.push(secondRoundMatchAndPositions);
     }
     else {
         matches.push(subBracket[0].map((match, index) => {
@@ -107,16 +143,18 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
 const calculateMatchPositionsFromParentAverages = (previousRoundMatches: MatchAndPosition[], matches: MatchDTO[], roundIndex: number) => {
     return matches.map((match, index) => {
 
+        const parentMatches = findParentMatches(previousRoundMatches, match);
+
         // edge case when there is one parent
-        if (previousRoundMatches.length === 1) {
-            const parentMatch = previousRoundMatches[0];
+        if (parentMatches.length === 1) {
+            const parentMatch = parentMatches[0];
             const [x, y] = calculateMatchPositionFromParents(roundIndex, parentMatch.y, parentMatch.y, WINNER_HORIZONTAL_OFFSET);
             return { match, x, y };
         }
 
         // find parent matches using winnerMatches last round
-        const parentMatch0 = previousRoundMatches[index * 2];
-        const parentMatch1 = previousRoundMatches[index * 2 + 1];
+        const parentMatch0 = parentMatches[0];
+        const parentMatch1 = parentMatches[1];
 
         if (!parentMatch0 || !parentMatch1) {
             console.warn(`Parent matches not found for round index ${roundIndex} and match index ${index}`);
@@ -130,14 +168,57 @@ const calculateMatchPositionsFromParentAverages = (previousRoundMatches: MatchAn
 
 const calculateMatchPositionsFromParentStaggered = (previousRoundMatches: MatchAndPosition[], matches: MatchDTO[], roundIndex: number) => {
     return matches.map((match, index) => {
-        const correspondingMatch = previousRoundMatches[index];
-        if (!correspondingMatch) {
-            console.warn(`Corresponding match not found for round index ${roundIndex} and match index ${index} in previous round array ${previousRoundMatches}`);
+        const parentMatches = findParentMatches(previousRoundMatches, match);
+
+        if (parentMatches.length === 0) {
+            console.warn(`Parent matches not found for round index ${roundIndex} and match index ${index}`);
             return { match, x: 0, y: 0 }; // fallback
         }
 
+        if (parentMatches.length > 1) {
+            console.warn(`Multiple parent matches found for round index ${roundIndex} and match index ${index}`);
+            return { match, x: 0, y: 0 }; // fallback
+        }
+
+        const correspondingMatch = parentMatches[0];
+
         const [x, y] = calculateMatchPositionFromSingleParent(roundIndex, previousRoundMatches.length !== 1, correspondingMatch.y, LOSER_HORIZONTAL_OFFSET);
         return { match, x, y };
+    });
+}
+
+const findWinChildMatch = (potentialWinChildMatches: MatchDTO[], match: MatchDTO): MatchDTO | undefined => {
+    if (!potentialWinChildMatches || potentialWinChildMatches.length === 0) {
+        console.warn(`No potential win child matches found for match ${match} because potentialWinChildMatches is empty`);
+        return undefined;
+    }
+    const filtered = potentialWinChildMatches.filter(winChildMatch => {
+        return winChildMatch.round === match.win?.round && winChildMatch.match === match.win?.match;
+    });
+
+    if (filtered.length === 0) {
+        console.warn(`No win child match found for match ${match} because filtered is empty`);
+        return undefined;
+    }
+
+    if (filtered.length > 1) {
+        console.warn(`Multiple win child matches found for match ${match} because filtered is not empty`);
+        return undefined;
+    }
+
+    return filtered[0];
+}
+
+const findParentMatches = (potentialParentMatches: MatchAndPosition[], match: MatchDTO): MatchAndPosition[] => {
+
+    if (!potentialParentMatches || potentialParentMatches.length === 0) {
+        console.warn(`No potential parent matches found for match ${match} because potentialParentMatches is empty`);
+        return [];
+    }
+
+    return potentialParentMatches.filter(parentMatch => {
+        return parentMatch.match.win?.round === match.round && parentMatch.match.win?.match === match.match
+            || parentMatch.match.loss?.round === match.round && parentMatch.match.loss?.match === match.match;
     });
 }
 
