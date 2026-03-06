@@ -294,11 +294,66 @@ const putMatchesIntoMatrix = (matches: Match[]): Match[][] => {
     return matchesMatrix;
 }
 
-const numberRound = (round: Match[], currentMatchNumber: number): number => {
+const numberMatchesSequentially = (round: Match[], currentMatchNumber: number): number => {
     //console.log('numbering round: ', round);
     round.forEach(match => match.number = currentMatchNumber++);
     return currentMatchNumber;
 }
+
+// previousMatchStack is a list of matches who contain a competitor that competed in the last round. It is ordered in decreasing time since the competitor competed.
+const numberMatchesRespectingParentOrder = (round: Match[], currentMatchNumber: number, matchesFromLastRound: Match[], side: 'winner' | 'loser'): number => {
+
+    // Map child -> parents
+    const parentMap = new Map<Match, Match[]>();
+
+    for (const parent of matchesFromLastRound) {
+        const child = side === 'winner' ? parent.winChild : parent.lossChild;
+
+        if (!child) continue;
+
+        if (!parentMap.has(child)) {
+            parentMap.set(child, []);
+        }
+
+        parentMap.get(child)!.push(parent);
+    }
+
+    // split matches into ones that are children of previous round and ones that aren't
+    const matchesWithoutPreviousRoundParents: Match[] = [];
+    const matchesWithPreviousRoundParents: Match[] = [];
+
+    for (const match of round) {
+        if (parentMap.has(match)) {
+            matchesWithPreviousRoundParents.push(match);
+        } else {
+            matchesWithoutPreviousRoundParents.push(match);
+        }
+    }
+
+    // Number matches that have no parent first (since they have no competitor that needs rest, or at least their competitors don't need as much rest as matches with parents from previous round)
+    for (const match of matchesWithoutPreviousRoundParents) {
+        match.number = currentMatchNumber++;
+    }
+
+    // Sort matches based on parent age (older parents are first, since their competitors need less rest)
+    matchesWithPreviousRoundParents.sort((a, b) => {
+
+        const parentsA = parentMap.get(a)!;
+        const parentsB = parentMap.get(b)!;
+
+        const earliestParentA = Math.min(...parentsA.map(p => p.number));
+        const earliestParentB = Math.min(...parentsB.map(p => p.number));
+
+        return earliestParentA - earliestParentB;
+    });
+
+    // Number them
+    for (const match of matchesWithPreviousRoundParents) {
+        match.number = currentMatchNumber++;
+    }
+
+    return currentMatchNumber;
+};
 
 const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match): void => {
 
@@ -307,23 +362,23 @@ const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], l
     let currentMatchNumber = 1, currentWinnerRound = 0, currentLoserRound = 0;
 
     // if power of 2, then first complete first winner round. otherwise, complete first 2 winner rounds
-    currentMatchNumber = numberRound(winnersBracket[currentWinnerRound], currentMatchNumber);
+    currentMatchNumber = numberMatchesSequentially(winnersBracket[currentWinnerRound], currentMatchNumber); // needs to generate match stack
     currentWinnerRound++;
 
     let numberOfInitialLoserMatches = winnersBracket[0].length;
 
     if (!isPowerOfTwo(numberOfCompetitors)) {
-        currentMatchNumber = numberRound(winnersBracket[currentWinnerRound], currentMatchNumber);
+        currentMatchNumber = numberMatchesRespectingParentOrder(winnersBracket[currentWinnerRound], currentMatchNumber, winnersBracket[currentWinnerRound - 1], 'winner');
         currentWinnerRound++;
         numberOfInitialLoserMatches += winnersBracket[1].length;
     }
 
     // if initial amount of losers is power of 2, then complete first loser round. otherwise, complete first 2 loser rounds
-    currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+    currentMatchNumber = numberMatchesSequentially(losersBracket[currentLoserRound], currentMatchNumber);
     currentLoserRound++;
 
     if (!isPowerOfTwo(numberOfInitialLoserMatches)) {
-        currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+        currentMatchNumber = numberMatchesRespectingParentOrder(losersBracket[currentLoserRound], currentMatchNumber, losersBracket[currentLoserRound - 1], 'loser');
         currentLoserRound++;
     }
 
@@ -331,16 +386,16 @@ const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], l
     while (currentWinnerRound < winnersBracket.length) {
 
         // execute winner round
-        currentMatchNumber = numberRound(winnersBracket[currentWinnerRound], currentMatchNumber);
+        currentMatchNumber = numberMatchesRespectingParentOrder(winnersBracket[currentWinnerRound], currentMatchNumber, winnersBracket[currentWinnerRound - 1], 'winner');
         currentWinnerRound++;
 
         // execute 2 loser rounds (if they exist)
         if (currentLoserRound < losersBracket.length) {
-            currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+            currentMatchNumber = numberMatchesRespectingParentOrder(losersBracket[currentLoserRound], currentMatchNumber, losersBracket[currentLoserRound - 1], 'loser');
             currentLoserRound++;
         }
         if (currentLoserRound < losersBracket.length) {
-            currentMatchNumber = numberRound(losersBracket[currentLoserRound], currentMatchNumber);
+            currentMatchNumber = numberMatchesRespectingParentOrder(losersBracket[currentLoserRound], currentMatchNumber, losersBracket[currentLoserRound - 1], 'loser');
             currentLoserRound++;
         }
     }

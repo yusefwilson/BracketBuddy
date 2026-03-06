@@ -95,26 +95,20 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
         let secondRoundMatches = Object.assign([], subBracket[1]) as MatchDTO[];
         const secondRoundMatchAndPositions = [];
 
-        //TODO: calculate positions based on real parents. only the first ever rounds should be calculated independently
         let secondRoundIndex = 0;
         // for each match in the first round, find the corresponding child (there should only be one)
         for (let match of firstRoundMatchAndPositions) {
             // we are only interested in the winChild here, because the lossChild is non-existent or in a different bracket
-            console.log('findinng win child for match: ', match);
             const childMatch = findWinChildMatch(subBracket[1], match.match);
-            console.log('found win child: ', childMatch);
             if (!childMatch) {
                 console.warn(`No child match found for match ${match.match} in bracket ${bracket}`);
                 continue;
             }
             // render that child below the parent match
             const [x, y] = calculateMatchPosition(1, secondRoundIndex++, false, horizontal_offset, vertical_offset);
-            console.log('rendering child match: ', childMatch, ' at position: ', [x, y]);
             secondRoundMatchAndPositions.push({ match: childMatch, x, y });
             // remove this match from the secondRoundMatches we need to process
-            console.log('removing match with id: ', childMatch.id, ' from secondRoundMatches: ', secondRoundMatches);
             secondRoundMatches = secondRoundMatches.filter(m => m.id !== childMatch.id);
-            console.log('secondRoundMatches after removing match: ', secondRoundMatches);
 
             // if there are no more potential child matches left, we are done
             if (secondRoundMatches.length === 0) {
