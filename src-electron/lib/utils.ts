@@ -92,25 +92,27 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
 
     // generate pairings using external library
     const matches = DoubleElimination(competitorNames) as ExternalMatch[];
-    console.log('1. matches', matches);
+    //console.log('1. matches', matches);
 
     // convert to internal matches
     const convertedMatches = convertExternalMatchesToInternalMatches(matches);
-    console.log('2. convertedMatches', convertedMatches);
+    //console.log('2. convertedMatches', convertedMatches);
 
     // link matches
     linkMatches(convertedMatches);
-    console.log('3. linked matches', convertedMatches);
+    //console.log('3. linked matches', convertedMatches);
 
     // separate into winnersBracket and losersBracket
     const { winnersBracket, losersBracket } = separateBrackets(convertedMatches);
-    console.log('4. separated brackets. winnersBracjet: ', winnersBracket, 'losersBracket: ', losersBracket);
+    //console.log('4. separated brackets. winnersBracket: ', winnersBracket, 'losersBracket: ', losersBracket);
 
     // separate final from winners bracket and add final rematch
     const { final, finalRematch } = separateFinalsFromBrackets(winnersBracket, losersBracket);
+    //console.log('5. final, finalRematch', final, finalRematch);
 
     // number matches
     numberMatches(competitorNames.length, winnersBracket, losersBracket, final, finalRematch);
+    console.log('6. after numbering, winnersBracket: ', winnersBracket, 'losersBracket: ', losersBracket, 'final: ', final, 'finalRematch: ', finalRematch);
 
     return { winnersBracket, losersBracket, final, finalRematch };
 }
@@ -357,7 +359,7 @@ const numberMatchesRespectingParentOrder = (round: Match[], currentMatchNumber: 
 
 const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match): void => {
 
-    console.log('numbering matches with numberOfCompetitors: ', numberOfCompetitors, 'winnersBracket: ', winnersBracket, 'losersBracket: ', losersBracket, 'final: ', final, 'finalRematch: ', finalRematch);
+    //console.log('numbering matches with numberOfCompetitors: ', numberOfCompetitors, 'winnersBracket: ', winnersBracket, 'losersBracket: ', losersBracket, 'final: ', final, 'finalRematch: ', finalRematch);
 
     let currentMatchNumber = 1, currentWinnerRound = 0, currentLoserRound = 0;
 

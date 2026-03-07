@@ -94,6 +94,7 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
 
         let secondRoundMatches = Object.assign([], subBracket[1]) as MatchDTO[];
         const secondRoundMatchAndPositions = [];
+        const seenChildMatches = new Set<string>();
 
         let secondRoundIndex = 0;
         // for each match in the first round, find the corresponding child (there should only be one)
@@ -104,9 +105,14 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
                 console.warn(`No child match found for match ${match.match} in bracket ${bracket}`);
                 continue;
             }
+            if (seenChildMatches.has(childMatch.id)) {
+                continue;
+            }
             // render that child below the parent match
             const [x, y] = calculateMatchPosition(1, secondRoundIndex++, false, horizontal_offset, vertical_offset);
             secondRoundMatchAndPositions.push({ match: childMatch, x, y });
+            // record that we have seen this child match so we don't render it again
+            seenChildMatches.add(childMatch.id);
             // remove this match from the secondRoundMatches we need to process
             secondRoundMatches = secondRoundMatches.filter(m => m.id !== childMatch.id);
 
@@ -130,7 +136,7 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
             return { match, x, y };
         }));
     }
-
+    console.log('about to return matches from calcualteInitialRoundsMatchPositions', matches);
     return matches;
 }
 
