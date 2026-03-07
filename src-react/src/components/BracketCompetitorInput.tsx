@@ -45,14 +45,21 @@ export default function BracketCompetitorInput({
                 }}
             >
                 <div className="flex justify-between items-start mb-4 flex-shrink-0 w-full gap-3">
-                    <h2 className="text-lg font-semibold text-white leading-tight">
-                        {bracket.gender} | {bracket.experienceLevel} | {bracket.hand}{' '}
-                        <span className="text-white">
-                            {bracket.weightLimit !== 'Superheavyweight'
-                                ? `${bracket.weightLimit} lbs`
-                                : 'Superheavyweight'}
-                        </span>
-                    </h2>
+                    <div className="flex flex-col gap-1">
+                        <h2 className="text-lg font-semibold text-white leading-tight">
+                            {bracket.gender} | {bracket.experienceLevel} | {bracket.hand}{' '}
+                            <span className="text-white">
+                                {bracket.weightLimit !== 'Superheavyweight'
+                                    ? `${bracket.weightLimit} lbs`
+                                    : 'Superheavyweight'}
+                            </span>
+                        </h2>
+                        {bracket.firstPlace !== undefined ? (
+                            <span className="text-green-400 font-semibold text-sm">✓ Complete</span>
+                        ) : (
+                            <span className="text-yellow-400 font-semibold text-sm">⏳ In Progress</span>
+                        )}
+                    </div>
                     <button
                         onClick={async (e) => {
                             e.stopPropagation();
