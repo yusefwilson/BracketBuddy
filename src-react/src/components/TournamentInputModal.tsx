@@ -22,10 +22,11 @@ export default function TournamentInputModal({ setTournamentModalOpen }: Tournam
             case 'name':
                 setName(event.target.value);
                 break;
-            case 'date':
-                console.log('setting date', event.target.value);
-                setDate(new Date(event.target.value));
+            case 'date': {
+                const [year, month, day] = event.target.value.split('-').map(Number);
+                setDate(new Date(year, month - 1, day));
                 break;
+            }
             default:
                 break;
         }
