@@ -82,52 +82,33 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
 
     numberOfCompetitors = side === 'winner' ? (bracket?.competitorNames.length || 0) : ((bracket?.winnersBracket[0].length || 0) + (bracket?.winnersBracket[1].length || 0));
 
-
     // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
     if (!isPowerOfTwo(numberOfCompetitors)) {
 
-        const firstRoundMatchAndPositions = subBracket[0].map((match, index) => {
-            let [x, y] = calculateMatchPosition(0, index, true, horizontal_offset, vertical_offset);
+        const secondRoundMatchAndPositions = subBracket[1].map((match, index) => {
+            let [x, y] = calculateMatchPosition(1, index, true, horizontal_offset, vertical_offset);
             return { match, x, y };
         });
-        matches.push(firstRoundMatchAndPositions);
 
-        let secondRoundMatches = Object.assign([], subBracket[1]) as MatchDTO[];
-        const secondRoundMatchAndPositions = [];
-        const seenChildMatches = new Set<string>();
+        const firstRoundMatchAndPositions = [];
 
-        let secondRoundIndex = 0;
         // for each match in the first round, find the corresponding child (there should only be one)
-        for (let match of firstRoundMatchAndPositions) {
+        for (let match of subBracket[0]) {
             // we are only interested in the winChild here, because the lossChild is non-existent or in a different bracket
-            const childMatch = findWinChildMatch(subBracket[1], match.match);
+            const childMatch = findWinChildMatch(subBracket[1], match);
             if (!childMatch) {
                 console.warn(`No child match found for match ${match.match} in bracket ${bracket}`);
                 continue;
             }
-            if (seenChildMatches.has(childMatch.id)) {
-                continue;
-            }
-            // render that child below the parent match
-            const [x, y] = calculateMatchPosition(1, secondRoundIndex++, false, horizontal_offset, vertical_offset);
-            secondRoundMatchAndPositions.push({ match: childMatch, x, y });
-            // record that we have seen this child match so we don't render it again
-            seenChildMatches.add(childMatch.id);
-            // remove this match from the secondRoundMatches we need to process
-            secondRoundMatches = secondRoundMatches.filter(m => m.id !== childMatch.id);
 
-            // if there are no more potential child matches left, we are done
-            if (secondRoundMatches.length === 0) {
-                break;
-            }
+            // find index of child match in second round (used to calculate height of parent match)
+            const childMatchIndex = subBracket[1].findIndex(m => m.id === childMatch.id);
+            // render that child below the parent match
+            const [x, y] = calculateMatchPosition(0, childMatchIndex, false, horizontal_offset, vertical_offset);
+            firstRoundMatchAndPositions.push({ match, x, y });
         }
 
-        // once all first round matches are rendered, render parentless matches in the second round
-        secondRoundMatches.forEach((match, index) => {
-            let [x, y] = calculateMatchPosition(1, index + secondRoundIndex, false, horizontal_offset, vertical_offset);
-            secondRoundMatchAndPositions.push({ match, x, y });
-        });
-
+        matches.push(firstRoundMatchAndPositions);
         matches.push(secondRoundMatchAndPositions);
     }
     else {

@@ -112,12 +112,44 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
 
     // number matches
     numberMatches(competitorNames.length, winnersBracket, losersBracket, final, finalRematch);
-    console.log('6. after numbering, winnersBracket: ', winnersBracket, 'losersBracket: ', losersBracket, 'final: ', final, 'finalRematch: ', finalRematch);
+    //console.log('6. after numbering, winnersBracket: ', winnersBracket, 'losersBracket: ', losersBracket, 'final: ', final, 'finalRematch: ', finalRematch);
+
+    // group parent matches together in winner round 1 and loser round 1. Necessary since child matches are rendered in the middle of the two parent matches
+    winnersBracket[1] = groupParentMatches(winnersBracket[1]);
+    losersBracket[1] = groupParentMatches(losersBracket[1]);
+
+    console.log('7. after grouping parent matches, winnersBracket round 1: ', winnersBracket[1], 'losersBracket round 1: ', losersBracket[1]);
 
     return { winnersBracket, losersBracket, final, finalRematch };
 }
 
 // helper functions
+
+//
+const groupParentMatches = (matches: Match[]) => {
+    const parentMap = new Map<Match, Match[]>();
+
+    for (const parent of matches) {
+        // only interested in the winChild here, because the lossChild is non-existent or in a different bracket
+        const child = parent.winChild;
+
+        if (!child) continue;
+
+        if (!parentMap.has(child)) {
+            parentMap.set(child, []);
+        }
+
+        parentMap.get(child)!.push(parent);
+    }
+
+    let groupedMatches: Match[] = [];
+
+    for (const [child, parents] of parentMap.entries()) {
+        groupedMatches = groupedMatches.concat(parents);
+    }
+
+    return groupedMatches;
+}
 
 // brute force matches creation for <= 3 competitors
 const prepareMatchesForSpecialLowNumbers = (competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } => {
