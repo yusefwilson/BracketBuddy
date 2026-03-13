@@ -82,6 +82,7 @@ function AppRoutes() {
   const location = useLocation();
   const isReportPage = location.pathname.startsWith('/report');
 
+  // if the window created has a report hash, then we need to ONLY render the report page and not unconditional renders like the Navbar
   if (isReportPage) {
     return (
       <Routes>
