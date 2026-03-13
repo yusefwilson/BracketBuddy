@@ -257,14 +257,14 @@ class Bracket {
 
         // if final is not decided, final rematch not needed
         if (!this.final?.isDecided()) {
-            console.log('returning false because final is not decided');
+            //console.log('returning false because final is not decided');
             return false;
         }
 
         // if winners bracket final is not decided, final rematch not needed
         const winnersBracketFinal = this.winnersBracket[this.winnersBracket.length - 1][0];
         if (!winnersBracketFinal.isDecided()) {
-            console.log('returning false because winners bracket final is not decided');
+            //console.log('returning false because winners bracket final is not decided');
             return false;
         }
 
@@ -272,7 +272,7 @@ class Bracket {
         const winnersBracketFinalWinner = winnersBracketFinal.getWinningPlayer();
         const finalWinner = this.final?.getWinningPlayer();
 
-        console.log('returning ', winnersBracketFinalWinner !== finalWinner, ' because winners bracket final winner is ', winnersBracketFinalWinner, ', and final winner is ', finalWinner);
+        //console.log('returning ', winnersBracketFinalWinner !== finalWinner, ' because winners bracket final winner is ', winnersBracketFinalWinner, ', and final winner is ', finalWinner);
 
         return winnersBracketFinalWinner !== finalWinner;
     }

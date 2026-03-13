@@ -76,6 +76,7 @@ contextBridge.exposeInMainWorld('electron', {
     exportToAERS: async (input: ExportToAERSInput) => ipcRenderer.invoke('export-to-AERS', input),
 
     exportToPDF: async (input: ExportToPDFInput) => ipcRenderer.invoke('export-to-pdf', input),
+    exportToJPG: async (input: ExportToPDFInput) => ipcRenderer.invoke('export-to-jpg', input),
 
     // window controls
     windowMinimize: () => ipcRenderer.invoke('window-minimize'),

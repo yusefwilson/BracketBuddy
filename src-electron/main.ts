@@ -9,9 +9,9 @@ import { fileURLToPath } from 'node:url';
 
 import { app, BrowserWindow, ipcMain } from 'electron';
 
-import { load_all_tournaments, create_tournament, delete_tournament, add_brackets_to_tournament, remove_bracket_from_tournament, export_to_AERS, export_to_pdf, export_tournament, import_tournament } from './endpoints/tournament.js';
+import { load_all_tournaments, load_one_tournament, create_tournament, delete_tournament, add_brackets_to_tournament, remove_bracket_from_tournament, export_to_AERS, export_to_pdf, export_to_jpg, export_tournament, import_tournament } from './endpoints/tournament.js';
 import { add_competitor_to_bracket, remove_competitor_from_bracket, update_bracket, randomize_competitors } from './endpoints/bracket.js';
-import { ensure_save_environment, get_saved_value, save_key_value, get_constants, open_url, save_file, load_file, get_zoom_level, set_zoom_level } from './endpoints/misc.js';
+import { ensure_save_environment, get_saved_value, save_key_value, get_constants, open_url, save_data_to_file, load_file, get_zoom_level, set_zoom_level } from './endpoints/misc.js';
 import { readFile } from 'fs/promises';
 import { SAVE_FILE_PATH } from './constants.js';
 
@@ -78,6 +78,8 @@ ipcMain.handle('export-tournament', export_tournament);
 ipcMain.handle('import-tournament', import_tournament);
 ipcMain.handle('export-to-AERS', export_to_AERS);
 ipcMain.handle('export-to-pdf', export_to_pdf);
+ipcMain.handle('export-to-jpg', export_to_jpg);
+ipcMain.handle('load-tournament', load_one_tournament);
 
 // bracket
 ipcMain.handle('update-bracket', update_bracket);
@@ -90,7 +92,7 @@ ipcMain.handle('get-saved-value', get_saved_value);
 ipcMain.handle('save-key-value', save_key_value);
 ipcMain.handle('get-constants', get_constants);
 ipcMain.handle('open-url', open_url);
-ipcMain.handle('save-file', save_file);
+ipcMain.handle('save-file', save_data_to_file);
 ipcMain.handle('load-file', load_file);
 ipcMain.handle('get-zoom-level', get_zoom_level);
 ipcMain.handle('set-zoom-level', set_zoom_level);

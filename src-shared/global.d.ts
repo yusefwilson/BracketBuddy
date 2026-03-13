@@ -47,9 +47,13 @@ declare global {
       getZoomLevel: () => Promise<ApiResponse<number>>;
       setZoomLevel: (zoomPercent: number) => Promise<ApiResponse<void>>;
 
+      // tournament loading
+      loadTournament: (tournamentId: string) => Promise<ApiResponse<TournamentDTO>>;
+
       // aers
       exportToAERS: (input: ExportToAERSInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
       exportToPDF: (input: ExportToPDFInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      exportToJPG: (input: ExportToPDFInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
 
       // window controls
       windowMinimize: () => Promise<void>;

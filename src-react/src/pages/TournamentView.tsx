@@ -10,6 +10,7 @@ import BracketsAndCompetitors from '../components/BracketsAndCompetitors';
 import CompetitorList from '../components/CompetitorList';
 import BracketList from '../components/BracketList';
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
+import TournamentReportModal from '../components/TournamentReportModal';
 
 import AERSLogo from '../../../assets/AERS_Logo.png'
 import { HiArrowDownTray as ArrowDownTrayIcon, HiPlus as PlusIcon, HiUser as UserIcon } from 'react-icons/hi2';
@@ -25,6 +26,7 @@ export default function TournamentView() {
   const { showError, ErrorToastContainer } = useErrorToast();
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'both' | 'brackets' | 'competitor-list' | null>(null);
 
   // Load saved view on mount
@@ -177,25 +179,10 @@ export default function TournamentView() {
               <img src={AERSLogo} className='w-16' alt="AERS" />
             </button>
             <button
-              onClick={async () => {
-                const [result, error] = await safeApiCall(
-                  window.electron.exportToPDF({ tournamentId: tournament.id })
-                );
-
-                if (error) {
-                  showError(error);
-                  return;
-                }
-
-                if (result && !result.canceled) {
-                  console.log(`✅ Saved PDF to: ${result.filePath}`);
-                } else {
-                  console.log('❌ Save canceled');
-                }
-              }}
+              onClick={() => setReportModalOpen(true)}
               className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
               type="button"
-              title="Export to PDF"
+              title="Export report"
             >
               <FaRegFileAlt />
             </button>
@@ -207,6 +194,9 @@ export default function TournamentView() {
           {/* Modals */}
           {bulkBracketModalOpen && (
             <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
+          )}
+          {reportModalOpen && (
+            <TournamentReportModal tournament={tournament} onClose={() => setReportModalOpen(false)} />
           )}
 
           <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 shadow-2xl p-6 h-full flex flex-col backdrop-blur-sm">

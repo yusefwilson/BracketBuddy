@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 import { TournamentDTO } from '../../../src-shared/TournamentDTO';
 
@@ -9,6 +9,7 @@ import { useErrorToast } from '../hooks/useErrorToast';
 import Home from '../pages/Home';
 import TournamentView from '../pages/TournamentView';
 import BracketView from '../pages/BracketView';
+import ReportPage from '../pages/ReportPage';
 
 import Navbar from './Navbar';
 
@@ -71,16 +72,34 @@ export default function App() {
     <CURRENT_STATE.Provider value={{ tournament, bracketId, setTournament, setBracketId }}>
       <ErrorToastContainer />
       <Router>
-        <Navbar />
-        <div className="text-white h-screen-navbar">
-          <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/tournament' element={<TournamentView />} />
-            <Route path='/bracket' element={<BracketView />} />
-          </Routes>
-        </div>
+        <AppRoutes />
       </Router>
+    </CURRENT_STATE.Provider>
+  );
+}
 
-    </CURRENT_STATE.Provider >
+function AppRoutes() {
+  const location = useLocation();
+  const isReportPage = location.pathname.startsWith('/report');
+
+  if (isReportPage) {
+    return (
+      <Routes>
+        <Route path='/report/:tournamentId' element={<ReportPage />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <>
+      <Navbar />
+      <div className="text-white h-screen-navbar">
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/tournament' element={<TournamentView />} />
+          <Route path='/bracket' element={<BracketView />} />
+        </Routes>
+      </div>
+    </>
   );
 }

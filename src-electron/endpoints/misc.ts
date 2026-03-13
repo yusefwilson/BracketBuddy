@@ -51,7 +51,7 @@ const open_url = async (_: Electron.IpcMainInvokeEvent, url: string) => {
 };
 
 // open file dialog to save file
-const save_file = async (_: Electron.IpcMainInvokeEvent, filename: string, data: string): Promise<ApiResponse<{ canceled: boolean; filePath?: string }>> => {
+const save_data_to_file = async (_: Electron.IpcMainInvokeEvent, filename: string, data: string): Promise<ApiResponse<{ canceled: boolean; filePath?: string }>> => {
     try {
         const { filePath, canceled } = await dialog.showSaveDialog({
             defaultPath: filename || 'export',
@@ -142,7 +142,7 @@ const ensure_save_environment = () => {
 };
 
 
-export { save_file, load_file, get_zoom_level, set_zoom_level };
+export { save_data_to_file, load_file, get_zoom_level, set_zoom_level };
 
 export {
     get_saved_value,
