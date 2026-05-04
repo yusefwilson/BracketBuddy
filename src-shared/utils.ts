@@ -42,6 +42,8 @@ const WINNER_VERTICAL_OFFSET = 60;
 const LOSER_HORIZONTAL_OFFSET = 12;
 const LOSER_VERTICAL_OFFSET = 40;
 
+const MATCH_HEIGHT = 100; // is there a more robust way to derive this?
+
 type MatchAndPosition = { match: MatchDTO, x: number, y: number };
 
 // given information about a round, calculate where on the screen the match should be placed.
@@ -91,11 +93,13 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
         });
 
         const firstRoundMatchAndPositions = [];
+        const seenChildMatches = new Set();
 
         // for each match in the first round, find the corresponding child (there should only be one)
         for (let match of subBracket[0]) {
             // we are only interested in the winChild here, because the lossChild is non-existent or in a different bracket
             const childMatch = findWinChildMatch(subBracket[1], match);
+
             if (!childMatch) {
                 console.warn(`No child match found for match ${match.match} in bracket ${bracket}`);
                 continue;
@@ -103,8 +107,21 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
 
             // find index of child match in second round (used to calculate height of parent match)
             const childMatchIndex = subBracket[1].findIndex(m => m.id === childMatch.id);
-            // render that child below the parent match
-            const [x, y] = calculateMatchPosition(0, childMatchIndex, false, horizontal_offset, vertical_offset);
+
+            let x, y;
+
+            if (childMatch && seenChildMatches.has(childMatch.id)) {
+                // if we've seen this child match before, render it below the previously rendered parent
+                [x, y] = calculateMatchPosition(0, childMatchIndex, false, horizontal_offset, vertical_offset +  MATCH_HEIGHT);
+            }
+
+            else {
+                // render that child below the parent match
+                [x, y] = calculateMatchPosition(0, childMatchIndex, false, horizontal_offset, vertical_offset);
+                seenChildMatches.add(childMatch.id);
+            }
+
+
             firstRoundMatchAndPositions.push({ match, x, y });
         }
 
@@ -209,7 +226,7 @@ const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: Match
 
     if (bracket.competitorNames && bracket.competitorNames.length >= 2) {
         // {match, x, y}[][]
-        const winnerRounds = calculateInitialRoundsMatchPositions(bracket as BracketDTO, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+        const winnerRounds = calculateInitialRoundsMatchPositions(bracket, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
         const initialWinnerMatches = winnerRounds.slice();
 
         // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
