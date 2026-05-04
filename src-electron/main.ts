@@ -6,6 +6,10 @@ if (!(await check())) {
 
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { autoUpdater } = require('electron-updater');
 
 import { app, BrowserWindow, ipcMain } from 'electron';
 
@@ -112,6 +116,10 @@ ipcMain.handle('window-maximize', () => {
     }
 });
 
+ipcMain.handle('install-update', () => {
+    autoUpdater.quitAndInstall(false, true);
+});
+
 ipcMain.handle('window-close', () => {
     if (mainWindow) mainWindow.close();
 });
@@ -120,10 +128,33 @@ ipcMain.handle('window-is-maximized', () => {
     return mainWindow ? mainWindow.isMaximized() : false;
 });
 
+function setup_auto_updater(): void {
+    if (process.platform === 'darwin') {
+        autoUpdater.channel = process.arch === 'arm64' ? 'arm64' : 'x64';
+    }
+    autoUpdater.autoDownload = true;
+    autoUpdater.autoInstallOnAppQuit = false;
+
+    autoUpdater.on('update-downloaded', () => {
+        if (mainWindow) mainWindow.webContents.send('update-downloaded');
+    });
+
+    autoUpdater.on('error', (err: Error) => {
+        console.error('Auto-updater error:', err.message);
+    });
+
+    autoUpdater.checkForUpdates().catch((err: Error) => {
+        console.error('checkForUpdates failed:', err.message);
+    });
+}
+
 const main = async () => {
     await app.whenReady();
     ensure_save_environment();
-    create_window();
+    await create_window();
+    if (app.isPackaged) {
+        setup_auto_updater();
+    }
 }
 
 console.log('Starting BracketBuddy')

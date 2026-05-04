@@ -54,10 +54,26 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: npm run make -- --platform=darwin --arch=x64
 
-      - name: Rename artifact
+      - name: Collect artifacts and generate x64-mac.yml
         run: |
+          VERSION=$(node -p "require('./package.json').version")
+          ZIP=$(find out/make/zip/darwin/x64 -name "*.zip" | head -n 1)
+          ZIP_NAME="BracketBuddy-darwin-x64-${VERSION}.zip"
+          cp "$ZIP" "$ZIP_NAME"
           DMG=$(find out/make -name "*.dmg" | head -n 1)
           cp "$DMG" BracketBuddy-macOS-intel.dmg
+          SHA512=$(openssl dgst -sha512 -binary "$ZIP_NAME" | base64)
+          SIZE=$(wc -c < "$ZIP_NAME" | tr -d ' ')
+          cat > x64-mac.yml << EOF
+          version: ${VERSION}
+          files:
+            - url: ${ZIP_NAME}
+              sha512: ${SHA512}
+              size: ${SIZE}
+          path: ${ZIP_NAME}
+          sha512: ${SHA512}
+          releaseDate: '$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")'
+          EOF
 
       - name: Publish Release
         uses: ncipollo/release-action@v1
@@ -65,7 +81,7 @@ jobs:
           tag: latest
           allowUpdates: true
           replacesArtifacts: true
-          artifacts: BracketBuddy-macOS-intel.dmg
+          artifacts: "BracketBuddy-macOS-intel.dmg,BracketBuddy-darwin-x64-*.zip,x64-mac.yml"
 
       - name: Cleanup
         if: always()

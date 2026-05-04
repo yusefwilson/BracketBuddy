@@ -78,6 +78,12 @@ contextBridge.exposeInMainWorld('electron', {
     exportToPDF: async (input: ExportToPDFInput) => ipcRenderer.invoke('export-to-pdf', input),
     exportToJPG: async (input: ExportToPDFInput) => ipcRenderer.invoke('export-to-jpg', input),
 
+    // auto-update
+    onUpdateDownloaded: (callback: () => void) => {
+        ipcRenderer.on('update-downloaded', () => callback());
+    },
+    installUpdate: () => ipcRenderer.invoke('install-update'),
+
     // window controls
     windowMinimize: () => ipcRenderer.invoke('window-minimize'),
     windowMaximize: () => ipcRenderer.invoke('window-maximize'),

@@ -38,26 +38,29 @@ jobs:
           echo "Listing out/make directory:"
           ls -R out/make/ || true
 
-      - name: Rename artifact
+      - name: Collect artifacts and generate latest.yml
         shell: bash
         run: |
-          # Find the Setup.exe file
-          SETUP_FILE=$(find out/make -name "*Setup.exe" -type f | head -n 1)
-          if [ -n "$SETUP_FILE" ]; then
-            cp "$SETUP_FILE" "BracketBuddy-Setup.exe"
-            echo "Copied $SETUP_FILE to BracketBuddy-Setup.exe"
-          else
-            echo "Error: No Setup.exe file found"
-            exit 1
-          fi
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: BracketBuddy-Setup.exe
-          path: BracketBuddy-Setup.exe
-          if-no-files-found: error
-
+          VERSION=$(node -p "require('./package.json').version")
+          DIR="out/make/squirrel.windows/x64"
+          cp "$DIR/BracketBuddy-Setup.exe" BracketBuddy-Setup.exe
+          cp "$DIR/RELEASES" RELEASES
+          NUPKG=$(find "$DIR" -name "*.nupkg" | head -n 1)
+          NUPKG_NAME=$(basename "$NUPKG")
+          cp "$NUPKG" "$NUPKG_NAME"
+          # SHA512 in base64 (electron-updater requires base64, not hex)
+          SHA512=$(openssl dgst -sha512 -binary "$NUPKG_NAME" | base64 -w 0)
+          SIZE=$(wc -c < "$NUPKG_NAME" | tr -d ' ')
+          cat > latest.yml << EOF
+          version: ${VERSION}
+          files:
+            - url: ${NUPKG_NAME}
+              sha512: ${SHA512}
+              size: ${SIZE}
+          path: ${NUPKG_NAME}
+          sha512: ${SHA512}
+          releaseDate: '$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")'
+          EOF
       - name: Move 'latest' tag to current commit
         run: |
           git tag -f latest
@@ -73,8 +76,8 @@ jobs:
 
             **Downloads:**
             - Windows: BracketBuddy-Setup.exe
-            - macOS (M Chips): BracketBuddy-macOS-arm64.dmg
-            - macOS (Intel): BracketBuddy-macOS-x64.dmg
-          artifacts: BracketBuddy-Setup.exe
+            - macOS (Apple Silicon): BracketBuddy-macOS-apple-silicon.dmg
+            - macOS (Intel): BracketBuddy-macOS-intel.dmg
+          artifacts: "BracketBuddy-Setup.exe,BracketBuddy-*.nupkg,RELEASES,latest.yml"
           allowUpdates: true
           replacesArtifacts: true

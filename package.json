@@ -16,6 +16,13 @@
   },
   "author": "Yusef Wilson",
   "license": "MIT",
+  "build": {
+    "publish": {
+      "provider": "github",
+      "owner": "yusefwilson",
+      "repo": "BracketBuddy"
+    }
+  },
   "devDependencies": {
     "@electron-forge/cli": "^7.9.0",
     "@electron-forge/maker-deb": "^7.9.0",
@@ -39,6 +46,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@types/electron-squirrel-startup": "^1.0.2",
+    "electron-updater": "^6.8.3",
     "flatted": "^3.3.3",
     "pdfkit": "^0.17.2",
     "tournament-pairings": "^2.0.1",

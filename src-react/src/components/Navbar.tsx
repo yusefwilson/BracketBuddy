@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { HiChevronLeft as ChevronLeftIcon, HiHome as HomeIcon, HiHeart as HeartIcon, HiMagnifyingGlassMinus as MagnifyingGlassMinusIcon, HiMagnifyingGlassPlus as MagnifyingGlassPlusIcon, HiMinus as MinusIcon, HiXMark as XMarkIcon } from 'react-icons/hi2';
+import { HiChevronLeft as ChevronLeftIcon, HiHome as HomeIcon, HiHeart as HeartIcon, HiMagnifyingGlassMinus as MagnifyingGlassMinusIcon, HiMagnifyingGlassPlus as MagnifyingGlassPlusIcon, HiMinus as MinusIcon, HiXMark as XMarkIcon, HiArrowPath } from 'react-icons/hi2';
 import { VscChromeMaximize, VscChromeRestore } from 'react-icons/vsc';
 import { safeApiCall } from '../utils/apiHelpers';
 
@@ -9,6 +9,7 @@ export default function Navbar() {
   const [zoomLevel, setZoomLevel] = useState(100);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isMac, setIsMac] = useState(false);
+  const [updateReady, setUpdateReady] = useState(false);
 
   // Load current zoom level on mount and poll for changes (for View menu sync)
   useEffect(() => {
@@ -29,6 +30,9 @@ export default function Navbar() {
 
     // Detect macOS platform
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+
+    // Listen for update-downloaded event from main process
+    window.electron.onUpdateDownloaded(() => setUpdateReady(true));
 
     // Poll every 500ms to detect zoom changes from View menu and window state
     const interval = setInterval(() => {
@@ -119,6 +123,20 @@ export default function Navbar() {
             <MagnifyingGlassPlusIcon className='h-4 w-4' />
           </button>
         </div>
+
+        {/* Update Available Button */}
+        {updateReady && (
+          <button
+            onClick={() => window.electron.installUpdate()}
+            aria-label='Install update and restart'
+            className='bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-lg px-3 py-1.5 transition-all duration-200 shadow-md text-sm font-semibold flex items-center gap-2'
+            type='button'
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+          >
+            <HiArrowPath className='h-4 w-4' />
+            Update Available
+          </button>
+        )}
 
         {/* Heart Donation Button */}
         <button
