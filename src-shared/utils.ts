@@ -34,8 +34,8 @@ function isPowerOfTwo(n: number) { return n > 0 && (n & (n - 1)) === 0; };
 
 /* POSITIONAL LOGIC */
 const HORIZONTAL_GAP = 250;
-const INITIAL_VERTICAL_GAP = 100;
-const EXTRA_VERTICAL_OFFSET = 25;
+const INITIAL_VERTICAL_GAP = 200;
+const EXTRA_VERTICAL_OFFSET = 50;
 
 const WINNER_HORIZONTAL_OFFSET = 12;
 const WINNER_VERTICAL_OFFSET = 60;
