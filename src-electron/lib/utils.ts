@@ -337,11 +337,15 @@ const numberMatchesSequentially = (round: Match[], currentMatchNumber: number): 
 // previousMatchStack is a list of matches who contain a competitor that competed in the last round. It is ordered in decreasing time since the competitor competed.
 const numberMatchesRespectingParentOrder = (round: Match[], currentMatchNumber: number, matchesFromLastRound: Match[], side: 'winner' | 'loser'): number => {
 
+    //console.log('in numberMatchesRespectingParentOrder with round: ', round);
     // Map child -> parents
     const parentMap = new Map<Match, Match[]>();
 
     for (const parent of matchesFromLastRound) {
-        const child = side === 'winner' ? parent.winChild : parent.lossChild;
+
+        // if we're in the winners bracket, we care about the winChild, cause the lossChild goes to the losers bracket
+        // if we're in the losers bracket, we care about the winChild, cause there is no lossChild
+        const child = parent.winChild;
 
         if (!child) continue;
 
