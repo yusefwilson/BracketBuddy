@@ -335,7 +335,7 @@ const numberMatchesSequentially = (round: Match[], currentMatchNumber: number): 
 }
 
 // previousMatchStack is a list of matches who contain a competitor that competed in the last round. It is ordered in decreasing time since the competitor competed.
-const numberMatchesRespectingParentOrder = (round: Match[], currentMatchNumber: number, matchesFromLastRound: Match[], side: 'winner' | 'loser'): number => {
+const numberMatchesRespectingParentOrder = (round: Match[], currentMatchNumber: number, matchesFromLastRound: Match[], side: 'winner' | 'loser', lossChildParentsFromPreviousRound: Match[] = []): number => {
 
     //console.log('in numberMatchesRespectingParentOrder with round: ', round);
     // Map child -> parents
@@ -346,6 +346,18 @@ const numberMatchesRespectingParentOrder = (round: Match[], currentMatchNumber: 
         // if we're in the winners bracket, we care about the winChild, cause the lossChild goes to the losers bracket
         // if we're in the losers bracket, we care about the winChild, cause there is no lossChild
         const child = parent.winChild;
+
+        if (!child) continue;
+
+        if (!parentMap.has(child)) {
+            parentMap.set(child, []);
+        }
+
+        parentMap.get(child)!.push(parent);
+    }
+
+    for (const parent of lossChildParentsFromPreviousRound) {
+        const child = parent.lossChild;
 
         if (!child) continue;
 
@@ -379,10 +391,16 @@ const numberMatchesRespectingParentOrder = (round: Match[], currentMatchNumber: 
         const parentsA = parentMap.get(a)!;
         const parentsB = parentMap.get(b)!;
 
-        const earliestParentA = Math.min(...parentsA.map(p => p.number));
-        const earliestParentB = Math.min(...parentsB.map(p => p.number));
+        // const earliestParentA = Math.min(...parentsA.map(p => p.number));
+        // const earliestParentB = Math.min(...parentsB.map(p => p.number));
 
-        return earliestParentA - earliestParentB;
+        // we want the latest parent to be last, because that parent is the one that needs the most rest
+        const latestParentA = Math.max(...parentsA.map(p => p.number));
+        const latestParentB = Math.max(...parentsB.map(p => p.number));
+
+        return latestParentA - latestParentB;
+
+        //return earliestParentA - earliestParentB;
     });
 
     // Number them
@@ -429,7 +447,8 @@ const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], l
 
         // execute 2 loser rounds (if they exist)
         if (currentLoserRound < losersBracket.length) {
-            currentMatchNumber = numberMatchesRespectingParentOrder(losersBracket[currentLoserRound], currentMatchNumber, losersBracket[currentLoserRound - 1], 'loser');
+            // the first loser round is linked to by the last winner round, so pass that round as the lossChildParentsFromPreviousRound
+            currentMatchNumber = numberMatchesRespectingParentOrder(losersBracket[currentLoserRound], currentMatchNumber, losersBracket[currentLoserRound - 1], 'loser', winnersBracket[currentWinnerRound - 1]);
             currentLoserRound++;
         }
         if (currentLoserRound < losersBracket.length) {
