@@ -430,11 +430,13 @@ const numberMatches = (numberOfCompetitors: number, winnersBracket: Match[][], l
     }
 
     // if initial amount of losers is power of 2, then complete first loser round. otherwise, complete first 2 loser rounds
-    currentMatchNumber = numberMatchesSequentially(losersBracket[currentLoserRound], currentMatchNumber);
+    const lossChildParentsFromPreviousRound = isPowerOfTwo(numberOfCompetitors) ? winnersBracket[0] : winnersBracket[0].concat(winnersBracket[1]);
+    currentMatchNumber = numberMatchesRespectingParentOrder(losersBracket[currentLoserRound], currentMatchNumber, [], 'loser', lossChildParentsFromPreviousRound);
     currentLoserRound++;
 
     if (!isPowerOfTwo(numberOfInitialLoserMatches)) {
-        currentMatchNumber = numberMatchesRespectingParentOrder(losersBracket[currentLoserRound], currentMatchNumber, losersBracket[currentLoserRound - 1], 'loser');
+        // give second loser round the context of the initial winner rounds
+        currentMatchNumber = numberMatchesRespectingParentOrder(losersBracket[currentLoserRound], currentMatchNumber, losersBracket[currentLoserRound - 1], 'loser', lossChildParentsFromPreviousRound);
         currentLoserRound++;
     }
 
