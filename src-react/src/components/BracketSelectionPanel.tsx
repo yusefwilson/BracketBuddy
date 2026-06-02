@@ -1,7 +1,14 @@
-import { HiUser as UserIcon, HiAcademicCap as AcademicCapIcon, HiHandRaised as HandRaisedIcon, HiPlus as PlusIcon, HiScale as ScaleIcon, HiXMark as XMarkIcon } from 'react-icons/hi2';
-import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
+import { HiUser as UserIcon, HiAcademicCap as AcademicCapIcon, HiHandRaised as HandRaisedIcon, HiPlus as PlusIcon, HiScale as ScaleIcon, HiXMark as XMarkIcon, HiTrophy as TrophyIcon } from 'react-icons/hi2';
+import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../../src-shared/types';
+
+// Only bracket types with an implemented class/view are selectable.
+const BRACKET_TYPE_OPTIONS: { value: BracketType; label: string }[] = [
+    { value: 'DoubleEliminationBracket', label: 'Double Elimination' },
+];
 
 interface BracketSelectionPanelProps {
+    selectedType: BracketType;
+    setSelectedType: (type: BracketType) => void;
     selectedGenders: Gender[];
     setSelectedGenders: (genders: Gender[]) => void;
     selectedExperienceLevels: ExperienceLevel[];
@@ -21,6 +28,8 @@ interface BracketSelectionPanelProps {
 }
 
 export default function BracketSelectionPanel({
+    selectedType,
+    setSelectedType,
     selectedGenders,
     setSelectedGenders,
     selectedExperienceLevels,
@@ -48,6 +57,25 @@ export default function BracketSelectionPanel({
     return (
         <div className="flex-1 flex flex-col gap-6 overflow-y-auto">
             <h1 className="text-xl font-semibold text-white text-center pb-4 border-b border-slate-600">Bulk Bracket Creator</h1>
+
+            {/* Bracket Type */}
+            <div className="flex items-center gap-4 pb-6 border-b border-slate-600">
+                <TrophyIcon className="h-6 w-6 text-amber-400 flex-shrink-0" />
+                <div className="flex gap-2 flex-wrap">
+                    {BRACKET_TYPE_OPTIONS.map(({ value, label }) => (
+                        <button
+                            key={value}
+                            className={`px-3 py-1 rounded-md font-semibold ${selectedType === value
+                                ? 'bg-amber-500 text-white'
+                                : 'bg-gray-500 text-white'
+                                }`}
+                            onClick={() => setSelectedType(value)}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             {/* Gender */}
             <div className="flex items-center gap-4 pb-6 border-b border-slate-600">

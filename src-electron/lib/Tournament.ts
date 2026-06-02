@@ -2,6 +2,7 @@ import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
 import { dateToLocalTimezoneString } from '../../src-shared/utils.js';
 
 import Bracket from './Bracket.js';
+import DoubleEliminationBracket from './DoubleEliminationBracket.js';
 import Match from './Match.js';
 import { serialize, deserialize } from './utils.js';
 import { convertTournamentToAERS } from './AERS.js';
@@ -42,7 +43,7 @@ class Tournament {
 
     static deserialize(serialized: string): Tournament {
         console.log('about to deserialize tournament data');
-        const tournament = deserialize(serialized, { Tournament, Bracket, Match }) as Tournament;
+        const tournament = deserialize(serialized, { Tournament, Match, DoubleEliminationBracket }) as Tournament;
         // Rewire bracket references
         tournament.brackets.forEach(bracket => {
             bracket.tournament = tournament;

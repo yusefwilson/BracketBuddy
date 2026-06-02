@@ -1,13 +1,15 @@
-import { Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus } from '../../src-shared/types.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType } from '../../src-shared/types.js';
 
 import Match from './Match.js';
 import Tournament from './Tournament.js';
-import { serialize, deserialize, prepareMatches, shuffle } from './utils.js';
+import { serialize, shuffle } from './utils.js';
 import { BracketDTO } from '../../src-shared/BracketDTO.js';
 
-class Bracket {
+abstract class Bracket {
 
     __class: string = 'Bracket'
+
+    abstract type: BracketType
 
     tournament: Tournament
 
@@ -19,12 +21,6 @@ class Bracket {
     weightLimit: WeightLimit
 
     competitorNames: string[]
-
-    winnersBracket: Match[][]
-    losersBracket: Match[][]
-
-    final: Match | null
-    finalRematch: Match | null
 
     constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitorNames: string[] = []) {
 
@@ -38,35 +34,15 @@ class Bracket {
         this.weightLimit = weightLimit;
 
         this.competitorNames = competitorNames;
-
-        this.winnersBracket = [];
-        this.losersBracket = [];
-
-        this.final = null;
-        this.finalRematch = null;
     }
 
-    // create the initial bracket structure
-    initialize() {
+    // create the initial bracket structure from the current competitor names
+    abstract initialize(): void;
 
-        // if there is only one competitor, there is no need to create a bracket
-        if (this.competitorNames.length <= 1) {
-            this.winnersBracket = [];
-            this.losersBracket = [];
-            this.final = null;
-            this.finalRematch = null;
-            return;
-        }
+    // return all matches flattened and in no particular order
+    abstract getMatches(): Match[];
 
-        console.log('about to initialize bracket with competitor names: ', this.competitorNames);
-
-        const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(this.competitorNames);
-
-        this.winnersBracket = winnersBracket;
-        this.losersBracket = losersBracket;
-        this.final = final;
-        this.finalRematch = finalRematch;
-    }
+    abstract toDTO(): BracketDTO;
 
     setCompetitorNames(competitorNames: string[]) {
 
@@ -122,36 +98,8 @@ class Bracket {
         throw new Error('Match with number: ' + number + ' not found');
     }
 
-    // return matches flattened and in no particular order
-    getMatches(): Match[] {
-
-        let matches: Match[] = [];
-
-        matches = matches.concat(this.winnersBracket.flat());
-        matches = matches.concat(this.losersBracket.flat());
-
-        // add final and final rematch
-        if (this.final) {
-            matches.push(this.final);
-        }
-        if (this.finalRematch) {
-            matches.push(this.finalRematch);
-        }
-
-        return matches;
-    }
-
     serialize(): string {
         return serialize(this);
-    }
-
-    static deserialize(serialized: string): Bracket {
-        return deserialize(serialized, { Tournament, Bracket, Match });
-    }
-
-    toDTO(): BracketDTO {
-        // implement in child class
-        return {} as BracketDTO;
     }
 }
 

@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect, useMemo } from 'react';
 import { HiCheck as CheckIcon } from 'react-icons/hi2';
 
-import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types';
+import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../../src-shared/types';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
@@ -50,6 +50,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
         loadCustomWeights();
     }, []);
 
+    const [selectedType, setSelectedType] = useState<BracketType>('DoubleEliminationBracket');
     const [selectedGenders, setSelectedGenders] = useState<Gender[]>(['Male']);
     const [selectedExperienceLevels, setSelectedExperienceLevels] = useState<ExperienceLevel[]>(['Novice']);
     const [selectedHands, setSelectedHands] = useState<Hand[]>(['Right']);
@@ -161,7 +162,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
         const [data, error] = await safeApiCall(
             window.electron.addBracketsToTournament({
                 tournamentId: tournament.id,
-                brackets: resultingBrackets.map(b => ({ ...b, competitorNames: [] }))
+                brackets: resultingBrackets.map(b => ({ ...b, type: selectedType, competitorNames: [] }))
             })
         );
 
@@ -248,6 +249,8 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
                 <div className="bg-gradient-to-br from-slate-800 to-slate-900 w-full max-w-6xl p-6 rounded-xl shadow-2xl border border-slate-700/50 flex gap-6 h-3/4">
                     {/* Left Panel: Selection Controls */}
                     <BracketSelectionPanel
+                        selectedType={selectedType}
+                        setSelectedType={setSelectedType}
                         selectedGenders={selectedGenders}
                         setSelectedGenders={setSelectedGenders}
                         selectedExperienceLevels={selectedExperienceLevels}

@@ -71,6 +71,7 @@ interface DeleteTournamentInput {
 interface AddBracketsToTournamentInput {
     tournamentId: string;
     brackets: {
+        type: BracketType;
         gender: Gender;
         experienceLevel: ExperienceLevel;
         hand: Hand;

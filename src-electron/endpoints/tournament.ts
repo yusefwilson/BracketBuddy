@@ -23,6 +23,7 @@ import { successResponse, errorResponse } from '../../src-shared/utils.js';
 
 import Tournament from '../lib/Tournament.js';
 import Bracket from '../lib/Bracket.js';
+import DoubleEliminationBracket from '../lib/DoubleEliminationBracket.js';
 
 import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
 import { save_data_to_file, load_file } from './misc.js';
@@ -96,8 +97,17 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
         }
 
         for (const bracketData of brackets) {
-            const { gender, experienceLevel, hand, weightLimit, competitorNames } = bracketData;
-            const bracket = new Bracket(tournament, gender, experienceLevel, hand, weightLimit);
+            const { type, gender, experienceLevel, hand, weightLimit, competitorNames } = bracketData;
+
+            let bracket: Bracket;
+            switch (type ?? 'DoubleEliminationBracket') {
+                case 'DoubleEliminationBracket':
+                    bracket = new DoubleEliminationBracket(tournament, gender, experienceLevel, hand, weightLimit);
+                    break;
+                default:
+                    return errorResponse(`Bracket type "${type}" is not supported yet.`);
+            }
+
             competitorNames.forEach(competitorName => bracket.addCompetitor(competitorName));
             await tournament.addBracket(bracket);
         }
