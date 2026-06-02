@@ -3,7 +3,8 @@ import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../src-shared/typ
 import Match from './Match.js';
 import Bracket from './Bracket.js';
 import Tournament from './Tournament.js';
-import { serialize, prepareMatches } from './utils.js';
+import { serialize } from './utils.js';
+import { prepareMatches } from './doubleEliminationUtils.js';
 import { BracketType } from '../../src-shared/types.js';
 
 class DoubleEliminationBracket extends Bracket {
