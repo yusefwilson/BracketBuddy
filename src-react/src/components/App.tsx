@@ -8,7 +8,7 @@ import { useErrorToast } from '../hooks/useErrorToast';
 
 import Home from '../pages/Home';
 import TournamentView from '../pages/TournamentView';
-import BracketView from '../pages/BracketView';
+import DoubleEliminationBracketView from '../pages/BracketView';
 import ReportPage from '../pages/ReportPage';
 
 import Navbar from './Navbar';
@@ -98,7 +98,7 @@ function AppRoutes() {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/tournament' element={<TournamentView />} />
-          <Route path='/bracket' element={<BracketView />} />
+          <Route path='/bracket' element={<DoubleEliminationBracketView />} />
         </Routes>
       </div>
     </>

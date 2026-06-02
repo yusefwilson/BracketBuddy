@@ -1,4 +1,4 @@
-import { BracketDTO } from './BracketDTO';
+import { BracketDTO } from './DoubleEliminationBracketDTO';
 import { MatchDTO } from './MatchDTO';
 import type { ApiResponse } from './types';
 

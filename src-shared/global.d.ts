@@ -1,6 +1,6 @@
 export { };
 
-import { BracketDTO } from './BracketDTO';
+import { BracketDTO } from './DoubleEliminationBracketDTO';
 import { TournamentDTO } from './TournamentDTO';
 import type {
   CreateTournamentInput,

@@ -1,9 +1,10 @@
 import { Gender, Hand, ExperienceLevel } from './types';
-import { MatchDTO } from './MatchDTO'
+import { BracketType } from './types';
 
 interface BracketDTO {
 
     id: string
+    type: BracketType
 
     tournamentId: string
 
@@ -13,20 +14,6 @@ interface BracketDTO {
     weightLimit: number | 'Superheavyweight' // in lbs, -1 for no limit
 
     competitorNames: string[]
-
-    winnersBracket: MatchDTO[][]
-    losersBracket: MatchDTO[][]
-
-    final: MatchDTO | null
-    finalRematch: MatchDTO | null
-
-    currentMatchNumber: number
-
-    finalRematchNeeded: boolean
-
-    firstPlace: string | undefined
-    secondPlace: string | undefined
-    thirdPlace: string | undefined
 }
 
 export type { BracketDTO }

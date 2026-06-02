@@ -8,6 +8,8 @@ type WeightLimit = number | 'Superheavyweight';
 
 type MatchStatus = 'UNDECIDED' | 'PLAYER_1_WON' | 'PLAYER_2_WON' | 'PLAYER_1_DROPOUT' | 'PLAYER_2_DROPOUT' | 'PLAYER_1_NO_SHOW' | 'PLAYER_2_NO_SHOW';
 
+type BracketType = 'DoubleEliminationBracket' | 'SingleEliminationBracket';
+
 type ExternalMatch = {
     round: number,
     match: number,
@@ -115,7 +117,7 @@ interface ApiError {
 }
 
 export type {
-    Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus,
+    Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType,
     ExternalMatch, SlotCoordinates,
     UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
