@@ -98,6 +98,26 @@ abstract class Bracket {
         throw new Error('Match with number: ' + number + ' not found');
     }
 
+    // the lowest-numbered match that has not yet been decided (used for "current match" highlighting)
+    getLowestUnfilledMatchNumber(): number {
+        const matches = this.getMatches();
+
+        if (matches.length === 0) {
+            return -1;
+        }
+
+        const sortedMatches = matches.sort((a, b) => a.number - b.number);
+        for (let match of sortedMatches) {
+            if (match.status === 'UNDECIDED') {
+                return match.number;
+            }
+        }
+
+        //TODO: what should really go here?
+        // if no match unfilled, return largest number
+        return matches[matches.length - 1].number;
+    }
+
     serialize(): string {
         return serialize(this);
     }

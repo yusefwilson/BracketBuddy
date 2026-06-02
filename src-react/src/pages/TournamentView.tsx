@@ -57,6 +57,9 @@ export default function TournamentView() {
     )
   }
 
+  // AERS' winner-per-match CSV format can't represent round robin scoring
+  const hasRoundRobin = tournament.brackets.some(b => b.type === 'RoundRobinBracket');
+
   return (
     <>
       <ErrorToastContainer />
@@ -172,9 +175,10 @@ export default function TournamentView() {
                 }
               }
               }
-              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
+              disabled={hasRoundRobin}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800 disabled:hover:border-slate-700/50"
               type="button"
-              title="Export to AERS"
+              title={hasRoundRobin ? "AERS export is unavailable for tournaments with round-robin brackets" : "Export to AERS"}
             >
               <img src={AERSLogo} className='w-16 h-5 object-contain' alt="AERS" />
             </button>

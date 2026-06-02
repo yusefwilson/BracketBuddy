@@ -8,7 +8,7 @@ type WeightLimit = number | 'Superheavyweight';
 
 type MatchStatus = 'UNDECIDED' | 'PLAYER_1_WON' | 'PLAYER_2_WON' | 'PLAYER_1_DROPOUT' | 'PLAYER_2_DROPOUT' | 'PLAYER_1_NO_SHOW' | 'PLAYER_2_NO_SHOW';
 
-type BracketType = 'DoubleEliminationBracket' | 'SingleEliminationBracket';
+type BracketType = 'DoubleEliminationBracket' | 'SingleEliminationBracket' | 'RoundRobinBracket';
 
 type ExternalMatch = {
     round: number,
@@ -55,6 +55,20 @@ interface RemoveCompetitorFromBracketInput {
 interface RandomizeCompetitorsInput {
     tournamentId: string;
     bracketId: string;
+}
+
+interface EnterRoundRobinResultInput {
+    tournamentId: string;
+    bracketId: string;
+    matchId: string;
+    player1Score: number;
+    player2Score: number;
+}
+
+interface ResetRoundRobinMatchInput {
+    tournamentId: string;
+    bracketId: string;
+    matchId: string;
 }
 
 // tournament
@@ -120,7 +134,7 @@ interface ApiError {
 export type {
     Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType,
     ExternalMatch, SlotCoordinates,
-    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput,
+    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput, EnterRoundRobinResultInput, ResetRoundRobinMatchInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
     SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput, ExportToPDFInput,
     ApiResponse

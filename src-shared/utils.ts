@@ -1,5 +1,6 @@
 import { BracketDTO } from './DoubleEliminationBracketDTO';
 import { MatchDTO } from './MatchDTO';
+import { RoundRobinBracketDTO } from './RoundRobinBracketDTO';
 import type { ApiResponse } from './types';
 
 /* API RESPONSE HELPERS */
@@ -303,6 +304,30 @@ const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: Match
     return { winnerMatches, loserMatches, final, finalRematch, WINNERS_BOTTOM, LAST_WINNER_Y, WINNERS_RIGHTMOST };
 }
 
+// Round robin layout: each round is a column, matches stack vertically within it.
+// Cards are wider than double-elim (player rows + score input + save button), so the
+// columns need a larger horizontal gap than the shared HORIZONTAL_GAP.
+const ROUND_ROBIN_HORIZONTAL_GAP = 320;
+const ROUND_ROBIN_HORIZONTAL_OFFSET = 12;
+const ROUND_ROBIN_VERTICAL_OFFSET = 60;
+
+const calculateRoundRobinPositions = (bracket: RoundRobinBracketDTO): { matches: MatchAndPosition[], roundLabels: { x: number, label: string }[] } => {
+    const matches: MatchAndPosition[] = [];
+    const roundLabels: { x: number, label: string }[] = [];
+
+    bracket.rounds.forEach((round, roundIndex) => {
+        const x = roundIndex * ROUND_ROBIN_HORIZONTAL_GAP + ROUND_ROBIN_HORIZONTAL_OFFSET;
+        roundLabels.push({ x, label: `Round ${roundIndex + 1}` });
+
+        round.forEach((match, matchIndex) => {
+            const y = matchIndex * INITIAL_VERTICAL_GAP + ROUND_ROBIN_VERTICAL_OFFSET;
+            matches.push({ match, x, y });
+        });
+    });
+
+    return { matches, roundLabels };
+}
+
 const dateToLocalTimezoneString = (date: Date): string => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -313,6 +338,7 @@ const dateToLocalTimezoneString = (date: Date): string => {
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
     calculateAllMatchPositions,
+    calculateRoundRobinPositions,
     WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET, HORIZONTAL_GAP,
     INITIAL_VERTICAL_GAP, EXTRA_VERTICAL_OFFSET,
     dateToLocalTimezoneString

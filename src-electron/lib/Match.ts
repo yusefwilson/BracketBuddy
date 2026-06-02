@@ -13,6 +13,8 @@ class Match {
     match: number
     player1: string | null
     player2: string | null
+    player1Score: number | null
+    player2Score: number | null
     status: MatchStatus
     win?: SlotCoordinates
     loss?: SlotCoordinates
@@ -32,6 +34,8 @@ class Match {
         this.match = match;
         this.player1 = player1;
         this.player2 = player2;
+        this.player1Score = null;
+        this.player2Score = null;
         this.status = status;
         this.win = win;
         this.loss = loss;
@@ -100,6 +104,8 @@ class Match {
             number: this.number,
             player1: this.player1,
             player2: this.player2,
+            player1Score: this.player1Score,
+            player2Score: this.player2Score,
             status: this.status,
             win: this.win,
             loss: this.loss,
@@ -156,6 +162,34 @@ class Match {
             }
         }
 
+    }
+
+    // enter point scores for both players and auto-derive the winner (no draws allowed).
+    // used by round robin matches, which have no children to propagate to.
+    updateScore(player1Score: number, player2Score: number) {
+
+        if (this.player1 === null || this.player2 === null) {
+            throw new Error('Match cannot be scored because it is not filled');
+        }
+
+        if (player1Score < 0 || player2Score < 0) {
+            throw new Error('Scores cannot be negative.');
+        }
+
+        if (player1Score === player2Score) {
+            throw new Error('Scores cannot be equal — no draws allowed.');
+        }
+
+        this.player1Score = player1Score;
+        this.player2Score = player2Score;
+        this.status = player1Score > player2Score ? 'PLAYER_1_WON' : 'PLAYER_2_WON';
+    }
+
+    // clear a scored result back to undecided (used by round robin matches)
+    resetScore() {
+        this.player1Score = null;
+        this.player2Score = null;
+        this.status = 'UNDECIDED';
     }
 
     // update the players of the current match if and only if the parent matches have been decided

@@ -1,7 +1,9 @@
 import { useContext } from 'react';
 import { CURRENT_STATE } from '../components/App';
 import { DoubleEliminationBracketDTO } from '../../../src-shared/DoubleEliminationBracketDTO';
+import { RoundRobinBracketDTO } from '../../../src-shared/RoundRobinBracketDTO';
 import DoubleEliminationBracketView from './DoubleEliminationBracketView';
+import RoundRobinBracketView from './RoundRobinBracketView';
 
 export default function BracketView() {
   const state = useContext(CURRENT_STATE);
@@ -27,6 +29,8 @@ export default function BracketView() {
   switch (bracket.type) {
     case 'DoubleEliminationBracket':
       return <DoubleEliminationBracketView bracket={bracket as DoubleEliminationBracketDTO} />;
+    case 'RoundRobinBracket':
+      return <RoundRobinBracketView bracket={bracket as RoundRobinBracketDTO} />;
     default:
       return <div>Bracket type not found</div>;
 

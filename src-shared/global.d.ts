@@ -11,6 +11,8 @@ import type {
   AddCompetitorToBracketInput,
   RemoveCompetitorFromBracketInput,
   RandomizeCompetitorsInput,
+  EnterRoundRobinResultInput,
+  ResetRoundRobinMatchInput,
   SaveKeyValueInput,
   ExportToAERSInput,
   ExportTournamentInput,
@@ -35,6 +37,8 @@ declare global {
       addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<ApiResponse<TournamentDTO>>;
       removeCompetitorFromBracket: (input: RemoveCompetitorFromBracketInput) => Promise<ApiResponse<TournamentDTO>>;
       enterResult: (input: UpdateBracketInput) => Promise<ApiResponse<TournamentDTO>>;
+      enterRoundRobinResult: (input: EnterRoundRobinResultInput) => Promise<ApiResponse<TournamentDTO>>;
+      resetRoundRobinMatch: (input: ResetRoundRobinMatchInput) => Promise<ApiResponse<TournamentDTO>>;
       randomizeCompetitors: (input: RandomizeCompetitorsInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // misc

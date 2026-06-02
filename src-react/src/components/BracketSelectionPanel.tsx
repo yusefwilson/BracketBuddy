@@ -4,6 +4,7 @@ import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../.
 // Only bracket types with an implemented class/view are selectable.
 const BRACKET_TYPE_OPTIONS: { value: BracketType; label: string }[] = [
     { value: 'DoubleEliminationBracket', label: 'Double Elimination' },
+    { value: 'RoundRobinBracket', label: 'Round Robin' },
 ];
 
 interface BracketSelectionPanelProps {

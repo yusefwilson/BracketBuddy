@@ -8,6 +8,8 @@ interface MatchDTO {
     match: number
     player1: string | number | null
     player2: string | number | null
+    player1Score: number | null
+    player2Score: number | null
     status: MatchStatus
     win?: {
         round: number,

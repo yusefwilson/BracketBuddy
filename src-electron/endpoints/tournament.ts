@@ -24,6 +24,7 @@ import { successResponse, errorResponse } from '../../src-shared/utils.js';
 import Tournament from '../lib/Tournament.js';
 import Bracket from '../lib/Bracket.js';
 import DoubleEliminationBracket from '../lib/DoubleEliminationBracket.js';
+import RoundRobinBracket from '../lib/RoundRobinBracket.js';
 
 import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
 import { save_data_to_file, load_file } from './misc.js';
@@ -104,6 +105,9 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
                 case 'DoubleEliminationBracket':
                     bracket = new DoubleEliminationBracket(tournament, gender, experienceLevel, hand, weightLimit);
                     break;
+                case 'RoundRobinBracket':
+                    bracket = new RoundRobinBracket(tournament, gender, experienceLevel, hand, weightLimit);
+                    break;
                 default:
                     return errorResponse(`Bracket type "${type}" is not supported yet.`);
             }
@@ -142,6 +146,12 @@ const export_to_AERS = async (_: Electron.IpcMainInvokeEvent, input: ExportToAER
     try {
         const { tournamentId } = input;
         const tournament = await load_tournament(_, tournamentId);
+
+        // AERS' winner-per-match CSV format can't represent round robin scoring
+        if (tournament.brackets.some(b => b.type === 'RoundRobinBracket')) {
+            return errorResponse('AERS export is unavailable for tournaments with round-robin brackets.');
+        }
+
         console.log('Exporting tournament ' + tournamentId + ' to AERS');
         const convertedAERSData = tournament.convertToAERS();
         return await save_data_to_file(_, `${tournament.name} - AERS.csv`, convertedAERSData);

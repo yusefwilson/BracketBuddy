@@ -159,26 +159,6 @@ class DoubleEliminationBracket extends Bracket {
         return undefined;
     }
 
-    getLowestUnfilledMatchNumber(): number {
-        const matches = this.getMatches();
-
-        if (matches.length === 0) {
-            return -1;
-        }
-
-        const sortedMatches = matches.sort((a, b) => a.number - b.number);
-        for (let match of sortedMatches) {
-            if (match.status === 'UNDECIDED') {
-                return match.number;
-            }
-        }
-
-        //TODO: what should really go here?
-        // if no match unfilled, return largest number
-        return matches[matches.length - 1].number;
-
-    }
-
     finalRematchNeeded(): boolean {
 
         // if final is not decided, final rematch not needed

@@ -9,6 +9,8 @@ import type {
     AddCompetitorToBracketInput,
     RemoveCompetitorFromBracketInput,
     RandomizeCompetitorsInput,
+    EnterRoundRobinResultInput,
+    ResetRoundRobinMatchInput,
     SaveKeyValueInput,
     ExportToAERSInput,
     ExportTournamentInput,
@@ -43,6 +45,12 @@ contextBridge.exposeInMainWorld('electron', {
     // bracket
     enterResult: async (input: UpdateBracketInput) =>
         ipcRenderer.invoke('update-bracket', input),
+
+    enterRoundRobinResult: async (input: EnterRoundRobinResultInput) =>
+        ipcRenderer.invoke('enter-round-robin-result', input),
+
+    resetRoundRobinMatch: async (input: ResetRoundRobinMatchInput) =>
+        ipcRenderer.invoke('reset-round-robin-result', input),
 
     addCompetitorToBracket: async (input: AddCompetitorToBracketInput) =>
         ipcRenderer.invoke('add-competitor-to-bracket', input),
