@@ -21,10 +21,10 @@ import type {
 } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
 
-import Tournament from '../lib/Tournament.js';
-import Bracket from '../lib/Bracket.js';
-import DoubleEliminationBracket from '../lib/DoubleEliminationBracket.js';
-import RoundRobinBracket from '../lib/RoundRobinBracket.js';
+import Tournament from '../lib/classes/Tournament.js';
+import Bracket from '../lib/classes/Bracket.js';
+import DoubleEliminationBracket from '../lib/classes/DoubleEliminationBracket.js';
+import RoundRobinBracket from '../lib/classes/RoundRobinBracket.js';
 
 import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
 import { save_data_to_file, load_file } from './misc.js';

@@ -1,12 +1,6 @@
 import { BracketDTO } from './BracketDTO';
 import { MatchDTO } from './MatchDTO';
-
-interface RoundRobinStanding {
-    name: string
-    points: number
-    wins: number
-    losses: number
-}
+import { RoundRobinStanding } from './types';
 
 interface RoundRobinBracketDTO extends BracketDTO {
 

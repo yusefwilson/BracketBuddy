@@ -31,6 +31,13 @@ type SlotCoordinates = {
     slot: 1 | 2
 }
 
+interface RoundRobinStanding {
+    name: string
+    points: number
+    wins: number
+    losses: number
+}
+
 // endpoint input types
 
 // bracket
@@ -133,7 +140,7 @@ interface ApiError {
 
 export type {
     Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType,
-    ExternalMatch, SlotCoordinates,
+    ExternalMatch, SlotCoordinates, RoundRobinStanding,
     UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput, EnterRoundRobinResultInput, ResetRoundRobinMatchInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
     SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput, ExportToPDFInput,

@@ -1,12 +1,12 @@
-import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
-import { dateToLocalTimezoneString } from '../../src-shared/utils.js';
+import { TournamentDTO } from '../../../src-shared/TournamentDTO.js';
+import { dateToLocalTimezoneString } from '../../../src-shared/utils.js';
 
 import Bracket from './Bracket.js';
 import DoubleEliminationBracket from './DoubleEliminationBracket.js';
 import RoundRobinBracket from './RoundRobinBracket.js';
 import Match from './Match.js';
-import { serialize, deserialize } from './utils.js';
-import { convertTournamentToAERS } from './AERS.js';
+import { serialize, deserialize } from '../utils.js';
+import { convertTournamentToAERS } from '../AERSUtils.js';
 
 class Tournament {
 

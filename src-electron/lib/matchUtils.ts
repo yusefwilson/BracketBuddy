@@ -4,12 +4,12 @@
 
 import { ExternalMatch } from '../../src-shared/types.js';
 
-import Match from './Match.js';
+import Match from './classes/Match.js';
 
 // create an internal Match from a tournament-pairings ExternalMatch and its slot
 // information. win/loss coordinates are only attached when the external match has
 // them, so formats without win/loss pointers (e.g. round robin) work unchanged.
-const createInternalMatch = (match: ExternalMatch, winSlot: 1 | 2 | undefined, lossSlot: 1 | 2 | undefined): Match => {
+const createInternalMatch = (match: ExternalMatch, winSlot?: 1 | 2, lossSlot?: 1 | 2): Match => {
 
     let win, loss;
 

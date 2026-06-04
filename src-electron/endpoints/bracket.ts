@@ -10,7 +10,7 @@ import type {
 } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
 
-import RoundRobinBracket from '../lib/RoundRobinBracket.js';
+import RoundRobinBracket from '../lib/classes/RoundRobinBracket.js';
 import { load_tournament, save_tournament } from './tournament.js';
 
 // update a match in a bracket with the specified status

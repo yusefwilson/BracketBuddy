@@ -5,7 +5,7 @@ import { RoundRobin } from 'tournament-pairings';
 
 import { ExternalMatch } from '../../src-shared/types.js';
 
-import Match from './Match.js';
+import Match from './classes/Match.js';
 import { createInternalMatch, numberMatchesSequentially } from './matchUtils.js';
 
 // generate the round robin schedule grouped into rounds (each inner array is one round)
@@ -24,8 +24,8 @@ function prepareRoundRobinMatches(competitorNames: string[]): Match[][] {
     // drop byes (a null player is inserted when there is an odd number of competitors)
     const realMatches = externalMatches.filter(m => m.player1 !== null && m.player2 !== null);
 
-    // round robin matches have no win/loss pointers, so slots are undefined
-    const internalMatches = realMatches.map(m => createInternalMatch(m, undefined, undefined));
+    // round robin matches have no win/loss pointers, so slots are not passed in here
+    const internalMatches = realMatches.map(m => createInternalMatch(m));
 
     // group matches by round
     const roundsMap = new Map<number, Match[]>();

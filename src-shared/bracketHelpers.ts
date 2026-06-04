@@ -5,7 +5,7 @@ import { RoundRobinBracketDTO } from './RoundRobinBracketDTO';
 /**
  * Checks if a bracket has started (i.e., any match has been completed or marked)
  */
-export function isBracketStarted(bracket: DoubleEliminationBracketDTO): boolean {
+export function isDoubleEliminationBracketStarted(bracket: DoubleEliminationBracketDTO): boolean {
     // Check if any matches in winners bracket have a non-UNDECIDED status
     for (const round of bracket.winnersBracket) {
         for (const match of round) {
@@ -60,7 +60,7 @@ export function isAnyBracketStarted(bracket: BracketDTO): boolean {
         case 'RoundRobinBracket':
             return isRoundRobinBracketStarted(bracket as RoundRobinBracketDTO);
         case 'DoubleEliminationBracket':
-            return isBracketStarted(bracket as DoubleEliminationBracketDTO);
+            return isDoubleEliminationBracketStarted(bracket as DoubleEliminationBracketDTO);
         default:
             return false;
     }

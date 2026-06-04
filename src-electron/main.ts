@@ -15,6 +15,24 @@ import { ensure_save_environment, get_saved_value, save_key_value, get_constants
 import { readFile } from 'fs/promises';
 import { SAVE_FILE_PATH } from './constants.js';
 
+const waitForDevServer = (url: string, timeout = 30000): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        const start = Date.now();
+        const tryConnect = () => {
+            fetch(url, { signal: AbortSignal.timeout(1000) })
+                .then(() => resolve())
+                .catch(() => {
+                    if (Date.now() - start > timeout) {
+                        reject(new Error(`Dev server at ${url} did not start within ${timeout}ms`));
+                    } else {
+                        setTimeout(tryConnect, 500);
+                    }
+                });
+        };
+        tryConnect();
+    });
+};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -48,6 +66,7 @@ const create_window = async () => {
     else {
         try {
             console.log('loading dev server');
+            await waitForDevServer('http://localhost:5173');
             await window.loadURL('http://localhost:5173');
         }
         catch (e) {

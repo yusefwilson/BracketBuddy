@@ -2,9 +2,9 @@
 
 import { ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
 
-import Tournament from './Tournament.js';
-import Bracket from './Bracket.js';
-import Match from './Match.js';
+import Tournament from './classes/Tournament.js';
+import Bracket from './classes/Bracket.js';
+import Match from './classes/Match.js';
 
 function convertTournamentToAERS(tournament: Tournament): string {
     const rows: string[] = [];

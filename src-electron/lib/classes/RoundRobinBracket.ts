@@ -1,11 +1,11 @@
-import { RoundRobinBracketDTO, RoundRobinStanding } from '../../src-shared/RoundRobinBracketDTO.js';
-import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../src-shared/types.js';
+import { RoundRobinBracketDTO, RoundRobinStanding } from '../../../src-shared/RoundRobinBracketDTO.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../../src-shared/types.js';
 
 import Match from './Match.js';
 import Bracket from './Bracket.js';
 import Tournament from './Tournament.js';
-import { serialize } from './utils.js';
-import { prepareRoundRobinMatches } from './roundRobinUtils.js';
+import { serialize } from '../utils.js';
+import { prepareRoundRobinMatches } from '../roundRobinUtils.js';
 
 class RoundRobinBracket extends Bracket {
 

@@ -1,9 +1,9 @@
-import { Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType } from '../../src-shared/types.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType } from '../../../src-shared/types.js';
 
 import Match from './Match.js';
 import Tournament from './Tournament.js';
-import { serialize, shuffle } from './utils.js';
-import { BracketDTO } from '../../src-shared/BracketDTO.js';
+import { serialize, shuffle } from '../utils.js';
+import { BracketDTO } from '../../../src-shared/BracketDTO.js';
 
 abstract class Bracket {
 

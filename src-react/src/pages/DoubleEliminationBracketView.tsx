@@ -5,7 +5,7 @@ import { calculateAllMatchPositions } from '../../../src-shared/utils';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
-import { isBracketStarted } from '../../../src-shared/bracketHelpers';
+import { isDoubleEliminationBracketStarted } from '../../../src-shared/bracketHelpers';
 
 import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
@@ -119,7 +119,7 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
             <div className='flex-1 w-full min-h-0'>
               <CompetitorInput
                 competitors={bracket.competitorNames ?? []}
-                bracketStarted={isBracketStarted(bracket)}
+                bracketStarted={isDoubleEliminationBracketStarted(bracket)}
                 addCompetitor={async (name) => {
                   console.log('about to add competitor to bracket: ', name);
                   const [newTournament, error] = await safeApiCall(

@@ -1,7 +1,7 @@
 import util from 'util';
 
-import { MatchDTO } from '../../src-shared/MatchDTO.js';
-import { SlotCoordinates, MatchStatus } from '../../src-shared/types.js';
+import { MatchDTO } from '../../../src-shared/MatchDTO.js';
+import { SlotCoordinates, MatchStatus } from '../../../src-shared/types.js';
 
 class Match {
 

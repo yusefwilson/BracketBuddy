@@ -5,7 +5,7 @@ import { DoubleElimination } from 'tournament-pairings';
 
 import { ExternalMatch } from '../../src-shared/types.js';
 
-import Match from './Match.js';
+import Match from './classes/Match.js';
 import { createInternalMatch, putMatchesIntoMatrix, numberMatchesSequentially } from './matchUtils.js';
 import { isPowerOfTwo } from './utils.js';
 

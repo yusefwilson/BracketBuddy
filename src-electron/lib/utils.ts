@@ -2,7 +2,7 @@ import { parse, stringify } from 'flatted';
 
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
 
-import Bracket from './Bracket.js';
+import Bracket from './classes/Bracket.js';
 
 /* MATH */
 

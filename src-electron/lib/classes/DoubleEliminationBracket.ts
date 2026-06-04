@@ -1,11 +1,11 @@
-import { DoubleEliminationBracketDTO } from '../../src-shared/DoubleEliminationBracketDTO.js';
-import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../src-shared/types.js';
+import { DoubleEliminationBracketDTO } from '../../../src-shared/DoubleEliminationBracketDTO.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types.js';
 import Match from './Match.js';
 import Bracket from './Bracket.js';
 import Tournament from './Tournament.js';
-import { serialize } from './utils.js';
-import { prepareMatches } from './doubleEliminationUtils.js';
-import { BracketType } from '../../src-shared/types.js';
+import { serialize } from '../utils.js';
+import { prepareMatches } from '../doubleEliminationUtils.js';
+import { BracketType } from '../../../src-shared/types.js';
 
 class DoubleEliminationBracket extends Bracket {
 
