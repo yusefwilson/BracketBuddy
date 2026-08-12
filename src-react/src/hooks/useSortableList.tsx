@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   DndContext,
   closestCenter,
@@ -13,6 +14,7 @@ import {
   SortableContext,
   useSortable,
   horizontalListSortingStrategy,
+  verticalListSortingStrategy,
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -140,12 +142,13 @@ export function SortableItem({
   );
 }
 
-// High-level wrapper for a horizontal sortable list
-export function SortableList<T extends { id: string }>({ items, onDragEnd, renderItem, className }: {
+// High-level wrapper for a sortable list, horizontal (default) or vertical
+export function SortableList<T extends { id: string }>({ items, onDragEnd, renderItem, className, orientation = 'horizontal' }: {
   items: T[];
   onDragEnd: (event: DragEndEvent) => void;
   renderItem: (item: T) => React.ReactNode;
   className?: string;
+  orientation?: 'horizontal' | 'vertical';
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -182,8 +185,8 @@ export function SortableList<T extends { id: string }>({ items, onDragEnd, rende
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <SortableContext items={items} strategy={horizontalListSortingStrategy}>
-        <div className={`flex gap-4 ${className || ''}`}>
+      <SortableContext items={items} strategy={orientation === 'vertical' ? verticalListSortingStrategy : horizontalListSortingStrategy}>
+        <div className={`flex ${orientation === 'vertical' ? 'flex-col' : ''} gap-4 ${className || ''}`}>
           {items.map((item) => (
             <SortableItem key={item.id} id={item.id}>
               {renderItem(item)}
@@ -191,17 +194,22 @@ export function SortableList<T extends { id: string }>({ items, onDragEnd, rende
           ))}
         </div>
       </SortableContext>
-      <DragOverlay dropAnimation={null}>
-        {activeItem ? (
-          <div
-            style={{
-              cursor: 'grabbing',
-            }}
-          >
-            {renderItem(activeItem)}
-          </div>
-        ) : null}
-      </DragOverlay>
+      {/* Portaled to document.body so `position: fixed` positions relative to the viewport,
+          not to whichever backdrop-blur/modal ancestor happens to wrap this list. */}
+      {createPortal(
+        <DragOverlay dropAnimation={null}>
+          {activeItem ? (
+            <div
+              style={{
+                cursor: 'grabbing',
+              }}
+            >
+              {renderItem(activeItem)}
+            </div>
+          ) : null}
+        </DragOverlay>,
+        document.body
+      )}
     </DndContext>
   );
 }

@@ -2,9 +2,11 @@ import { useState, useEffect, useContext } from 'react';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+import { useBracketSearchAndSort } from '../hooks/useBracketSearchAndSort';
 
 import { CURRENT_STATE } from './App';
 import BracketCheckboxList from './BracketCheckboxList';
+import BracketSortDropdown from './BracketSortDropdown';
 
 interface CompetitorClassModalProps {
     competitorName: string;
@@ -18,6 +20,8 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
 
     const [loading, setLoading] = useState(false);
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
+    const { search, setSearch, sorted: sortedBrackets, sortFieldItems, handleSortDragEnd } =
+        useBracketSearchAndSort(tournament?.brackets ?? []);
 
     useEffect(() => {
         if (!tournament) return;
@@ -118,9 +122,20 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
                         Click on a class to add or remove this competitor
                     </p>
 
+                    <div className='flex gap-3'>
+                        <input
+                            type='text'
+                            placeholder='Search classes...'
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className='flex-1 bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm'
+                        />
+                        <BracketSortDropdown fields={sortFieldItems} onDragEnd={handleSortDragEnd} />
+                    </div>
+
                     <div className='max-h-96 overflow-y-auto'>
                         <BracketCheckboxList
-                            brackets={tournament.brackets}
+                            brackets={sortedBrackets}
                             selectedBracketIds={selectedBrackets}
                             onToggle={toggleBracket}
                             loading={loading}

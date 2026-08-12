@@ -1,11 +1,13 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { HiCheck as CheckIcon } from 'react-icons/hi2';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+import { useBracketSearchAndSort } from '../hooks/useBracketSearchAndSort';
 
 import { CURRENT_STATE } from './App';
 import BracketCheckboxList from './BracketCheckboxList';
+import BracketSortDropdown from './BracketSortDropdown';
 
 interface AddCompetitorModalProps {
     onClose: () => void;
@@ -19,7 +21,8 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     const [competitorName, setCompetitorName] = useState('');
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
     const [showSuccessFeedback, setShowSuccessFeedback] = useState(false);
-    const [bracketSearch, setBracketSearch] = useState('');
+    const { search: bracketSearch, setSearch: setBracketSearch, sorted: filteredBrackets, sortFieldItems, handleSortDragEnd } =
+        useBracketSearchAndSort(tournament?.brackets ?? []);
 
     const resetModal = () => {
         setCompetitorName('');
@@ -42,16 +45,6 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     if (!tournament) {
         return null;
     }
-
-    const filteredBrackets = useMemo(() => {
-        const term = bracketSearch.toLowerCase();
-        return tournament.brackets.filter((b) => {
-            const weightLabel = b.weightLimit === 'Superheavyweight' ? 'shw superheavyweight' : `${b.weightLimit} lbs`;
-            return [b.gender, b.experienceLevel, b.hand, weightLabel].some((f) =>
-                f.toLowerCase().includes(term)
-            );
-        });
-    }, [tournament.brackets, bracketSearch]);
 
     const toggleBracket = (bracketId: string) => {
         const newSelected = new Set(selectedBrackets);
@@ -148,13 +141,16 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                         <label className='text-gray-300 text-sm font-medium'>
                             Select Classes
                         </label>
-                        <input
-                            type='text'
-                            placeholder='Search classes...'
-                            value={bracketSearch}
-                            onChange={(e) => setBracketSearch(e.target.value)}
-                            className='bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm'
-                        />
+                        <div className='flex gap-3'>
+                            <input
+                                type='text'
+                                placeholder='Search classes...'
+                                value={bracketSearch}
+                                onChange={(e) => setBracketSearch(e.target.value)}
+                                className='flex-1 bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm'
+                            />
+                            <BracketSortDropdown fields={sortFieldItems} onDragEnd={handleSortDragEnd} />
+                        </div>
                     </div>
 
                     <div className='max-h-96 overflow-y-auto min-h-36'>
