@@ -1,6 +1,7 @@
 import { HiUser as UserIcon, HiAcademicCap as AcademicCapIcon, HiHandRaised as HandRaisedIcon, HiScale as ScaleIcon } from 'react-icons/hi2';
 
 import { BracketDTO } from '../../../src-shared/BracketDTO';
+import { displayWeightLimit } from '../utils/display';
 
 interface BracketCheckboxListProps {
     brackets: BracketDTO[];
@@ -60,7 +61,7 @@ export default function BracketCheckboxList({
                                 <div className='flex items-center gap-1'>
                                     <ScaleIcon className='h-4 w-4 text-purple-300' />
                                     <span className='text-white font-semibold text-sm'>
-                                        {bracket.weightLimit === 'Superheavyweight' ? 'SHW' : `${bracket.weightLimit} lbs`}
+                                        {displayWeightLimit(bracket.weightLimit)}
                                     </span>
                                 </div>
                             </div>

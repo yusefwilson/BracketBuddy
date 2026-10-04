@@ -11,6 +11,7 @@ import CompetitorInfoCard from './CompetitorInfoCard';
 
 import { HiPlus } from 'react-icons/hi2';
 import { CgArrowUp } from 'react-icons/cg';
+import { displayWeightLimit } from '../utils/display';
 
 export default function CompetitorList() {
     const state = useContext(CURRENT_STATE);
@@ -50,7 +51,7 @@ export default function CompetitorList() {
         }>();
 
         tournament.brackets.forEach((bracket) => {
-            const bracketName = `${bracket.gender} | ${bracket.experienceLevel} | ${bracket.hand} | ${bracket.weightLimit === 'Superheavyweight' ? 'SHW' : bracket.weightLimit + ' lbs'}`;
+            const bracketName = `${bracket.gender} | ${bracket.experienceLevel} | ${bracket.hand} | ${displayWeightLimit(bracket.weightLimit)}`;
 
             bracket.competitorNames.forEach((competitorName) => {
                 if (competitorMap.has(competitorName)) {

@@ -14,8 +14,8 @@ interface BulkBracketInputModalProps {
     setBulkBracketModalOpen: (open: boolean) => void;
 }
 
-const defaultWeights: WeightLimit[] = [154, 165, 176, 187, 198, 209, 220, 231, 242, 'Superheavyweight'];
-const standardWeights: WeightLimit[] = [154, 165, 176, 187, 198, 209, 220, 231, 242, 'Superheavyweight'];
+const defaultWeights: WeightLimit[] = [154, 165, 176, 187, 198, 209, 220, 231, 242, 'Superheavyweight', 'Overall'];
+const standardWeights: WeightLimit[] = [154, 165, 176, 187, 198, 209, 220, 231, 242, 'Superheavyweight', 'Overall'];
 
 // Helper to create a unique key for a bracket
 const getBracketKey = (bracket: { gender: Gender; experienceLevel: ExperienceLevel; hand: Hand; weightLimit: WeightLimit }) => {
@@ -43,7 +43,9 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
                     }
                 });
                 // Sort: Superheavyweight first, then ascending numbers
-                const sorted = allWeights.filter(w => w !== 'Superheavyweight').sort((a, b) => (a as number) - (b as number));
+                const sorted = allWeights.filter(w =>
+                    w !== 'Superheavyweight'
+                    && w !== 'Overall').sort((a, b) => (a as number) - (b as number));
                 setWeightOptions(['Superheavyweight', ...sorted]);
             }
         };
@@ -61,8 +63,10 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
 
     const addCustomWeight = async (value: number) => {
         if (!weightOptions.includes(value)) {
-            const newWeights = [...weightOptions.filter(w => w !== 'Superheavyweight'), value].sort();
-            setWeightOptions(['Superheavyweight', ...newWeights]);
+            const newWeights = [...weightOptions.filter(w =>
+                w !== 'Superheavyweight'
+                && w !== 'Overall'), value].sort();
+            setWeightOptions(['Superheavyweight', 'Overall', ...newWeights]);
 
             // Save custom weights (only non-standard ones)
             const customWeights = newWeights.filter(w => !standardWeights.includes(w)) as number[];
@@ -70,7 +74,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
         }
     };
 
-    const removeCustomWeight = async (value: number | 'Superheavyweight') => {
+    const removeCustomWeight = async (value: WeightLimit) => {
         // Prevent deletion of standard weight classes
         if (standardWeights.includes(value)) {
             return;
@@ -80,7 +84,10 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
         setSelectedWeights(selectedWeights.filter(w => w !== value));
 
         // Save custom weights (only non-standard ones)
-        const customWeights = updatedWeights.filter(w => w !== 'Superheavyweight' && !standardWeights.includes(w)) as number[];
+        const customWeights = updatedWeights.filter(w =>
+            w !== 'Superheavyweight'
+            && w !== 'Overall'
+            && !standardWeights.includes(w)) as number[];
         await safeApiCall(window.electron.saveKeyValue({ key: 'customWeights', value: customWeights }));
     };
 

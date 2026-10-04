@@ -24,7 +24,7 @@ const EXPERIENCE_LEVEL_ORDER: ExperienceLevel[] = [
 const HAND_ORDER: Hand[] = ['Right', 'Left'];
 
 function weightValue(bracket: BracketDTO): number {
-    return bracket.weightLimit === 'Superheavyweight' ? Infinity : bracket.weightLimit;
+    return bracket.weightLimit === 'Superheavyweight' || bracket.weightLimit === 'Overall' ? Infinity : bracket.weightLimit;
 }
 
 function compareField(a: BracketDTO, b: BracketDTO, field: SortFieldId): number {

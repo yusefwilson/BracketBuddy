@@ -14,7 +14,9 @@ export function useBracketSearchAndSort(brackets: BracketDTO[]) {
     const filtered = useMemo(() => {
         const term = search.toLowerCase();
         return brackets.filter((b) => {
-            const weightLabel = b.weightLimit === 'Superheavyweight' ? 'shw superheavyweight' : `${b.weightLimit} lbs`;
+            const weightLabel =
+            b.weightLimit === 'Superheavyweight' ? 'shw superheavyweight' : 
+            b.weightLimit === 'Overall' ? 'o overall' : `${b.weightLimit} lbs`;
             return [b.gender, b.experienceLevel, b.hand, weightLabel].some((f) =>
                 f.toLowerCase().includes(term)
             );

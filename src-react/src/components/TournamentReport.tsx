@@ -1,5 +1,6 @@
 import { TournamentDTO } from '../../../src-shared/TournamentDTO';
 import logo from '../../../assets/logo.png';
+import { displayWeightLimit } from '../utils/display';
 
 interface Props {
   tournament: TournamentDTO;
@@ -36,9 +37,7 @@ export default function TournamentReport({ tournament }: Props) {
 
       {/* Per-bracket sections */}
       {tournament.brackets.map((bracket) => {
-        const weightLabel = bracket.weightLimit === 'Superheavyweight'
-          ? 'Superheavyweight'
-          : `${bracket.weightLimit} lbs`;
+        const weightLabel = displayWeightLimit(bracket.weightLimit);
         const title = `${bracket.gender} ${bracket.experienceLevel} — ${weightLabel} — ${bracket.hand} Hand`;
 
         return (

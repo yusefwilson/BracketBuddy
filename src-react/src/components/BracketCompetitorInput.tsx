@@ -5,6 +5,7 @@ import { isBracketStarted } from '../../../src-shared/bracketHelpers';
 import CompetitorInput from './CompetitorInput';
 import BracketResetWarningModal from './BracketResetWarningModal';
 import { useState } from 'react';
+import { displayWeightLimit } from '../utils/display';
 
 interface BracketCompetitorInputProps {
     bracket: BracketDTO;
@@ -49,9 +50,7 @@ export default function BracketCompetitorInput({
                         <h2 className="text-lg font-semibold text-white leading-tight">
                             {bracket.gender} | {bracket.experienceLevel} | {bracket.hand}{' '}
                             <span className="text-white">
-                                {bracket.weightLimit !== 'Superheavyweight'
-                                    ? `${bracket.weightLimit} lbs`
-                                    : 'Superheavyweight'}
+                                {displayWeightLimit(bracket.weightLimit)}
                             </span>
                         </h2>
                         {bracket.firstPlace !== undefined ? (

@@ -1,4 +1,4 @@
-import { Gender, Hand, ExperienceLevel } from './types';
+import { Gender, Hand, ExperienceLevel, WeightLimit } from './types';
 import { MatchDTO } from './MatchDTO'
 
 interface BracketDTO {
@@ -10,7 +10,7 @@ interface BracketDTO {
     gender: Gender
     experienceLevel: ExperienceLevel
     hand: Hand
-    weightLimit: number | 'Superheavyweight' // in lbs, -1 for no limit
+    weightLimit: WeightLimit // in lbs, -1 for no limit
 
     competitorNames: string[]
 

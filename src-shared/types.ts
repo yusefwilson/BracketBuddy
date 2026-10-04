@@ -4,7 +4,7 @@ type Hand = 'Left' | 'Right';
 
 type ExperienceLevel = 'Youth' | 'Novice' | 'Amateur' | 'Semipro' | 'Pro' | 'Master' | 'Grandmaster' | 'Senior Grandmaster';
 
-type WeightLimit = number | 'Superheavyweight';
+type WeightLimit = number | 'Superheavyweight' | 'Overall';
 
 type MatchStatus = 'UNDECIDED' | 'PLAYER_1_WON' | 'PLAYER_2_WON' | 'PLAYER_1_DROPOUT' | 'PLAYER_2_DROPOUT' | 'PLAYER_1_NO_SHOW' | 'PLAYER_2_NO_SHOW';
 

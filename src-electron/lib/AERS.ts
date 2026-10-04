@@ -62,7 +62,7 @@ function convertExperienceLevelToAERS(experienceLevel: ExperienceLevel): string 
 }
 
 function convertWeightLimitToAERS(weightLimit: WeightLimit): string {
-    if (weightLimit === 'Superheavyweight') return '242+';
+    if (weightLimit === 'Superheavyweight' || weightLimit === 'Overall') return '242+';
     else return weightLimit.toString();
 }
 

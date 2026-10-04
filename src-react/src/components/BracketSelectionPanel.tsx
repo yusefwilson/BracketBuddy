@@ -13,7 +13,7 @@ interface BracketSelectionPanelProps {
     selectedWeights: WeightLimit[];
     setSelectedWeights: (weights: WeightLimit[]) => void;
     addCustomWeight: (value: number) => void;
-    removeCustomWeight: (value: number | 'Superheavyweight') => void;
+    removeCustomWeight: (value: WeightLimit) => void;
     toggleSelect: <T>(item: T, list: T[], setList: (list: T[]) => void) => void;
     onSubmit: () => void;
     onCancel: () => void;
