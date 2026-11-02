@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { HiChevronLeft as ChevronLeftIcon, HiChevronRight as ChevronRightIcon, HiExclamationTriangle as ExclamationTriangleIcon } from 'react-icons/hi2';
 
-import { calculateAllMatchPositions } from '../../../src-shared/utils';
+import { calculateDoubleEliminationMatchPositions } from '../../../src-shared/utils';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
@@ -63,7 +63,7 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
     }
   };
 
-  const { winnerMatches, loserMatches, final, finalRematch, WINNERS_BOTTOM } = calculateAllMatchPositions(bracket);
+  const { winnerMatches, loserMatches, final, finalRematch, WINNERS_BOTTOM } = calculateDoubleEliminationMatchPositions(bracket);
 
   // Calculate the full width needed for the dividing line
   const allXPositions = [

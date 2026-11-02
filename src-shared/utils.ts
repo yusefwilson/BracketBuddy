@@ -1,4 +1,4 @@
-import { BracketDTO } from './DoubleEliminationBracketDTO';
+import { DoubleEliminationBracketDTO } from './DoubleEliminationBracketDTO';
 import { MatchDTO } from './MatchDTO';
 import { RoundRobinBracketDTO } from './RoundRobinBracketDTO';
 import type { ApiResponse } from './types';
@@ -67,7 +67,7 @@ const calculateMatchPositionFromSingleParent = (roundIndex: number, staggered: b
     return [x, y];
 }
 
-const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner' | 'loser', horizontal_offset: number, vertical_offset: number): MatchAndPosition[][] => {
+const calculateInitialRoundsMatchPositions = (bracket: DoubleEliminationBracketDTO, side: 'winner' | 'loser', horizontal_offset: number, vertical_offset: number): MatchAndPosition[][] => {
     const matches = [];
     let numberOfCompetitors, subBracket;
 
@@ -135,7 +135,6 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
             return { match, x, y };
         }));
     }
-    console.log('about to return matches from calcualteInitialRoundsMatchPositions', matches);
     return matches;
 }
 
@@ -221,7 +220,7 @@ const findParentMatches = (potentialParentMatches: MatchAndPosition[], match: Ma
     });
 }
 
-const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: MatchAndPosition[], loserMatches: MatchAndPosition[], final: MatchAndPosition, finalRematch: MatchAndPosition, WINNERS_BOTTOM: number, LAST_WINNER_Y: number, WINNERS_RIGHTMOST: number } => {
+const calculateDoubleEliminationMatchPositions = (bracket: DoubleEliminationBracketDTO): { winnerMatches: MatchAndPosition[], loserMatches: MatchAndPosition[], final: MatchAndPosition, finalRematch: MatchAndPosition, WINNERS_BOTTOM: number, LAST_WINNER_Y: number, WINNERS_RIGHTMOST: number } => {
 
     let winnerMatches: MatchAndPosition[] = [], loserMatches: MatchAndPosition[] = [], WINNERS_BOTTOM = 0, LAST_WINNER_Y = 0, WINNERS_RIGHTMOST = 0;
 
@@ -258,7 +257,7 @@ const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: Match
         // **** RENDER LOSERS BRACKET ****
         // {match, x, y}[][]
         const loserRounds = calculateInitialRoundsMatchPositions(
-            bracket as BracketDTO,
+            bracket as DoubleEliminationBracketDTO,
             'loser',
             LOSER_HORIZONTAL_OFFSET,
             WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET
@@ -337,7 +336,7 @@ const dateToLocalTimezoneString = (date: Date): string => {
 
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
-    calculateAllMatchPositions,
+    calculateDoubleEliminationMatchPositions,
     calculateRoundRobinPositions,
     WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET, HORIZONTAL_GAP,
     INITIAL_VERTICAL_GAP, EXTRA_VERTICAL_OFFSET,
