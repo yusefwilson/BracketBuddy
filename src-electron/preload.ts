@@ -15,6 +15,7 @@ import type {
     ExportToAERSInput,
     ExportTournamentInput,
     ExportToPDFInput,
+    ImportRegistrationsInput,
 } from '../src-shared/types.js';
 
 contextBridge.exposeInMainWorld('electron', {
@@ -35,6 +36,9 @@ contextBridge.exposeInMainWorld('electron', {
 
     removeBracketFromTournament: async (input: RemoveBracketFromTournamentInput) =>
         ipcRenderer.invoke('remove-bracket-from-tournament', input),
+
+    importRegistrations: async (input: ImportRegistrationsInput) =>
+        ipcRenderer.invoke('import-registrations', input),
 
     exportTournament: async (input: ExportTournamentInput) =>
         ipcRenderer.invoke('export-tournament', input),

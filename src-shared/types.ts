@@ -1,3 +1,5 @@
+import type { TournamentDTO } from './TournamentDTO';
+
 type Gender = 'Male' | 'Female' | 'Mixed';
 
 type Hand = 'Left' | 'Right';
@@ -106,6 +108,30 @@ interface RemoveBracketFromTournamentInput {
     bracketId: string;
 }
 
+type RegistrationField = 'name' | 'gender' | 'weight' | 'classes';
+
+// a registration csv row that could not be applied; `fields` marks which cells to highlight
+interface InvalidRegistrationRow {
+    rowNumber: number; // 1-based line in the csv, header is row 1
+    raw: string[];
+    reasons: string[];
+    fields: RegistrationField[];
+}
+
+interface ImportRegistrationsInput {
+    tournamentId: string;
+    bracketType: BracketType;
+    csv: string;
+}
+
+interface ImportRegistrationsResult {
+    tournament: TournamentDTO;
+    invalidRows: InvalidRegistrationRow[];
+    added: number; // competitor-class pairs newly added
+    alreadyPresent: number; // competitor-class pairs that were no-ops
+    classesCreated: number;
+}
+
 interface ExportToAERSInput {
     tournamentId: string;
 }
@@ -143,6 +169,7 @@ export type {
     ExternalMatch, SlotCoordinates, RoundRobinStanding,
     UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput, EnterRoundRobinResultInput, ResetRoundRobinMatchInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
+    RegistrationField, InvalidRegistrationRow, ImportRegistrationsInput, ImportRegistrationsResult,
     SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput, ExportToPDFInput,
     ApiResponse
 };

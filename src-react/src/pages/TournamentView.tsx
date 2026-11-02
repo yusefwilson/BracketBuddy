@@ -11,9 +11,10 @@ import CompetitorList from '../components/CompetitorList';
 import BracketList from '../components/BracketList';
 import BulkBracketInputModal from '../components/BulkBracketInputModal';
 import TournamentReportModal from '../components/TournamentReportModal';
+import ImportRegistrationsModal from '../components/ImportRegistrationsModal';
 
 import AERSLogo from '../../../assets/AERS_Logo.png'
-import { HiArrowDownTray as ArrowDownTrayIcon, HiPlus as PlusIcon, HiUser as UserIcon } from 'react-icons/hi2';
+import { HiArrowDownTray as ArrowDownTrayIcon, HiArrowUpTray as ArrowUpTrayIcon, HiPlus as PlusIcon, HiUser as UserIcon } from 'react-icons/hi2';
 import { TbTournament } from 'react-icons/tb';
 
 import { FaRegRectangleList } from "react-icons/fa6";
@@ -27,6 +28,7 @@ export default function TournamentView() {
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'both' | 'brackets' | 'competitor-list' | null>(null);
 
   // Load saved view on mount
@@ -131,6 +133,14 @@ export default function TournamentView() {
             >
               <PlusIcon className='h-5 w-5' />
             </button>
+            <button
+              onClick={() => setImportModalOpen(true)}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
+              type="button"
+              title="Upload registrations (CSV)"
+            >
+              <ArrowUpTrayIcon className='h-5 w-5' />
+            </button>
 
             <div className="h-8 w-px bg-slate-700"></div>
 
@@ -198,6 +208,9 @@ export default function TournamentView() {
           {/* Modals */}
           {bulkBracketModalOpen && (
             <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
+          )}
+          {importModalOpen && (
+            <ImportRegistrationsModal onClose={() => setImportModalOpen(false)} />
           )}
           {reportModalOpen && (
             <TournamentReportModal tournament={tournament} onClose={() => setReportModalOpen(false)} />
