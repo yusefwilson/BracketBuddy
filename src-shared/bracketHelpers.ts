@@ -55,7 +55,7 @@ export function isRoundRobinBracketStarted(bracket: RoundRobinBracketDTO): boole
 /**
  * Type-dispatching "has this bracket started?" check usable on any BracketDTO.
  */
-export function isAnyBracketStarted(bracket: BracketDTO): boolean {
+export function isBracketStarted(bracket: BracketDTO): boolean {
     switch (bracket.type) {
         case 'RoundRobinBracket':
             return isRoundRobinBracketStarted(bracket as RoundRobinBracketDTO);

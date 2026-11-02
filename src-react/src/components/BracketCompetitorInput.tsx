@@ -1,7 +1,7 @@
 import { HiTrash as TrashIcon } from 'react-icons/hi2';
 
 import { BracketDTO } from '../../../src-shared/BracketDTO';
-import { isAnyBracketStarted, isBracketComplete } from '../../../src-shared/bracketHelpers';
+import { isBracketStarted, isBracketComplete } from '../../../src-shared/bracketHelpers';
 import CompetitorInput from './CompetitorInput';
 import BracketResetWarningModal from './BracketResetWarningModal';
 import { useState } from 'react';
@@ -79,7 +79,7 @@ export default function BracketCompetitorInput({
                         addCompetitor={(name) => onAddCompetitor(bracket.id, name)}
                         removeCompetitor={(name) => onRemoveCompetitor(bracket.id, name)}
                         randomizeCompetitors={() => onRandomize(bracket.id)}
-                        bracketStarted={isAnyBracketStarted(bracket)}
+                        bracketStarted={isBracketStarted(bracket)}
                         onShowWarning={(message, onConfirm) => {
                             setWarningModal({ isOpen: true, message, onConfirm });
                         }}
