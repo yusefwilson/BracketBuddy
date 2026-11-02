@@ -8,6 +8,8 @@ type WeightLimit = number | 'Superheavyweight';
 
 type MatchStatus = 'UNDECIDED' | 'PLAYER_1_WON' | 'PLAYER_2_WON' | 'PLAYER_1_DROPOUT' | 'PLAYER_2_DROPOUT' | 'PLAYER_1_NO_SHOW' | 'PLAYER_2_NO_SHOW';
 
+type BracketType = 'DoubleEliminationBracket' | 'SingleEliminationBracket' | 'RoundRobinBracket';
+
 type ExternalMatch = {
     round: number,
     match: number,
@@ -27,6 +29,13 @@ type SlotCoordinates = {
     round: number,
     match: number,
     slot: 1 | 2
+}
+
+interface RoundRobinStanding {
+    name: string
+    points: number
+    wins: number
+    losses: number
 }
 
 // endpoint input types
@@ -55,6 +64,20 @@ interface RandomizeCompetitorsInput {
     bracketId: string;
 }
 
+interface EnterRoundRobinResultInput {
+    tournamentId: string;
+    bracketId: string;
+    matchId: string;
+    player1Score: number;
+    player2Score: number;
+}
+
+interface ResetRoundRobinMatchInput {
+    tournamentId: string;
+    bracketId: string;
+    matchId: string;
+}
+
 // tournament
 
 interface CreateTournamentInput {
@@ -69,6 +92,7 @@ interface DeleteTournamentInput {
 interface AddBracketsToTournamentInput {
     tournamentId: string;
     brackets: {
+        type: BracketType;
         gender: Gender;
         experienceLevel: ExperienceLevel;
         hand: Hand;
@@ -115,9 +139,9 @@ interface ApiError {
 }
 
 export type {
-    Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus,
-    ExternalMatch, SlotCoordinates,
-    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput,
+    Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType,
+    ExternalMatch, SlotCoordinates, RoundRobinStanding,
+    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput, EnterRoundRobinResultInput, ResetRoundRobinMatchInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
     SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput, ExportToPDFInput,
     ApiResponse

@@ -1,7 +1,7 @@
 import { HiTrash as TrashIcon } from 'react-icons/hi2';
 
 import { BracketDTO } from '../../../src-shared/BracketDTO';
-import { isBracketStarted } from '../../../src-shared/bracketHelpers';
+import { isAnyBracketStarted, isBracketComplete } from '../../../src-shared/bracketHelpers';
 import CompetitorInput from './CompetitorInput';
 import BracketResetWarningModal from './BracketResetWarningModal';
 import { useState } from 'react';
@@ -54,7 +54,7 @@ export default function BracketCompetitorInput({
                                     : 'Superheavyweight'}
                             </span>
                         </h2>
-                        {bracket.firstPlace !== undefined ? (
+                        {isBracketComplete(bracket) ? (
                             <span className="text-green-400 font-semibold text-sm">✓ Complete</span>
                         ) : (
                             <span className="text-yellow-400 font-semibold text-sm">⏳ In Progress</span>
@@ -79,7 +79,7 @@ export default function BracketCompetitorInput({
                         addCompetitor={(name) => onAddCompetitor(bracket.id, name)}
                         removeCompetitor={(name) => onRemoveCompetitor(bracket.id, name)}
                         randomizeCompetitors={() => onRandomize(bracket.id)}
-                        bracketStarted={isBracketStarted(bracket)}
+                        bracketStarted={isAnyBracketStarted(bracket)}
                         onShowWarning={(message, onConfirm) => {
                             setWarningModal({ isOpen: true, message, onConfirm });
                         }}

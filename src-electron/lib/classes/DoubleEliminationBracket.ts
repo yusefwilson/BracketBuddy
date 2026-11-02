@@ -1,24 +1,17 @@
-import { BracketDTO } from '../../src-shared/BracketDTO.js';
-import { Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus } from '../../src-shared/types.js';
-
+import { DoubleEliminationBracketDTO } from '../../../src-shared/DoubleEliminationBracketDTO.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types.js';
 import Match from './Match.js';
+import Bracket from './Bracket.js';
 import Tournament from './Tournament.js';
-import { serialize, deserialize, prepareMatches, shuffle } from './utils.js';
+import { serialize } from '../utils.js';
+import { prepareMatches } from '../doubleEliminationUtils.js';
+import { BracketType } from '../../../src-shared/types.js';
 
-class Bracket {
+class DoubleEliminationBracket extends Bracket {
 
-    __class: string = 'Bracket'
+    __class: string = 'DoubleEliminationBracket'
 
-    tournament: Tournament
-
-    id: string
-
-    gender: Gender
-    experienceLevel: ExperienceLevel
-    hand: Hand
-    weightLimit: WeightLimit
-
-    competitorNames: string[]
+    type: BracketType = 'DoubleEliminationBracket'
 
     winnersBracket: Match[][]
     losersBracket: Match[][]
@@ -28,16 +21,7 @@ class Bracket {
 
     constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitorNames: string[] = []) {
 
-        // tournament.id-gender-experienceLevel-hand-weightLimit
-        this.id = tournament?.id + [gender, experienceLevel, hand, weightLimit].join('-');
-
-        this.tournament = tournament;
-        this.gender = gender;
-        this.experienceLevel = experienceLevel;
-        this.hand = hand;
-        this.weightLimit = weightLimit;
-
-        this.competitorNames = competitorNames;
+        super(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
 
         this.winnersBracket = [];
         this.losersBracket = [];
@@ -66,60 +50,6 @@ class Bracket {
         this.losersBracket = losersBracket;
         this.final = final;
         this.finalRematch = finalRematch;
-    }
-
-    setCompetitorNames(competitorNames: string[]) {
-
-        this.competitorNames = competitorNames;
-
-        // reinitialize bracket
-        this.initialize();
-    }
-
-    addCompetitor(competitorName: string) {
-
-        // prevent duplicate competitors
-        if (this.competitorNames.includes(competitorName)) {
-            throw new Error('Competitor already exists!');
-        }
-
-        this.setCompetitorNames([...this.competitorNames, competitorName]);
-    }
-
-    removeCompetitor(competitorName: string) {
-        this.setCompetitorNames(this.competitorNames.filter(c => c !== competitorName));
-    }
-
-    randomizeCompetitors() {
-        shuffle(this.competitorNames);
-        this.setCompetitorNames(this.competitorNames); // ugly way to trigger bracket initialization
-    }
-
-    updateMatchById(matchId: string, status: MatchStatus) {
-        const matchToBeUpdated = this.findMatchById(matchId);
-        matchToBeUpdated.updateStatus(status);
-    }
-
-    findMatchById(matchId: string): Match {
-        const matches = this.getMatches();
-        const match = matches.find(match => match.id === matchId);
-        if (!match) {
-            throw new Error('Match not found');
-        }
-        return match;
-    }
-
-    findMatchByNumber(number: number): Match {
-
-        // loop through all rounds and matches to find the match with the given id
-        let matches = this.getMatches();
-        for (let match of matches) {
-            if (match.number === number) {
-                return match;
-            }
-        }
-
-        throw new Error('Match with number: ' + number + ' not found');
     }
 
     // return matches flattened and in no particular order
@@ -163,10 +93,6 @@ class Bracket {
 
     serialize(): string {
         return serialize(this);
-    }
-
-    static deserialize(serialized: string): Bracket {
-        return deserialize(serialized, { Tournament, Bracket, Match });
     }
 
     canGetWinnerFromFinal(): boolean {
@@ -233,26 +159,6 @@ class Bracket {
         return undefined;
     }
 
-    getLowestUnfilledMatchNumber(): number {
-        const matches = this.getMatches();
-
-        if (matches.length === 0) {
-            return -1;
-        }
-
-        const sortedMatches = matches.sort((a, b) => a.number - b.number);
-        for (let match of sortedMatches) {
-            if (match.status === 'UNDECIDED') {
-                return match.number;
-            }
-        }
-
-        //TODO: what should really go here?
-        // if no match unfilled, return largest number
-        return matches[matches.length - 1].number;
-
-    }
-
     finalRematchNeeded(): boolean {
 
         // if final is not decided, final rematch not needed
@@ -277,10 +183,11 @@ class Bracket {
         return winnersBracketFinalWinner !== finalWinner;
     }
 
-    toDTO(): BracketDTO {
+    toDTO(): DoubleEliminationBracketDTO {
 
         const DTO = {
             id: this.id,
+            type: this.type,
             tournamentId: this.tournament.id,
             gender: this.gender,
             experienceLevel: this.experienceLevel,
@@ -302,4 +209,4 @@ class Bracket {
     }
 }
 
-export default Bracket;
+export default DoubleEliminationBracket;

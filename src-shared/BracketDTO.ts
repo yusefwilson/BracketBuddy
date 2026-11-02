@@ -1,9 +1,10 @@
 import { Gender, Hand, ExperienceLevel } from './types';
-import { MatchDTO } from './MatchDTO'
+import { BracketType } from './types';
 
 interface BracketDTO {
 
     id: string
+    type: BracketType
 
     tournamentId: string
 
@@ -14,16 +15,7 @@ interface BracketDTO {
 
     competitorNames: string[]
 
-    winnersBracket: MatchDTO[][]
-    losersBracket: MatchDTO[][]
-
-    final: MatchDTO | null
-    finalRematch: MatchDTO | null
-
-    currentMatchNumber: number
-
-    finalRematchNeeded: boolean
-
+    // every bracket type resolves final placings; concrete DTOs populate these
     firstPlace: string | undefined
     secondPlace: string | undefined
     thirdPlace: string | undefined

@@ -1,5 +1,6 @@
 import { HiUser as UserIcon, HiAcademicCap as AcademicCapIcon, HiHandRaised as HandRaisedIcon, HiScale as ScaleIcon, HiTrash as TrashIcon } from 'react-icons/hi2';
 import { BracketDTO } from '../../../src-shared/BracketDTO';
+import { isBracketComplete } from '../../../src-shared/bracketHelpers';
 
 interface BracketInfoCardProps {
     bracket: BracketDTO;
@@ -9,7 +10,7 @@ interface BracketInfoCardProps {
 
 export default function BracketInfoCard({ bracket, onClick, onDelete }: BracketInfoCardProps) {
     const competitorCount = bracket.competitorNames.length;
-    const isComplete = bracket.firstPlace !== undefined;
+    const isComplete = isBracketComplete(bracket);
 
     return (
         <button
