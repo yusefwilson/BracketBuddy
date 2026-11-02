@@ -17,16 +17,24 @@ import type {
     ExportToAERSInput,
     ExportTournamentInput,
     ExportToPDFInput,
+    ImportRegistrationsInput,
+    ImportRegistrationsResult,
+    Gender,
+    Hand,
+    ExperienceLevel,
+    WeightLimit,
     ApiResponse
 } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
+import { isBracketStarted } from '../../src-shared/bracketHelpers.js';
+import { DEFAULT_WEIGHTS, parseCsv, parseRegistrationRows } from '../../src-shared/registrationParser.js';
 
 import Tournament from '../lib/classes/Tournament.js';
 import Bracket from '../lib/classes/Bracket.js';
 import DoubleEliminationBracket from '../lib/classes/DoubleEliminationBracket.js';
 import RoundRobinBracket from '../lib/classes/RoundRobinBracket.js';
 
-import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
+import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
 import { save_data_to_file, load_file } from './misc.js';
 import { bracketsAreEqual } from '../lib/utils.js';
 
@@ -124,6 +132,82 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
         console.error('Error adding bracket:', error);
         const message = error instanceof Error ? error.message : 'Failed to add bracket. Please try again.';
         return errorResponse(message);
+    }
+};
+
+const import_registrations = async (_: Electron.IpcMainInvokeEvent, input: ImportRegistrationsInput): Promise<ApiResponse<ImportRegistrationsResult>> => {
+    try {
+        const { tournamentId, bracketType, csv } = input;
+        const tournament = await load_tournament(_, tournamentId);
+
+        // recognized weights are the defaults plus any custom weights saved from the UI
+        let customWeights: number[] = [];
+        try {
+            const saved = JSON.parse(await readFile(SAVE_FILE_PATH, 'utf-8'));
+            if (Array.isArray(saved.customWeights)) customWeights = saved.customWeights;
+        } catch {
+            // no save file or no custom weights
+        }
+        const recognizedWeights: WeightLimit[] = [...DEFAULT_WEIGHTS, ...customWeights.filter(w => !DEFAULT_WEIGHTS.includes(w))];
+
+        const parsed = parseRegistrationRows(parseCsv(csv), recognizedWeights);
+        if ('error' in parsed) {
+            return errorResponse(parsed.error);
+        }
+        const { valid, invalid } = parsed;
+
+        const findBracket = (gender: Gender, experienceLevel: ExperienceLevel, hand: Hand, weightLimit: WeightLimit) =>
+            tournament.brackets.find(b => bracketsAreEqual(b, { gender, experienceLevel, hand, weightLimit }));
+
+        let added = 0;
+        let alreadyPresent = 0;
+        let classesCreated = 0;
+
+        for (const row of valid) {
+            // a row is all-or-nothing: if any target class has already started, skip the whole row
+            const startedClass = row.classes.find(c => {
+                const existing = findBracket(row.gender, c.experienceLevel, c.hand, row.weightLimit);
+                return existing && isBracketStarted(existing.toDTO());
+            });
+            if (startedClass) {
+                invalid.push({
+                    rowNumber: row.rowNumber,
+                    raw: row.raw,
+                    reasons: [`Class "${startedClass.hand} ${startedClass.experienceLevel}" at this weight has already started.`],
+                    fields: ['classes']
+                });
+                continue;
+            }
+
+            for (const { hand, experienceLevel } of row.classes) {
+                let bracket = findBracket(row.gender, experienceLevel, hand, row.weightLimit);
+
+                if (!bracket) {
+                    bracket = bracketType === 'RoundRobinBracket'
+                        ? new RoundRobinBracket(tournament, row.gender, experienceLevel, hand, row.weightLimit)
+                        : new DoubleEliminationBracket(tournament, row.gender, experienceLevel, hand, row.weightLimit);
+                    await tournament.addBracket(bracket);
+                    classesCreated++;
+                }
+
+                if (bracket.competitorNames.includes(row.name)) {
+                    alreadyPresent++;
+                } else {
+                    bracket.addCompetitor(row.name);
+                    added++;
+                }
+            }
+        }
+
+        invalid.sort((a, b) => a.rowNumber - b.rowNumber);
+
+        await save_tournament(_, tournament);
+        console.log(`Imported registrations into tournament ${tournamentId}: ${added} added, ${invalid.length} invalid rows`);
+
+        return successResponse({ tournament: tournament.toDTO(), invalidRows: invalid, added, alreadyPresent, classesCreated });
+    } catch (error) {
+        console.error('Error importing registrations:', error);
+        return errorResponse(error instanceof Error ? error.message : 'Failed to import registrations. Please try again.');
     }
 };
 
@@ -324,6 +408,7 @@ export {
     create_tournament,
     delete_tournament,
     add_brackets_to_tournament,
+    import_registrations,
     remove_bracket_from_tournament,
     load_tournament,
     save_tournament,

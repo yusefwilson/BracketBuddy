@@ -18,6 +18,8 @@ import type {
   ExportTournamentInput,
   ExportToPDFInput,
   ImportTournamentInput,
+  ImportRegistrationsInput,
+  ImportRegistrationsResult,
   ApiResponse
 } from './types';
 
@@ -32,6 +34,7 @@ declare global {
       removeBracketFromTournament: (input: RemoveBracketFromTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
       exportTournament: (input: ExportTournamentInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
       importTournament: (input: ImportTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      importRegistrations: (input: ImportRegistrationsInput) => Promise<ApiResponse<ImportRegistrationsResult>>;
 
       // bracket
       addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<ApiResponse<TournamentDTO>>;

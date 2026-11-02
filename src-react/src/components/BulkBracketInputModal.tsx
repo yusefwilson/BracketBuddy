@@ -2,6 +2,7 @@ import { useState, useContext, useEffect, useMemo } from 'react';
 import { HiCheck as CheckIcon } from 'react-icons/hi2';
 
 import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../../src-shared/types';
+import { DEFAULT_WEIGHTS } from '../../../src-shared/registrationParser';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
@@ -14,8 +15,8 @@ interface BulkBracketInputModalProps {
     setBulkBracketModalOpen: (open: boolean) => void;
 }
 
-const defaultWeights: WeightLimit[] = [154, 165, 176, 187, 198, 209, 220, 231, 242, 'Superheavyweight'];
-const standardWeights: WeightLimit[] = [154, 165, 176, 187, 198, 209, 220, 231, 242, 'Superheavyweight'];
+const defaultWeights: WeightLimit[] = DEFAULT_WEIGHTS;
+const standardWeights: WeightLimit[] = DEFAULT_WEIGHTS;
 
 // Helper to create a unique key for a bracket
 const getBracketKey = (bracket: { gender: Gender; experienceLevel: ExperienceLevel; hand: Hand; weightLimit: WeightLimit }) => {
