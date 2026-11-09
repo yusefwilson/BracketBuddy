@@ -1,5 +1,5 @@
-import { RoundRobinBracketDTO, RoundRobinStanding } from '../../../src-shared/RoundRobinBracketDTO.js';
-import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../../src-shared/types.js';
+import { RoundRobinBracketDTO } from '../../../src-shared/RoundRobinBracketDTO.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType, RoundRobinStanding } from '../../../src-shared/types.js';
 
 import Match from './Match.js';
 import Bracket from './Bracket.js';

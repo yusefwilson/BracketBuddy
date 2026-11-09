@@ -15,4 +15,4 @@ interface RoundRobinBracketDTO extends BracketDTO {
     thirdPlace: string | undefined
 }
 
-export type { RoundRobinBracketDTO, RoundRobinStanding }
+export type { RoundRobinBracketDTO }
