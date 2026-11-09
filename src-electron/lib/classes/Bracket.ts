@@ -4,6 +4,7 @@ import Match from './Match.js';
 import Tournament from './Tournament.js';
 import { serialize, shuffle } from '../utils.js';
 import { BracketDTO } from '../../../src-shared/BracketDTO.js';
+import Competitor from './Competitor.js';
 
 abstract class Bracket {
 
@@ -20,9 +21,9 @@ abstract class Bracket {
     hand: Hand
     weightLimit: WeightLimit
 
-    competitorNames: string[]
+    competitors: Competitor[]
 
-    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitorNames: string[] = []) {
+    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitors: Competitor[] = []) {
 
         // tournament.id-gender-experienceLevel-hand-weightLimit
         this.id = tournament?.id + [gender, experienceLevel, hand, weightLimit].join('-');
@@ -33,7 +34,7 @@ abstract class Bracket {
         this.hand = hand;
         this.weightLimit = weightLimit;
 
-        this.competitorNames = competitorNames;
+        this.competitors = competitors;
     }
 
     // create the initial bracket structure from the current competitor names
@@ -44,31 +45,31 @@ abstract class Bracket {
 
     abstract toDTO(): BracketDTO;
 
-    setCompetitorNames(competitorNames: string[]) {
+    setCompetitorNames(competitors: Competitor[]) {
 
-        this.competitorNames = competitorNames;
+        this.competitors = competitors;
 
         // reinitialize bracket
         this.initialize();
     }
 
-    addCompetitor(competitorName: string) {
+    addCompetitor(competitor: Competitor) {
 
         // prevent duplicate competitors
-        if (this.competitorNames.includes(competitorName)) {
+        if (this.competitors.some(c => c.id === competitor.id)) {
             throw new Error('Competitor already exists!');
         }
 
-        this.setCompetitorNames([...this.competitorNames, competitorName]);
+        this.setCompetitorNames([...this.competitors, competitor]);
     }
 
-    removeCompetitor(competitorName: string) {
-        this.setCompetitorNames(this.competitorNames.filter(c => c !== competitorName));
+    removeCompetitor(competitorId: string) {
+        this.setCompetitorNames(this.competitors.filter(c => c.id !== competitorId));
     }
 
     randomizeCompetitors() {
-        shuffle(this.competitorNames);
-        this.setCompetitorNames(this.competitorNames); // ugly way to trigger bracket initialization
+        shuffle(this.competitors);
+        this.setCompetitorNames(this.competitors); // ugly way to trigger bracket initialization
     }
 
     updateMatchById(matchId: string, status: MatchStatus) {

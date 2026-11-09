@@ -1,5 +1,6 @@
 import { Gender } from "../../../src-shared/types.js";
 import { serialize } from "../utils.js";
+import type { CompetitorDTO } from "../../../src-shared/CompetitorDTO.js";
 
 class Competitor {
 
@@ -29,6 +30,17 @@ class Competitor {
 
     serialize(): string {
         return serialize(this);
+    }
+
+    static fromDTO(dto: CompetitorDTO)
+    {
+        return new Competitor(
+            dto.gender,
+            dto.firstName,
+            dto.lastName,
+            dto.officialWeight,
+            dto.paid
+        )
     }
 }
 

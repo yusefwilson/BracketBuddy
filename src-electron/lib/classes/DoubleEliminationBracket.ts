@@ -1,5 +1,6 @@
 import { DoubleEliminationBracketDTO } from '../../../src-shared/DoubleEliminationBracketDTO.js';
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types.js';
+import Competitor from './Competitor.js';
 import Match from './Match.js';
 import Bracket from './Bracket.js';
 import Tournament from './Tournament.js';
@@ -19,9 +20,9 @@ class DoubleEliminationBracket extends Bracket {
     final: Match | null
     finalRematch: Match | null
 
-    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitorNames: string[] = []) {
+    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitors: Competitor[] = []) {
 
-        super(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
+        super(tournament, gender, experienceLevel, hand, weightLimit, competitors);
 
         this.winnersBracket = [];
         this.losersBracket = [];
@@ -34,7 +35,7 @@ class DoubleEliminationBracket extends Bracket {
     initialize() {
 
         // if there is only one competitor, there is no need to create a bracket
-        if (this.competitorNames.length <= 1) {
+        if (this.competitors.length <= 1) {
             this.winnersBracket = [];
             this.losersBracket = [];
             this.final = null;
@@ -42,9 +43,9 @@ class DoubleEliminationBracket extends Bracket {
             return;
         }
 
-        console.log('about to initialize bracket with competitor names: ', this.competitorNames);
+        console.log('about to initialize bracket with competitor names: ', this.competitors);
 
-        const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(this.competitorNames);
+        const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(this.competitors);
 
         this.winnersBracket = winnersBracket;
         this.losersBracket = losersBracket;
@@ -78,7 +79,7 @@ class DoubleEliminationBracket extends Bracket {
         this.winnersBracket.forEach((round, i) => {
             console.log(`Round ${i + 1}:`);
             round.forEach(match => {
-                console.log(`Match ${match.match}: ${match.player1} vs ${match.player2}`);
+                console.log(`Match ${match.match}: ${match.competitor1} vs ${match.competitor2}`);
             });
         });
 
@@ -86,7 +87,7 @@ class DoubleEliminationBracket extends Bracket {
         this.losersBracket.forEach((round, i) => {
             console.log(`Round ${i + 1}:`);
             round.forEach(match => {
-                console.log(`Match ${match.match}: ${match.player1} vs ${match.player2}`);
+                console.log(`Match ${match.match}: ${match.competitor1} vs ${match.competitor2}`);
             });
         });
     }
@@ -146,7 +147,7 @@ class DoubleEliminationBracket extends Bracket {
             return undefined;
         }
 
-        if (this.competitorNames.length === 2) {
+        if (this.competitors.length === 2) {
             return undefined;
         }
 
@@ -193,7 +194,7 @@ class DoubleEliminationBracket extends Bracket {
             experienceLevel: this.experienceLevel,
             hand: this.hand,
             weightLimit: this.weightLimit,
-            competitorNames: this.competitorNames,
+            competitorNames: this.competitors,
             winnersBracket: this.winnersBracket.map(round => round.map(match => match.toDTO())),
             losersBracket: this.losersBracket.map(round => round.map(match => match.toDTO())),
             final: this.final ? this.final.toDTO() : null,

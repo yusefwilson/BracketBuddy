@@ -106,7 +106,7 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
         }
 
         for (const bracketData of brackets) {
-            const { type, gender, experienceLevel, hand, weightLimit, competitorNames } = bracketData;
+            const { type, gender, experienceLevel, hand, weightLimit, competitors: competitorNames } = bracketData;
 
             let bracket: Bracket;
             switch (type ?? 'DoubleEliminationBracket') {
@@ -190,7 +190,7 @@ const import_registrations = async (_: Electron.IpcMainInvokeEvent, input: Impor
                     classesCreated++;
                 }
 
-                if (bracket.competitorNames.includes(row.name)) {
+                if (bracket.competitors.includes(row.name)) {
                     alreadyPresent++;
                 } else {
                     bracket.addCompetitor(row.name);

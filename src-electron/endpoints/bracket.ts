@@ -10,6 +10,7 @@ import type {
 } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
 
+import Competitor from '../lib/classes/Competitor.js';
 import RoundRobinBracket from '../lib/classes/RoundRobinBracket.js';
 import { load_tournament, save_tournament } from './tournament.js';
 
@@ -34,7 +35,7 @@ const update_bracket = async (_: Electron.IpcMainInvokeEvent, input: UpdateBrack
 // enter point scores for a round robin match (winner is auto-derived; no draws)
 const enter_round_robin_result = async (_: Electron.IpcMainInvokeEvent, input: EnterRoundRobinResultInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketId, matchId, player1Score, player2Score } = input;
+        const { tournamentId, bracketId, matchId, competitor1Score: player1Score, competitor2Score: player2Score } = input;
 
         const tournament = await load_tournament(_, tournamentId);
         const bracket = tournament.getBracket(bracketId);
@@ -80,12 +81,12 @@ const reset_round_robin_result = async (_: Electron.IpcMainInvokeEvent, input: R
 // add a competitor to a bracket
 const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, input: AddCompetitorToBracketInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketId, competitorName } = input;
+        const { tournamentId, bracketId, competitor } = input;
 
         const tournament = await load_tournament(_, tournamentId);
         const bracket = tournament.getBracket(bracketId);
 
-        bracket.addCompetitor(competitorName);
+        bracket.addCompetitor(Competitor.fromDTO(competitor));
         await save_tournament(_, tournament);
 
         return successResponse(tournament.toDTO());
@@ -100,12 +101,12 @@ const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, input: 
 // remove a competitor from a bracket
 const remove_competitor_from_bracket = async (_: Electron.IpcMainInvokeEvent, input: RemoveCompetitorFromBracketInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketId, competitorName } = input;
+        const { tournamentId, bracketId, competitorId } = input;
 
         const tournament = await load_tournament(_, tournamentId);
         const bracket = tournament.getBracket(bracketId);
 
-        bracket.removeCompetitor(competitorName);
+        bracket.removeCompetitor(competitorId);
         await save_tournament(_, tournament);
 
         return successResponse(tournament.toDTO());

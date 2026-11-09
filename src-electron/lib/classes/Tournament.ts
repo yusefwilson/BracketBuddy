@@ -5,6 +5,7 @@ import Bracket from './Bracket.js';
 import DoubleEliminationBracket from './DoubleEliminationBracket.js';
 import RoundRobinBracket from './RoundRobinBracket.js';
 import Match from './Match.js';
+import Competitor from './Competitor.js';
 import { serialize, deserialize } from '../utils.js';
 import { convertTournamentToAERS } from '../AERSUtils.js';
 
@@ -44,7 +45,7 @@ class Tournament {
 
     static deserialize(serialized: string): Tournament {
         console.log('about to deserialize tournament data');
-        const tournament = deserialize(serialized, { Tournament, Match, DoubleEliminationBracket, RoundRobinBracket }) as Tournament;
+        const tournament = deserialize(serialized, { Tournament, Match, DoubleEliminationBracket, RoundRobinBracket, Competitor }) as Tournament;
         // Rewire bracket references
         tournament.brackets.forEach(bracket => {
             bracket.tournament = tournament;

@@ -2,6 +2,7 @@ import util from 'util';
 
 import { MatchDTO } from '../../../src-shared/MatchDTO.js';
 import { SlotCoordinates, MatchStatus } from '../../../src-shared/types.js';
+import Competitor from './Competitor.js';
 
 class Match {
 
@@ -11,10 +12,10 @@ class Match {
     number: number
     round: number
     match: number
-    player1: string | null
-    player2: string | null
-    player1Score: number | null
-    player2Score: number | null
+    competitor1: Competitor | null
+    competitor2: Competitor | null
+    competitor1Score: number | null
+    competitor2Score: number | null
     status: MatchStatus
     win?: SlotCoordinates
     loss?: SlotCoordinates
@@ -25,17 +26,17 @@ class Match {
     slot2Parent?: Match
     slot2PreviouslyWinner?: boolean
 
-    constructor(id: string = '', number: number = -1, round: number = -1, match: number = -1, player1: string | null = null, player2: string | null = null,
+    constructor(id: string = '', number: number = -1, round: number = -1, match: number = -1, player1: Competitor | null = null, player2: Competitor | null = null,
         status: MatchStatus = 'UNDECIDED', win?: SlotCoordinates, loss?: SlotCoordinates) {
 
         this.id = id;
         this.number = number;
         this.round = round;
         this.match = match;
-        this.player1 = player1;
-        this.player2 = player2;
-        this.player1Score = null;
-        this.player2Score = null;
+        this.competitor1 = player1;
+        this.competitor2 = player2;
+        this.competitor1Score = null;
+        this.competitor2Score = null;
         this.status = status;
         this.win = win;
         this.loss = loss;
@@ -43,7 +44,7 @@ class Match {
 
     // for now, a match can only be decided if it has been filled
     isDecided() {
-        return (this.status !== 'UNDECIDED' && this.player1 !== null && this.player2 !== null) || this.status === 'PLAYER_1_DROPOUT' || this.status === 'PLAYER_2_DROPOUT';
+        return (this.status !== 'UNDECIDED' && this.competitor1 !== null && this.competitor2 !== null) || this.status === 'PLAYER_1_DROPOUT' || this.status === 'PLAYER_2_DROPOUT';
     }
 
     getGenericWinner() {
@@ -62,9 +63,9 @@ class Match {
 
         // assert that player1 and player2 are not null because we passed isDecided() check
         if (this.status === 'PLAYER_1_WON' || this.status === 'PLAYER_2_DROPOUT' || this.status === 'PLAYER_2_NO_SHOW') {
-            return this.player1 as string;
+            return this.competitor1 as Competitor;
         } else {
-            return this.player2 as string;
+            return this.competitor2 as Competitor;
         }
     }
 
@@ -75,9 +76,9 @@ class Match {
         }
         // assert that player1 and player2 are not null because we passed isDecided() check
         if (this.status === 'PLAYER_1_WON' || this.status === 'PLAYER_2_DROPOUT' || this.status === 'PLAYER_2_NO_SHOW') {
-            return this.player2 as string;
+            return this.competitor2 as Competitor;
         } else {
-            return this.player1 as string;
+            return this.competitor1 as Competitor;
         }
     }
 
@@ -102,10 +103,10 @@ class Match {
             round: this.round,
             match: this.match,
             number: this.number,
-            player1: this.player1,
-            player2: this.player2,
-            player1Score: this.player1Score,
-            player2Score: this.player2Score,
+            competitor1: this.competitor1,
+            competitor2: this.competitor2,
+            competitor1Score: this.competitor1Score,
+            competitor2Score: this.competitor2Score,
             status: this.status,
             win: this.win,
             loss: this.loss,
@@ -114,12 +115,12 @@ class Match {
         };
     }
 
-    updatePlayer(player: string, slot: 1 | 2) {
+    updateCompetitor(competitor: Competitor, slot: 1 | 2) {
         if (slot === 1) {
-            this.player1 = player;
+            this.competitor1 = competitor;
         }
         else if (slot === 2) {
-            this.player2 = player;
+            this.competitor2 = competitor;
         }
         else {
             throw new Error('Slot must be 1 or 2');
@@ -132,7 +133,7 @@ class Match {
         console.log('updating status of match ' + this.id + ' to ' + status);
 
         // make sure that status can only be updated if match is filled
-        if (this.player1 === null || this.player2 === null) {
+        if (this.competitor1 === null || this.competitor2 === null) {
             throw new Error('Match cannot be updated because it is not filled');
         }
 
@@ -168,7 +169,7 @@ class Match {
     // used by round robin matches, which have no children to propagate to.
     updateScore(player1Score: number, player2Score: number) {
 
-        if (this.player1 === null || this.player2 === null) {
+        if (this.competitor1 === null || this.competitor2 === null) {
             throw new Error('Match cannot be scored because it is not filled');
         }
 
@@ -180,15 +181,15 @@ class Match {
             throw new Error('Scores cannot be equal — no draws allowed.');
         }
 
-        this.player1Score = player1Score;
-        this.player2Score = player2Score;
+        this.competitor1Score = player1Score;
+        this.competitor2Score = player2Score;
         this.status = player1Score > player2Score ? 'PLAYER_1_WON' : 'PLAYER_2_WON';
     }
 
     // clear a scored result back to undecided (used by round robin matches)
     resetScore() {
-        this.player1Score = null;
-        this.player2Score = null;
+        this.competitor1Score = null;
+        this.competitor2Score = null;
         this.status = 'UNDECIDED';
     }
 
@@ -204,22 +205,22 @@ class Match {
         // if the parent match exists and has been decided, update the player of this match
         if (this.slot1Parent && this.slot1Parent.isDecided()) {
             console.log('updating player1 of match ' + this.id + ' because parent match ' + this.slot1Parent.id + ' isDecided(): ' + this.slot1Parent.isDecided());
-            this.player1 = this.slot1PreviouslyWinner ? this.slot1Parent.getWinningPlayer() : this.slot1Parent.getLosingPlayer();
+            this.competitor1 = this.slot1PreviouslyWinner ? this.slot1Parent.getWinningPlayer() : this.slot1Parent.getLosingPlayer();
         }
         if (this.slot2Parent && this.slot2Parent.isDecided()) {
             console.log('updating player1 of match ' + this.id + ' because parent match ' + this.slot2Parent.id + ' isDecided(): ' + this.slot2Parent.isDecided());
-            this.player2 = this.slot2PreviouslyWinner ? this.slot2Parent.getWinningPlayer() : this.slot2Parent.getLosingPlayer();
+            this.competitor2 = this.slot2PreviouslyWinner ? this.slot2Parent.getWinningPlayer() : this.slot2Parent.getLosingPlayer();
         }
 
         // if the parent match exists and has not been decided, then make the player of this match null
         if (this.slot1Parent && !this.slot1Parent.isDecided() && !this.slot1Parent.hasDropout()) {
-            this.player1 = null;
+            this.competitor1 = null;
             if (!this.slot1Parent.hasDropout() && !this.slot2Parent?.hasDropout()) {
                 this.status = 'UNDECIDED';
             }
         }
         if (this.slot2Parent && !this.slot2Parent.isDecided() && !this.slot2Parent.hasDropout()) {
-            this.player2 = null;
+            this.competitor2 = null;
             if (!this.slot1Parent?.hasDropout() && !this.slot2Parent.hasDropout()) {
                 this.status = 'UNDECIDED';
             }
@@ -241,8 +242,8 @@ class Match {
             round: this.round,
             match: this.match,
             number: this.number,
-            player1: this.player1,
-            player2: this.player2,
+            player1: this.competitor1,
+            player2: this.competitor2,
             status: this.status,
             win: formatLink(this.win),
             loss: formatLink(this.loss),

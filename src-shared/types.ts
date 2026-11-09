@@ -1,3 +1,4 @@
+import { CompetitorDTO } from './CompetitorDTO';
 import type { TournamentDTO } from './TournamentDTO';
 
 type Gender = 'Male' | 'Female' | 'Mixed';
@@ -53,13 +54,13 @@ interface UpdateBracketInput {
 interface AddCompetitorToBracketInput {
     tournamentId: string;
     bracketId: string;
-    competitorName: string;
+    competitor: CompetitorDTO;
 }
 
 interface RemoveCompetitorFromBracketInput {
     tournamentId: string;
     bracketId: string;
-    competitorName: string;
+    competitorId: string;
 }
 interface RandomizeCompetitorsInput {
     tournamentId: string;
@@ -70,8 +71,8 @@ interface EnterRoundRobinResultInput {
     tournamentId: string;
     bracketId: string;
     matchId: string;
-    player1Score: number;
-    player2Score: number;
+    competitor1Score: number;
+    competitor2Score: number;
 }
 
 interface ResetRoundRobinMatchInput {
@@ -99,7 +100,7 @@ interface AddBracketsToTournamentInput {
         experienceLevel: ExperienceLevel;
         hand: Hand;
         weightLimit: WeightLimit;
-        competitorNames: string[];
+        competitors: CompetitorDTO[];
     }[];
 }
 

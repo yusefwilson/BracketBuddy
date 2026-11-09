@@ -1,4 +1,5 @@
 import { MatchStatus } from './types';
+import { CompetitorDTO } from './CompetitorDTO';
 
 interface MatchDTO {
 
@@ -6,10 +7,10 @@ interface MatchDTO {
     number: number
     round: number
     match: number
-    player1: string | number | null
-    player2: string | number | null
-    player1Score: number | null
-    player2Score: number | null
+    competitor1: CompetitorDTO | null
+    competitor2: CompetitorDTO | null
+    competitor1Score: number | null
+    competitor2Score: number | null
     status: MatchStatus
     win?: {
         round: number,

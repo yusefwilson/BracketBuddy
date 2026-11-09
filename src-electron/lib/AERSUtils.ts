@@ -39,8 +39,8 @@ function formatBracketMatches(bracket: Bracket, matches: Match[], tournament: To
 
         return [
             match.number, // ORDER = match.number
-            escapeCSV(match.player1),
-            escapeCSV(match.player2),
+            escapeCSV(match.competitor1),
+            escapeCSV(match.competitor2),
             escapeCSV(winner),
             convertedExperienceLevel,
             convertedWeightLimit,
