@@ -10,3 +10,7 @@ build-react
 # electron typescript build
 build-electron
 out/
+
+# Claude
+CLAUDE.md
+.claude/settings.local.json

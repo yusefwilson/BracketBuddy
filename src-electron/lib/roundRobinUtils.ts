@@ -1,0 +1,55 @@
+/* Round robin match generation: build a single round-robin schedule via the
+   tournament-pairings library, drop byes, and number matches sequentially. */
+
+import { RoundRobin } from 'tournament-pairings';
+
+import { ExternalMatch } from '../../src-shared/types.js';
+
+import Match from './classes/Match.js';
+import { createInternalMatch, numberMatchesSequentially } from './matchUtils.js';
+import Competitor from './classes/Competitor.js';
+
+// generate the round robin schedule grouped into rounds (each inner array is one round)
+function prepareRoundRobinMatches(competitors: Competitor[]): Match[][] {
+
+    if (competitors.length < 2) {
+        throw new Error('Bracket must have at least 2 competitors');
+    }
+    
+    const competitorIds = competitors.map(c => c.id);
+    const competitorMap = new Map(competitors.map(c => [c.id, c]));
+
+    // i think RoundRobin mutates competitorIds, but that's fine since we don't use it past this.
+    const externalMatches = RoundRobin(competitorIds, 1, true) as ExternalMatch[];
+
+    // drop byes (a null player is inserted when there is an odd number of competitors)
+    const realMatches = externalMatches.filter(m => m.player1 !== null && m.player2 !== null);
+
+    // round robin matches have no win/loss pointers, so slots are not passed in here
+    const internalMatches = realMatches.map(m => createInternalMatch(m, competitorMap));
+
+    // group matches by round
+    const roundsMap = new Map<number, Match[]>();
+    for (const match of internalMatches) {
+        if (!roundsMap.has(match.round)) {
+            roundsMap.set(match.round, []);
+        }
+        roundsMap.get(match.round)!.push(match);
+    }
+
+    // sort rounds ascending and number matches sequentially across them
+    const sortedRoundNumbers = [...roundsMap.keys()].sort((a, b) => a - b);
+    const rounds: Match[][] = [];
+    let currentMatchNumber = 1;
+    for (const roundNumber of sortedRoundNumbers) {
+        const round = roundsMap.get(roundNumber)!;
+        currentMatchNumber = numberMatchesSequentially(round, currentMatchNumber);
+        rounds.push(round);
+    }
+
+    return rounds;
+}
+
+export {
+    prepareRoundRobinMatches
+}

@@ -1,21 +1,53 @@
-import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useContext, useState, useEffect } from 'react';
 
-import BracketInfoCard from '../components/BracketInfoCard';
-import MassCompetitorInput from '../components/MassCompetitorInput';
-import { CURRENT_STATE } from '../components/App';
-
-import BulkBracketInputModal from '../components/BulkBracketInputModal';
 import { dateToLocalTimezoneString } from '../../../src-shared/utils';
+
+import { safeApiCall } from '../utils/apiHelpers';
+import { useErrorToast } from '../hooks/useErrorToast';
+
+import { CURRENT_STATE } from '../components/App';
+import BracketsAndCompetitors from '../components/BracketsAndCompetitors';
+import CompetitorList from '../components/CompetitorList';
+import BracketList from '../components/BracketList';
+import BulkBracketInputModal from '../components/BulkBracketInputModal';
+import TournamentReportModal from '../components/TournamentReportModal';
+
+import AERSLogo from '../../../assets/AERS_Logo.png'
+import { HiArrowDownTray as ArrowDownTrayIcon, HiPlus as PlusIcon, HiUser as UserIcon } from 'react-icons/hi2';
+import { TbTournament } from 'react-icons/tb';
+
+import { FaRegRectangleList } from "react-icons/fa6";
+import { FaRegFileAlt } from "react-icons/fa";
+
 
 export default function TournamentView() {
   const state = useContext(CURRENT_STATE);
-  const { tournament, setBracketIndex = () => { }, setTournament = () => { } } = state || {};
-  const navigate = useNavigate();
+  const { tournament } = state || {};
+  const { showError, ErrorToastContainer } = useErrorToast();
 
   const [bulkBracketModalOpen, setBulkBracketModalOpen] = useState(false);
-  const [competitorViewOpen, setCompetitorViewOpen] = useState(false);
-  const [refreshTick, setRefreshTick] = useState(0);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<'both' | 'brackets' | 'competitor-list' | null>(null);
+
+  // Load saved view on mount
+  useEffect(() => {
+    const loadView = async () => {
+      const [currentViewValue, error] = await safeApiCall(window.electron.getSavedValue('currentView'));
+      if (!error && currentViewValue) {
+        setCurrentView(currentViewValue);
+      } else {
+        // Default to 'both' if no saved value
+        setCurrentView('both');
+      }
+    };
+    loadView();
+  }, []);
+
+  // Save view whenever it changes
+  const handleViewChange = async (view: 'both' | 'brackets' | 'competitor-list') => {
+    setCurrentView(view);
+    await safeApiCall(window.electron.saveKeyValue({ key: 'currentView', value: view }));
+  };
 
   if (!tournament) {
     return (
@@ -25,69 +57,167 @@ export default function TournamentView() {
     )
   }
 
+  // AERS' winner-per-match CSV format can't represent round robin scoring
+  const hasRoundRobin = tournament.brackets.some(b => b.type === 'RoundRobinBracket');
+
   return (
-    <div className="bg-slate-700 p-6 flex flex-col items-center gap-6 w-full mx-auto h-full">
-      <h1 className="text-3xl font-bold text-white flex-shrink-0">
-        Tournament: <span className="text-blue-400">{tournament?.name}</span>
-      </h1>
-      <h2 className="text-lg text-gray-300 flex-shrink-0">
-        Date: <span className="font-semibold">{dateToLocalTimezoneString(tournament?.date)}</span>
-      </h2>
+    <>
+      <ErrorToastContainer />
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 flex flex-col w-full mx-auto h-full">
+        {/* Sleek Header/Toolbar */}
+        <div className="flex items-center justify-between px-8 py-5 bg-slate-900/80 backdrop-blur-sm border-b border-slate-700/50 flex-shrink-0 shadow-lg">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="text-3xl font-bold tracking-tight">
+              <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">{tournament?.name}</span>
+            </h1>
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+              {dateToLocalTimezoneString(tournament?.date)}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+              {'Entries: ' + tournament.brackets.reduce((acc, bracket) => acc + bracket.competitors.length, 0)}            </div>
+          </div>
 
-      {/* Buttons to open modals */}
-      <div className="flex gap-4 flex-shrink-0">
-        <button
-          onClick={() => setBulkBracketModalOpen(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-          type="button"
-        >
-          Add Brackets
-        </button>
-        <button
-          onClick={() => setCompetitorViewOpen(!competitorViewOpen)}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
-          type="button"
-        >
-          Switch View
-        </button>
-      </div>
+          {/* Toolbar Buttons */}
+          <div className="flex gap-4 items-center">
 
-      {/* Modals */}
-      {bulkBracketModalOpen && (
-        <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
-      )}
+            {/* View Toggle Buttons */}
+            <div className="flex gap-3 items-center">
+              <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">View</div>
+              <div className="flex gap-1 bg-slate-800 rounded-lg p-1 shadow-lg border border-slate-700/50">
+                <button
+                  onClick={() => handleViewChange('both')}
+                  className={`px-4 py-2.5 rounded-md transition-all duration-200 ${currentView === 'both'
+                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                    : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                  type="button"
+                  title="View both brackets and competitors"
+                >
+                  <FaRegRectangleList className='h-5 w-5' />
+                </button>
+                <button
+                  onClick={() => handleViewChange('brackets')}
+                  className={`px-4 py-2.5 rounded-md transition-all duration-200 ${currentView === 'brackets'
+                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                    : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                  type="button"
+                  title="View brackets/classes list"
+                >
+                  <TbTournament className='h-5 w-5' />
+                </button>
+                <button
+                  onClick={() => handleViewChange('competitor-list')}
+                  className={`px-4 py-2.5 rounded-md transition-all duration-200 ${currentView === 'competitor-list'
+                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                    : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                  type="button"
+                  title="View all competitors"
+                >
+                  <UserIcon className='h-5 w-5' />
+                </button>
+              </div>
+            </div>
 
-      {
-        competitorViewOpen ?
-          <MassCompetitorInput />
-          :
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6">
-            {tournament?.brackets.length ? (
-              tournament.brackets.map((bracket, index) => (
-                <BracketInfoCard
-                  key={index}
-                  bracket={bracket}
-                  onClick={async () => {
-                    setBracketIndex(index);
-                    await window.electron.saveKeyValue({ key: 'lastBracketIndex', value: index });
-                    navigate('/bracket');
-                  }}
-                  onRemoveClick={async () => {
-                    const newTournament = await window.electron.removeBracketFromTournament({
-                      tournamentId: tournament.id,
-                      bracketId: bracket.id
-                    });
-                    setTournament(newTournament);
-                    setRefreshTick(refreshTick + 1);
-                  }}
-                />
-              ))
+            <button
+              onClick={() => setBulkBracketModalOpen(true)}
+              className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-blue-500/50 hover:scale-105 flex items-center justify-center gap-2"
+              style={tournament?.brackets.length === 0 ? { animation: 'flash 2s ease-in-out infinite' } : {}}
+              type="button"
+              title="Add brackets/classes"
+            >
+              <PlusIcon className='h-5 w-5' />
+            </button>
+
+            <div className="h-8 w-px bg-slate-700"></div>
+
+            <button
+              onClick={async () => {
+                const [result, error] = await safeApiCall(
+                  window.electron.exportTournament({ tournamentId: tournament.id })
+                );
+
+                if (error) {
+                  showError(error);
+                  return;
+                }
+
+                if (result && !result.canceled) {
+                  console.log(`✅ Saved tournament to: ${result.filePath}`);
+                } else {
+                  console.log('❌ Save canceled');
+                }
+              }}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
+              type="button"
+              title="Download save file"
+            >
+              <ArrowDownTrayIcon className='h-5 w-5' />
+            </button>
+            <button
+              onClick={async () => {
+                const [result, error] = await safeApiCall(
+                  window.electron.exportToAERS({ tournamentId: tournament.id })
+                );
+
+                if (error) {
+                  showError(error);
+                  return;
+                }
+
+                if (result && !result.canceled) {
+                  console.log(`✅ Saved CSV to: ${result.filePath}`);
+                } else {
+                  console.log('❌ Save canceled');
+                }
+              }
+              }
+              disabled={hasRoundRobin}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800 disabled:hover:border-slate-700/50"
+              type="button"
+              title={hasRoundRobin ? "AERS export is unavailable for tournaments with round-robin brackets" : "Export to AERS"}
+            >
+              <img src={AERSLogo} className='w-16 h-5 object-contain' alt="AERS" />
+            </button>
+            <button
+              onClick={() => setReportModalOpen(true)}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-md border border-slate-700/50 transition-all duration-200 hover:border-slate-600 flex items-center justify-center"
+              type="button"
+              title="Export report"
+            >
+              <FaRegFileAlt className='h-5 w-5'/>
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className={`p-8 flex-1 flex flex-col ${currentView === 'both' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+          {/* Modals */}
+          {bulkBracketModalOpen && (
+            <BulkBracketInputModal setBulkBracketModalOpen={setBulkBracketModalOpen} />
+          )}
+          {reportModalOpen && (
+            <TournamentReportModal tournament={tournament} onClose={() => setReportModalOpen(false)} />
+          )}
+
+          <div className="bg-slate-800/40 rounded-xl border border-slate-700/50 shadow-2xl p-6 h-full flex flex-col backdrop-blur-sm">
+            {currentView === null ? (
+              <div className="flex items-center justify-center h-full">
+                {/* Blank loading state */}
+              </div>
+            ) : currentView === 'both' ? (
+              <BracketsAndCompetitors />
+            ) : currentView === 'brackets' ? (
+              <BracketList />
             ) : (
-              <p className="text-gray-400 text-center italic">No brackets added yet.</p>
+              <CompetitorList />
             )}
           </div>
-      }
-
-    </div>
+        </div>
+      </div>
+    </>
   );
 }

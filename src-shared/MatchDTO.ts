@@ -1,12 +1,17 @@
+import { MatchStatus } from './types';
+import { CompetitorDTO } from './CompetitorDTO';
+
 interface MatchDTO {
 
     id: string
     number: number
     round: number
     match: number
-    player1: string | number | null
-    player2: string | number | null
-    winner: number // 1 if player1 won, 0 if player2 won, -1 if it is undetermined
+    competitor1: CompetitorDTO | null
+    competitor2: CompetitorDTO | null
+    competitor1Score: number | null
+    competitor2Score: number | null
+    status: MatchStatus
     win?: {
         round: number,
         match: number

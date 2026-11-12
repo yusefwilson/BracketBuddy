@@ -1,3 +1,5 @@
+import type { CompetitorDTO } from './CompetitorDTO';
+
 type Gender = 'Male' | 'Female' | 'Mixed';
 
 type Hand = 'Left' | 'Right';
@@ -5,6 +7,10 @@ type Hand = 'Left' | 'Right';
 type ExperienceLevel = 'Youth' | 'Novice' | 'Amateur' | 'Semipro' | 'Pro' | 'Master' | 'Grandmaster' | 'Senior Grandmaster';
 
 type WeightLimit = number | 'Superheavyweight';
+
+type MatchStatus = 'UNDECIDED' | 'PLAYER_1_WON' | 'PLAYER_2_WON' | 'PLAYER_1_DROPOUT' | 'PLAYER_2_DROPOUT' | 'PLAYER_1_NO_SHOW' | 'PLAYER_2_NO_SHOW';
+
+type BracketType = 'DoubleEliminationBracket' | 'SingleEliminationBracket' | 'RoundRobinBracket';
 
 type ExternalMatch = {
     round: number,
@@ -27,6 +33,14 @@ type SlotCoordinates = {
     slot: 1 | 2
 }
 
+interface RoundRobinStanding {
+    competitorId: string
+    name: string
+    points: number
+    wins: number
+    losses: number
+}
+
 // endpoint input types
 
 // bracket
@@ -34,29 +48,54 @@ interface UpdateBracketInput {
     tournamentId: string;
     bracketId: string;
     matchId: string;
-    winner: number;
+    status: MatchStatus;
 }
 
+// provide exactly one of:
+//  - competitorId: attach a competitor that is already registered in the tournament
+//  - competitor: register a new competitor (if one with the same name is already registered, that one is reused)
 interface AddCompetitorToBracketInput {
     tournamentId: string;
     bracketId: string;
-    competitorName: string;
+    competitorId?: string;
+    competitor?: CompetitorDTO;
+}
+
+// edit a competitor everywhere they appear (name, gender, weight, paid)
+interface UpdateCompetitorInput {
+    tournamentId: string;
+    competitorId: string;
+    updates: Partial<Omit<CompetitorDTO, 'id'>>;
+}
+
+// remove a competitor from every bracket and from the tournament
+interface DeleteCompetitorInput {
+    tournamentId: string;
+    competitorId: string;
 }
 
 interface RemoveCompetitorFromBracketInput {
     tournamentId: string;
     bracketId: string;
-    competitorName: string;
+    competitorId: string;
 }
-
-interface StartBracketInput {
-    tournamentId: string;
-    bracketId: string;
-}
-
 interface RandomizeCompetitorsInput {
     tournamentId: string;
     bracketId: string;
+}
+
+interface EnterRoundRobinResultInput {
+    tournamentId: string;
+    bracketId: string;
+    matchId: string;
+    competitor1Score: number;
+    competitor2Score: number;
+}
+
+interface ResetRoundRobinMatchInput {
+    tournamentId: string;
+    bracketId: string;
+    matchId: string;
 }
 
 // tournament
@@ -73,11 +112,11 @@ interface DeleteTournamentInput {
 interface AddBracketsToTournamentInput {
     tournamentId: string;
     brackets: {
+        type: BracketType;
         gender: Gender;
         experienceLevel: ExperienceLevel;
         hand: Hand;
         weightLimit: WeightLimit;
-        competitorNames: string[];
     }[];
 }
 
@@ -86,6 +125,17 @@ interface RemoveBracketFromTournamentInput {
     bracketId: string;
 }
 
+interface ExportToAERSInput {
+    tournamentId: string;
+}
+
+interface ExportTournamentInput {
+    tournamentId: string;
+}
+
+interface ExportToPDFInput {
+    tournamentId: string;
+}
 
 // misc
 
@@ -93,10 +143,26 @@ interface SaveKeyValueInput {
     key: string;
     value: any;
 }
+
+// API Response types
+interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    error?: ApiError;
+}
+
+interface ApiError {
+    message: string;
+    code?: string;
+    field?: string; // Optional field identifier for form validation errors
+}
+
 export type {
-    Gender, Hand, ExperienceLevel, WeightLimit,
-    ExternalMatch, SlotCoordinates,
-    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, StartBracketInput, RandomizeCompetitorsInput,
+    Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType,
+    ExternalMatch, SlotCoordinates, RoundRobinStanding,
+    UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput, EnterRoundRobinResultInput, ResetRoundRobinMatchInput,
+    UpdateCompetitorInput, DeleteCompetitorInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
-    SaveKeyValueInput
+    SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput, ExportToPDFInput,
+    ApiResponse
 };

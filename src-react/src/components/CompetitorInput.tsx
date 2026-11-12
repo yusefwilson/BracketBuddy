@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { TrashIcon, PlusIcon, ArrowPathRoundedSquareIcon } from '@heroicons/react/24/solid';
+import { HiTrash as TrashIcon, HiPlus as PlusIcon, HiChevronDown as ChevronDownIcon } from 'react-icons/hi2';
+import { FaShuffle } from "react-icons/fa6";
+
+import { CompetitorDTO } from '../../../src-shared/CompetitorDTO';
+import { Gender } from '../../../src-shared/types';
+import { competitorFullName } from '../../../src-shared/utils';
 
 function usePrevious<T>(value: T): T | undefined {
     const ref = useRef<T>();
@@ -10,34 +15,71 @@ function usePrevious<T>(value: T): T | undefined {
 }
 
 interface CompetitorInputProps {
-    competitors: string[];
-    addCompetitor: (name: string) => Promise<void>;
-    removeCompetitor: (name: string) => Promise<void>;
+    competitors: CompetitorDTO[];
+    defaultGender: Gender;
+    addCompetitor: (competitor: CompetitorDTO) => Promise<void>;
+    removeCompetitor: (competitorId: string) => Promise<void>;
     randomizeCompetitors: () => Promise<void>;
+    bracketStarted: boolean;
+    onShowWarning: (message: string, onConfirm: () => void) => void;
 }
 
-export default function CompetitorInput({ competitors, addCompetitor, removeCompetitor, randomizeCompetitors, }: CompetitorInputProps) {
-    const [newName, setNewName] = useState('');
+export default function CompetitorInput({ competitors, defaultGender, addCompetitor, removeCompetitor, randomizeCompetitors, bracketStarted, onShowWarning }: CompetitorInputProps) {
+    const [newFirstName, setNewFirstName] = useState('');
+    const [newLastName, setNewLastName] = useState('');
+    const [newGender, setNewGender] = useState<Gender>(defaultGender);
+    const [newPaid, setNewPaid] = useState(false);
 
     // This is a dummy div that we use to auto-scroll to the bottom when competitors update
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
     const prevLength = usePrevious(competitors.length);
 
+    const canAdd = newFirstName.trim() !== '' && newLastName.trim() !== '';
+
+    const submitNewCompetitor = async () => {
+        await addCompetitor({ firstName: newFirstName.trim(), lastName: newLastName.trim(), gender: newGender, paid: newPaid });
+        setNewFirstName('');
+        setNewLastName('');
+        setNewPaid(false);
+    };
+
     // Add a new competitor
     const handleAdd = async () => {
-        const competitorNameToAdd = newName.trim()
-        // prevent empty names
-        if (competitorNameToAdd === '') return;
-        // prevent duplicate competitors
-        if (competitors.includes(competitorNameToAdd)) return;
+        if (!canAdd) return;
+        if (bracketStarted) {
+            onShowWarning(
+                'Adding a competitor will reset the entire bracket and all match results will be lost.',
+                submitNewCompetitor
+            );
+        } else {
+            await submitNewCompetitor();
+        }
+    };
 
-        // add competitor
-        await addCompetitor(competitorNameToAdd);
-        setNewName('');
+    const handleRemove = async (competitorId: string) => {
+        if (bracketStarted) {
+            onShowWarning(
+                'Removing a competitor will reset the entire bracket and all match results will be lost.',
+                async () => {
+                    await removeCompetitor(competitorId);
+                }
+            );
+        } else {
+            await removeCompetitor(competitorId);
+        }
     };
 
     const handleRandomize = async () => {
-        await randomizeCompetitors();
+        if (bracketStarted) {
+            onShowWarning(
+                'Randomizing competitors will reset the entire bracket and all match results will be lost.',
+                async () => {
+                    await randomizeCompetitors();
+                }
+            );
+        } else {
+            await randomizeCompetitors();
+        }
     };
 
     // Auto-scroll to bottom when competitors update, but only scroll when a competitor was added
@@ -54,128 +96,129 @@ export default function CompetitorInput({ competitors, addCompetitor, removeComp
     }, [competitors.length, prevLength]);
 
     return (
-        <div className='flex flex-col justify-between h-full'>
-            <div className='flex flex-col overflow-y-auto h-full rounded-md p-4 bg-slate-800' ref={scrollContainerRef}>
-
-                <div className='flex items-center space-x-3 mb-3 justify-between'>
-                    <h2 className='text-md font-semibold text-white'>
-                        Enter Competitor Names ({competitors.length})
+        <div className="flex flex-col justify-between h-full">
+            <div className="flex flex-col overflow-y-auto h-full rounded-xl p-4 bg-slate-900/50 border border-slate-700/30" ref={scrollContainerRef}>
+                <div className="flex items-center justify-between mb-4 gap-3">
+                    <h2 className="text-sm font-semibold text-white">
+                        Competitors ({competitors.length})
                     </h2>
                     <button
-                        onClick={handleRandomize}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleRandomize();
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()}
                         disabled={competitors.length < 2}
-                        className='
-                mt-3
-                bg-purple-500
-                hover:bg-purple-600
-                disabled:opacity-50
-                disabled:cursor-not-allowed
-                text-white
-                px-3
-                py-1.5
-                rounded-md
-                transition
-                duration-200
-                ease-in-out
-                '
-                        type='button'
+                        className="bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                        type="button"
+                        title="Randomize order"
                     >
-                        <ArrowPathRoundedSquareIcon className='h-5 w-5' />
+                        <FaShuffle className="h-4 w-4" />
                     </button>
                 </div>
 
-
                 {competitors.length === 0 && (
-                    <p className='text-gray-400 italic'>No competitors added yet.</p>
+                    <p className="text-gray-400 text-sm italic">No competitors yet</p>
                 )}
 
-                {competitors.map((name, index) => (
-                    <div key={index} className='flex items-center space-x-3 mb-3'>
+                {competitors.map((competitor) => (
+                    <div key={competitor.id} className="flex items-center gap-2 mb-2">
                         <input
-                            type='text'
-                            value={name}
+                            type="text"
+                            value={competitorFullName(competitor)}
                             disabled
-                            className='
-                flex-grow
-                p-2
-                rounded-md
-                border
-                border-gray-500
-                bg-slate-600
-                text-white
-                opacity-80
-                cursor-not-allowed
-              '
+                            className="flex-grow px-3 py-2 rounded-lg bg-slate-700 text-white text-sm border border-slate-600/50 opacity-90 cursor-not-allowed"
                         />
                         <button
-                            onClick={() => removeCompetitor(name)}
-                            className='
-                bg-red-600
-                hover:bg-red-700
-                text-white
-                px-3
-                py-1.5
-                rounded-md
-                transition
-                duration-200
-                ease-in-out
-              '
-                            type='button'
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (competitor.id) handleRemove(competitor.id);
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className="bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex-shrink-0"
+                            type="button"
+                            title="Remove competitor"
                         >
-                            <TrashIcon className='h-5 w-5' />
+                            <TrashIcon className="h-4 w-4" />
                         </button>
                     </div>
                 ))}
 
-                {/* Ghost input always at the bottom */}
-                <div className='flex items-center space-x-3 mt-3'>
-                    <input
-                        type='text'
-                        placeholder='New competitor name'
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleAdd();
-                        }}
-                        className='
-              flex-grow
-              p-2
-              rounded-md
-              border
-              border-gray-500
-              bg-slate-600
-              text-white
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-400
-              transition
-              duration-200
-              ease-in-out
-            '
-                    />
-                    <button
-                        onClick={handleAdd}
-                        disabled={newName.trim() === ''}
-                        className='
-              bg-blue-500
-              hover:bg-blue-600
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-              text-white
-              px-3
-              py-1.5
-              rounded-md
-              transition
-              duration-200
-              ease-in-out
-            '
-                        type='button'
-                    >
-                        <PlusIcon className='h-5 w-5' />
-                    </button>
+                {/* Input for new competitor */}
+                <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-slate-700/50">
+                    <div className="flex flex-col gap-2">
+                        <input
+                            type="text"
+                            placeholder="First name"
+                            value={newFirstName}
+                            onChange={(e) => setNewFirstName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleAdd();
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className="w-full min-w-0 px-3 py-2 rounded-lg bg-slate-700 text-white text-sm border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Last name"
+                            value={newLastName}
+                            onChange={(e) => setNewLastName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleAdd();
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className="w-full min-w-0 px-3 py-2 rounded-lg bg-slate-700 text-white text-sm border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {/* compact select with the chevron drawn just inside the box, instead of a wide box with the native arrow at the far edge */}
+                        <div className="relative flex-shrink-0">
+                            <select
+                                value={newGender}
+                                onChange={(e) => setNewGender(e.target.value as Gender)}
+                                onClick={(e) => e.stopPropagation()}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                className="appearance-none pl-3 pr-8 py-2 rounded-lg bg-slate-700 text-white text-sm border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                title="Gender"
+                            >
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center">
+                                <ChevronDownIcon className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                            </div>
+                        </div>
+                        <label
+                            className="flex items-center gap-1.5 text-gray-300 text-sm cursor-pointer select-none flex-shrink-0"
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                        >
+                            <input
+                                type="checkbox"
+                                checked={newPaid}
+                                onChange={(e) => setNewPaid(e.target.checked)}
+                                className="h-4 w-4 accent-green-500 cursor-pointer"
+                            />
+                            Paid
+                        </label>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleAdd();
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            disabled={!canAdd}
+                            className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex-shrink-0 ml-auto"
+                            type="button"
+                            title="Add competitor"
+                        >
+                            <PlusIcon className="h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
-
             </div>
-        </div >
+        </div>
     );
 }

@@ -7,6 +7,28 @@ module.exports = {
     extraResource: ["./build-react", "./assets"],
     icon: "./assets/icon",
     executableName: "BracketBuddy", // <-- ensures the exe is BracketBuddy.exe
+    appBundleId: "com.yusefwilson.bracketbuddy",
+    ignore: [
+      /^\/src-react($|\/)/,
+      /^\/\.github($|\/)/,
+      /^\/\.git($|\/)/,
+      /^\/node_modules\/\.cache($|\/)/
+    ],
+    asarUnpack: [
+      '**/*.node'
+    ],
+    osxSign: {
+      identity: "Developer ID Application",
+      hardenedRuntime: true,
+      entitlements: "./entitlements.plist",
+      entitlementsInherit: "./entitlements.plist"
+    },
+    // Only notarize in CI when credentials are available
+    osxNotarize: {
+      appleId: process.env.APPLE_ID,
+      appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,
+      teamId: process.env.APPLE_TEAM_ID,
+    },
   },
   rebuildConfig: {},
   makers: [
@@ -29,13 +51,18 @@ module.exports = {
         exe: "BracketBuddy.exe",                 // exe filename
         setupExe: "BracketBuddy-Setup.exe",      // setup filename
         setupIcon: "./assets/icon.ico",          // icon for installer & exe
-        iconUrl: "https://yusefwilson.github.io/BracketBuddy/assets/icon.ico", // hacky kinda way to get free icon hosting from github
+        iconUrl: "https://raw.githubusercontent.com/yusefwilson/BracketBuddy/refs/heads/release/assets/icon.ico", // hacky kinda way to get free icon hosting from github
         loadingGif: "./assets/loading.gif",      // optional loading animation for installer
         noMsi: true,                             // disables generating MSI, since Squirrel handles it
       }
     },
     {
-      name: '@electron-forge/maker-zip',
+      name: '@electron-forge/maker-dmg',
+      config: {
+        format: 'ULFO',
+        name: 'BracketBuddy',
+        icon: './assets/icon.icns',
+      },
       platforms: ['darwin'],
     },
     {

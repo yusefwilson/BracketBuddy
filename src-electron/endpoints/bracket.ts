@@ -1,93 +1,161 @@
 import { TournamentDTO } from '../../src-shared/TournamentDTO.js';
-import { load_tournament, save_tournament } from './tournament.js';
 import type {
     UpdateBracketInput,
     AddCompetitorToBracketInput,
     RemoveCompetitorFromBracketInput,
-    StartBracketInput,
     RandomizeCompetitorsInput,
+    EnterRoundRobinResultInput,
+    ResetRoundRobinMatchInput,
+    ApiResponse
 } from '../../src-shared/types.js';
+import { successResponse, errorResponse } from '../../src-shared/utils.js';
 
-const update_bracket = async (_: Electron.IpcMainInvokeEvent, input: UpdateBracketInput): Promise<TournamentDTO> => {
-    const { tournamentId, bracketId, matchId, winner } = input;
+import Competitor from '../lib/classes/Competitor.js';
+import RoundRobinBracket from '../lib/classes/RoundRobinBracket.js';
+import { load_tournament, save_tournament } from './tournament.js';
 
-    console.log('tournamentId: ', tournamentId);
-    console.log('bracketId: ', bracketId);
-    console.log('matchId: ', matchId);
-    console.log('winner: ', winner);
+// update a match in a bracket with the specified status
+const update_bracket = async (_: Electron.IpcMainInvokeEvent, input: UpdateBracketInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, bracketId, matchId, status } = input;
 
-    const tournament = await load_tournament(_, tournamentId);
-    const bracket = tournament.getBracket(bracketId);
+        const tournament = await load_tournament(_, tournamentId);
+        const bracket = tournament.getBracket(bracketId);
 
-    if (!bracket) throw new Error('Bracket not found');
+        bracket.updateMatchById(matchId, status);
+        await save_tournament(_, tournament);
 
-    bracket.updateMatchById(matchId, winner);
-    await save_tournament(_, tournament);
-
-    return tournament.toDTO();
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error updating bracket:', error);
+        return errorResponse('Failed to update match result. Please try again.');
+    }
 };
 
-const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, input: AddCompetitorToBracketInput): Promise<TournamentDTO> => {
-    const { tournamentId, bracketId, competitorName } = input;
+// enter point scores for a round robin match (winner is auto-derived; no draws)
+const enter_round_robin_result = async (_: Electron.IpcMainInvokeEvent, input: EnterRoundRobinResultInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, bracketId, matchId, competitor1Score: player1Score, competitor2Score: player2Score } = input;
 
-    const tournament = await load_tournament(_, tournamentId);
-    const bracket = tournament.getBracket(bracketId);
+        const tournament = await load_tournament(_, tournamentId);
+        const bracket = tournament.getBracket(bracketId);
 
-    if (!bracket) throw new Error('Bracket not found');
+        if (bracket.type !== 'RoundRobinBracket') {
+            return errorResponse('Scores can only be entered for round robin brackets.');
+        }
 
-    bracket.addCompetitor(competitorName);
-    await save_tournament(_, tournament);
+        (bracket as RoundRobinBracket).updateMatchScore(matchId, player1Score, player2Score);
+        await save_tournament(_, tournament);
 
-    return tournament.toDTO();
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error entering round robin result:', error);
+        const message = error instanceof Error ? error.message : 'Failed to enter result. Please try again.';
+        return errorResponse(message);
+    }
 };
 
-const remove_competitor_from_bracket = async (_: Electron.IpcMainInvokeEvent, input: RemoveCompetitorFromBracketInput): Promise<TournamentDTO> => {
-    const { tournamentId, bracketId, competitorName } = input;
+// clear a round robin match's result back to undecided
+const reset_round_robin_result = async (_: Electron.IpcMainInvokeEvent, input: ResetRoundRobinMatchInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, bracketId, matchId } = input;
 
-    const tournament = await load_tournament(_, tournamentId);
-    const bracket = tournament.getBracket(bracketId);
+        const tournament = await load_tournament(_, tournamentId);
+        const bracket = tournament.getBracket(bracketId);
 
-    if (!bracket) throw new Error('Bracket not found');
+        if (bracket.type !== 'RoundRobinBracket') {
+            return errorResponse('Scores can only be reset for round robin brackets.');
+        }
 
-    bracket.removeCompetitor(competitorName);
-    await save_tournament(_, tournament);
+        (bracket as RoundRobinBracket).resetMatch(matchId);
+        await save_tournament(_, tournament);
 
-    return tournament.toDTO();
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error resetting round robin result:', error);
+        const message = error instanceof Error ? error.message : 'Failed to reset result. Please try again.';
+        return errorResponse(message);
+    }
 };
 
-const start_bracket = async (_: Electron.IpcMainInvokeEvent, input: StartBracketInput): Promise<TournamentDTO> => {
-    const { tournamentId, bracketId } = input;
+// add a competitor to a bracket
+const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, input: AddCompetitorToBracketInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, bracketId, competitorId, competitor: newCompetitor } = input;
 
-    const tournament = await load_tournament(_, tournamentId);
-    const bracket = tournament.getBracket(bracketId);
+        const tournament = await load_tournament(_, tournamentId);
+        const bracket = tournament.getBracket(bracketId);
 
-    if (!bracket) throw new Error('Bracket not found');
+        let competitor: Competitor;
+        if (competitorId) {
+            // a competitor that is already in the tournament
+            competitor = tournament.getCompetitor(competitorId);
+        } else if (newCompetitor) {
+            if (!newCompetitor.firstName.trim() || !newCompetitor.lastName.trim()) {
+                return errorResponse('Competitors must have a first and last name.');
+            }
+            // a name identifies a person within a tournament, so reuse the competitor if the name is taken
+            competitor = tournament.findCompetitorByName(`${newCompetitor.firstName} ${newCompetitor.lastName}`)
+                ?? Competitor.fromDTO({ ...newCompetitor, firstName: newCompetitor.firstName.trim(), lastName: newCompetitor.lastName.trim() });
+        } else {
+            return errorResponse('Provide either an existing competitor id or the details of a new competitor.');
+        }
 
-    bracket.initialize();
-    await save_tournament(_, tournament);
+        tournament.registerCompetitor(competitor);
+        bracket.addCompetitor(competitor);
+        await save_tournament(_, tournament);
 
-    return tournament.toDTO();
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error adding competitor:', error);
+        const message = error instanceof Error ? error.message : 'Failed to add competitor. Please try again.';
+
+        return errorResponse(message);
+    }
 };
 
-const randomize_competitors = async (_: Electron.IpcMainInvokeEvent, input: RandomizeCompetitorsInput): Promise<TournamentDTO> => {
-    const { tournamentId, bracketId } = input;
+// remove a competitor from a bracket
+const remove_competitor_from_bracket = async (_: Electron.IpcMainInvokeEvent, input: RemoveCompetitorFromBracketInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, bracketId, competitorId } = input;
 
-    const tournament = await load_tournament(_, tournamentId);
-    const bracket = tournament.getBracket(bracketId);
+        const tournament = await load_tournament(_, tournamentId);
+        const bracket = tournament.getBracket(bracketId);
 
-    if (!bracket) throw new Error('Bracket not found');
+        bracket.removeCompetitor(competitorId);
+        await save_tournament(_, tournament);
 
-    bracket.randomizeCompetitors();
-    bracket.initialize();
-    await save_tournament(_, tournament);
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error removing competitor:', error);
+        return errorResponse('Failed to remove competitor. Please try again.');
+    }
+};
 
-    return tournament.toDTO();
+// randomize the competitors in a bracket
+const randomize_competitors = async (_: Electron.IpcMainInvokeEvent, input: RandomizeCompetitorsInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, bracketId } = input;
+
+        const tournament = await load_tournament(_, tournamentId);
+        const bracket = tournament.getBracket(bracketId);
+
+        bracket.randomizeCompetitors();
+
+        await save_tournament(_, tournament);
+
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error randomizing competitors:', error);
+        return errorResponse('Failed to randomize competitors. Please try again.');
+    }
 };
 
 export {
     update_bracket,
+    enter_round_robin_result,
+    reset_round_robin_result,
     add_competitor_to_bracket,
     remove_competitor_from_bracket,
-    start_bracket,
     randomize_competitors,
 };

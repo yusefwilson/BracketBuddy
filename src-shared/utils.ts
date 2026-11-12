@@ -1,5 +1,33 @@
-import { BracketDTO } from './BracketDTO';
+import { DoubleEliminationBracketDTO } from './DoubleEliminationBracketDTO';
 import { MatchDTO } from './MatchDTO';
+import { RoundRobinBracketDTO } from './RoundRobinBracketDTO';
+import type { ApiResponse } from './types';
+import type { CompetitorDTO } from './CompetitorDTO';
+
+/* API RESPONSE HELPERS */
+export function successResponse<T>(data: T): ApiResponse<T> {
+    return {
+        success: true,
+        data
+    };
+}
+
+export function errorResponse(message: string, code?: string, field?: string): ApiResponse<never> {
+    return {
+        success: false,
+        error: {
+            message,
+            code,
+            field
+        }
+    };
+}
+
+/* COMPETITORS */
+// CompetitorDTO has no name() method like the Competitor class does, so build the display name here
+export function competitorFullName(competitor: Pick<CompetitorDTO, 'firstName' | 'lastName'>): string {
+    return (competitor.firstName + ' ' + competitor.lastName).trim();
+}
 
 /* MATH */
 function greatestPowerOf2LessThanOrEqualTo(n: number): number {
@@ -13,14 +41,16 @@ function greatestPowerOf2LessThanOrEqualTo(n: number): number {
 function isPowerOfTwo(n: number) { return n > 0 && (n & (n - 1)) === 0; };
 
 /* POSITIONAL LOGIC */
-const HORIZONTAL_GAP = 225;
-const INITIAL_VERTICAL_GAP = 100;
-const EXTRA_VERTICAL_OFFSET = 25;
+const HORIZONTAL_GAP = 250;
+const INITIAL_VERTICAL_GAP = 200;
+const EXTRA_VERTICAL_OFFSET = 50;
 
 const WINNER_HORIZONTAL_OFFSET = 12;
-const WINNER_VERTICAL_OFFSET = 12;
+const WINNER_VERTICAL_OFFSET = 60;
 const LOSER_HORIZONTAL_OFFSET = 12;
-const LOSER_VERTICAL_OFFSET = 12;
+const LOSER_VERTICAL_OFFSET = 40;
+
+const MATCH_HEIGHT = 100; // is there a more robust way to derive this?
 
 type MatchAndPosition = { match: MatchDTO, x: number, y: number };
 
@@ -44,7 +74,7 @@ const calculateMatchPositionFromSingleParent = (roundIndex: number, staggered: b
     return [x, y];
 }
 
-const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner' | 'loser', horizontal_offset: number, vertical_offset: number): MatchAndPosition[][] => {
+const calculateInitialRoundsMatchPositions = (bracket: DoubleEliminationBracketDTO, side: 'winner' | 'loser', horizontal_offset: number, vertical_offset: number): MatchAndPosition[][] => {
     const matches = [];
     let numberOfCompetitors, subBracket;
 
@@ -60,19 +90,51 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
         return [];
     }
 
-    numberOfCompetitors = side === 'winner' ? (bracket?.competitorNames.length || 0) : ((bracket?.winnersBracket[0].length || 0) + (bracket?.winnersBracket[1].length || 0));
-
+    numberOfCompetitors = side === 'winner' ? (bracket?.competitors.length || 0) : ((bracket?.winnersBracket[0].length || 0) + (bracket?.winnersBracket[1].length || 0));
 
     // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
     if (!isPowerOfTwo(numberOfCompetitors)) {
-        matches.push(subBracket[0].map((match, index) => {
-            let [x, y] = calculateMatchPosition(0, index, true, horizontal_offset, vertical_offset);
+
+        const secondRoundMatchAndPositions = subBracket[1].map((match, index) => {
+            let [x, y] = calculateMatchPosition(1, index, true, horizontal_offset, vertical_offset);
             return { match, x, y };
-        }));
-        matches.push(subBracket[1].map((match, index) => {
-            let [x, y] = calculateMatchPosition(1, index, false, horizontal_offset, vertical_offset);
-            return { match, x, y };
-        }));
+        });
+
+        const firstRoundMatchAndPositions = [];
+        const seenChildMatches = new Set();
+
+        // for each match in the first round, find the corresponding child (there should only be one)
+        for (let match of subBracket[0]) {
+            // we are only interested in the winChild here, because the lossChild is non-existent or in a different bracket
+            const childMatch = findWinChildMatch(subBracket[1], match);
+
+            if (!childMatch) {
+                console.warn(`No child match found for match ${match.match} in bracket ${bracket}`);
+                continue;
+            }
+
+            // find index of child match in second round (used to calculate height of parent match)
+            const childMatchIndex = subBracket[1].findIndex(m => m.id === childMatch.id);
+
+            let x, y;
+
+            if (childMatch && seenChildMatches.has(childMatch.id)) {
+                // if we've seen this child match before, render it below the previously rendered parent
+                [x, y] = calculateMatchPosition(0, childMatchIndex, false, horizontal_offset, vertical_offset +  MATCH_HEIGHT);
+            }
+
+            else {
+                // render that child below the parent match
+                [x, y] = calculateMatchPosition(0, childMatchIndex, false, horizontal_offset, vertical_offset);
+                seenChildMatches.add(childMatch.id);
+            }
+
+
+            firstRoundMatchAndPositions.push({ match, x, y });
+        }
+
+        matches.push(firstRoundMatchAndPositions);
+        matches.push(secondRoundMatchAndPositions);
     }
     else {
         matches.push(subBracket[0].map((match, index) => {
@@ -80,23 +142,24 @@ const calculateInitialRoundsMatchPositions = (bracket: BracketDTO, side: 'winner
             return { match, x, y };
         }));
     }
-
     return matches;
 }
 
 const calculateMatchPositionsFromParentAverages = (previousRoundMatches: MatchAndPosition[], matches: MatchDTO[], roundIndex: number) => {
     return matches.map((match, index) => {
 
+        const parentMatches = findParentMatches(previousRoundMatches, match);
+
         // edge case when there is one parent
-        if (previousRoundMatches.length === 1) {
-            const parentMatch = previousRoundMatches[0];
+        if (parentMatches.length === 1) {
+            const parentMatch = parentMatches[0];
             const [x, y] = calculateMatchPositionFromParents(roundIndex, parentMatch.y, parentMatch.y, WINNER_HORIZONTAL_OFFSET);
             return { match, x, y };
         }
 
         // find parent matches using winnerMatches last round
-        const parentMatch0 = previousRoundMatches[index * 2];
-        const parentMatch1 = previousRoundMatches[index * 2 + 1];
+        const parentMatch0 = parentMatches[0];
+        const parentMatch1 = parentMatches[1];
 
         if (!parentMatch0 || !parentMatch1) {
             console.warn(`Parent matches not found for round index ${roundIndex} and match index ${index}`);
@@ -110,29 +173,72 @@ const calculateMatchPositionsFromParentAverages = (previousRoundMatches: MatchAn
 
 const calculateMatchPositionsFromParentStaggered = (previousRoundMatches: MatchAndPosition[], matches: MatchDTO[], roundIndex: number) => {
     return matches.map((match, index) => {
-        const correspondingMatch = previousRoundMatches[index];
-        if (!correspondingMatch) {
-            console.warn(`Corresponding match not found for round index ${roundIndex} and match index ${index} in previous round array ${previousRoundMatches}`);
+        const parentMatches = findParentMatches(previousRoundMatches, match);
+
+        if (parentMatches.length === 0) {
+            console.warn(`Parent matches not found for round index ${roundIndex} and match index ${index}`);
             return { match, x: 0, y: 0 }; // fallback
         }
+
+        if (parentMatches.length > 1) {
+            console.warn(`Multiple parent matches found for round index ${roundIndex} and match index ${index}`);
+            return { match, x: 0, y: 0 }; // fallback
+        }
+
+        const correspondingMatch = parentMatches[0];
 
         const [x, y] = calculateMatchPositionFromSingleParent(roundIndex, previousRoundMatches.length !== 1, correspondingMatch.y, LOSER_HORIZONTAL_OFFSET);
         return { match, x, y };
     });
 }
 
-const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: MatchAndPosition[], loserMatches: MatchAndPosition[], final: MatchAndPosition, finalRematch: MatchAndPosition, WINNERS_BOTTOM: number, LAST_WINNER_Y: number, WINNERS_RIGHTMOST: number } => {
+const findWinChildMatch = (potentialWinChildMatches: MatchDTO[], match: MatchDTO): MatchDTO | undefined => {
+    if (!potentialWinChildMatches || potentialWinChildMatches.length === 0) {
+        console.warn(`No potential win child matches found for match ${match} because potentialWinChildMatches is empty`);
+        return undefined;
+    }
+    const filtered = potentialWinChildMatches.filter(winChildMatch => {
+        return winChildMatch.round === match.win?.round && winChildMatch.match === match.win?.match;
+    });
+
+    if (filtered.length === 0) {
+        console.warn(`No win child match found for match ${match} because filtered is empty`);
+        return undefined;
+    }
+
+    if (filtered.length > 1) {
+        console.warn(`Multiple win child matches found for match ${match} because filtered is not empty`);
+        return undefined;
+    }
+
+    return filtered[0];
+}
+
+const findParentMatches = (potentialParentMatches: MatchAndPosition[], match: MatchDTO): MatchAndPosition[] => {
+
+    if (!potentialParentMatches || potentialParentMatches.length === 0) {
+        console.warn(`No potential parent matches found for match ${match} because potentialParentMatches is empty`);
+        return [];
+    }
+
+    return potentialParentMatches.filter(parentMatch => {
+        return parentMatch.match.win?.round === match.round && parentMatch.match.win?.match === match.match
+            || parentMatch.match.loss?.round === match.round && parentMatch.match.loss?.match === match.match;
+    });
+}
+
+const calculateDoubleEliminationMatchPositions = (bracket: DoubleEliminationBracketDTO): { winnerMatches: MatchAndPosition[], loserMatches: MatchAndPosition[], final: MatchAndPosition, finalRematch: MatchAndPosition, WINNERS_BOTTOM: number, LAST_WINNER_Y: number, WINNERS_RIGHTMOST: number } => {
 
     let winnerMatches: MatchAndPosition[] = [], loserMatches: MatchAndPosition[] = [], WINNERS_BOTTOM = 0, LAST_WINNER_Y = 0, WINNERS_RIGHTMOST = 0;
 
-    if (bracket.competitorNames && bracket.competitorNames.length >= 2) {
+    if (bracket.competitors && bracket.competitors.length >= 2) {
         // {match, x, y}[][]
-        const winnerRounds = calculateInitialRoundsMatchPositions(bracket as BracketDTO, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
+        const winnerRounds = calculateInitialRoundsMatchPositions(bracket, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
         const initialWinnerMatches = winnerRounds.slice();
 
         // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
         for (
-            let roundIndex = isPowerOfTwo(bracket.competitorNames.length) ? 1 : 2;
+            let roundIndex = isPowerOfTwo(bracket.competitors.length) ? 1 : 2;
             roundIndex < (bracket.winnersBracket.length || 0);
             roundIndex++
         ) {
@@ -158,7 +264,7 @@ const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: Match
         // **** RENDER LOSERS BRACKET ****
         // {match, x, y}[][]
         const loserRounds = calculateInitialRoundsMatchPositions(
-            bracket as BracketDTO,
+            bracket as DoubleEliminationBracketDTO,
             'loser',
             LOSER_HORIZONTAL_OFFSET,
             WINNERS_BOTTOM + LOSER_VERTICAL_OFFSET
@@ -167,7 +273,7 @@ const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: Match
 
         // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
         let halving: boolean;
-        if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(bracket.competitorNames.length)) {
+        if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(bracket.competitors.length)) {
             halving = true;
         } else {
             halving = false;
@@ -204,6 +310,30 @@ const calculateAllMatchPositions = (bracket: BracketDTO): { winnerMatches: Match
     return { winnerMatches, loserMatches, final, finalRematch, WINNERS_BOTTOM, LAST_WINNER_Y, WINNERS_RIGHTMOST };
 }
 
+// Round robin layout: each round is a column, matches stack vertically within it.
+// Cards are wider than double-elim (player rows + score input + save button), so the
+// columns need a larger horizontal gap than the shared HORIZONTAL_GAP.
+const ROUND_ROBIN_HORIZONTAL_GAP = 320;
+const ROUND_ROBIN_HORIZONTAL_OFFSET = 12;
+const ROUND_ROBIN_VERTICAL_OFFSET = 60;
+
+const calculateRoundRobinPositions = (bracket: RoundRobinBracketDTO): { matches: MatchAndPosition[], roundLabels: { x: number, label: string }[] } => {
+    const matches: MatchAndPosition[] = [];
+    const roundLabels: { x: number, label: string }[] = [];
+
+    bracket.rounds.forEach((round, roundIndex) => {
+        const x = roundIndex * ROUND_ROBIN_HORIZONTAL_GAP + ROUND_ROBIN_HORIZONTAL_OFFSET;
+        roundLabels.push({ x, label: `Round ${roundIndex + 1}` });
+
+        round.forEach((match, matchIndex) => {
+            const y = matchIndex * INITIAL_VERTICAL_GAP + ROUND_ROBIN_VERTICAL_OFFSET;
+            matches.push({ match, x, y });
+        });
+    });
+
+    return { matches, roundLabels };
+}
+
 const dateToLocalTimezoneString = (date: Date): string => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -213,7 +343,8 @@ const dateToLocalTimezoneString = (date: Date): string => {
 
 export {
     greatestPowerOf2LessThanOrEqualTo, isPowerOfTwo,
-    calculateAllMatchPositions,
+    calculateDoubleEliminationMatchPositions,
+    calculateRoundRobinPositions,
     WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET, LOSER_HORIZONTAL_OFFSET, LOSER_VERTICAL_OFFSET, HORIZONTAL_GAP,
     INITIAL_VERTICAL_GAP, EXTRA_VERTICAL_OFFSET,
     dateToLocalTimezoneString

@@ -15,6 +15,6 @@ export default function WinnerCheckbox({ toggleWinner, checked }: WinnerCheckbox
   };
 
   return (
-    <input className='bg-green-400 p-4 rounded-md' type='checkbox' onChange={handleChange} checked={checked} onClick={handleClick} />
+    <input className='bg-green-400 p-4 rounded-md' type='checkbox' onChange={handleChange} checked={checked} onClick={handleClick} title="Mark as winner" />
   )
 }

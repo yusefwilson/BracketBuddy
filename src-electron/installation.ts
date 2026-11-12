@@ -20,20 +20,68 @@ function log(msg: string) {
     fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${msg}\n`);
 }
 
-function run(args: any, done: any) {
-    var updateExe = path.resolve(path.dirname(process.execPath), '..', 'Update.exe');
-    spawn(updateExe, args, {
-        detached: true
-    }).on('close', done);
+function run(args: any): Promise<void> {
+    return new Promise((resolve) => {
+        var updateExe = path.resolve(path.dirname(process.execPath), '..', 'Update.exe');
+        spawn(updateExe, args, {
+            detached: true
+        }).on('close', () => resolve());
+    });
 };
 
-export const check = () => {
+function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export const check = async (): Promise<boolean> => {
     log('App starting...');
     log('Process argv: ' + process.argv.join(' '));
-    if (cmd === '--squirrel-install' || cmd === '--squirrel-updated' || cmd === '--squirrel-firstrun') {
-        log('Creating shortcut...');
-        run(['--createShortcut=' + target + ''], () => {
-            log('Shortcut created, app continues running');
-        });
+    log('Platform: ' + process.platform);
+
+    // Squirrel is Windows-only - skip checks on other platforms
+    if (process.platform !== 'win32') {
+        log('Non-Windows platform detected, skipping Squirrel checks');
+        return true;
     }
+
+    // Handle uninstall - prevent app from launching
+    if (cmd === '--squirrel-uninstall') {
+        log('Uninstalling - removing shortcuts and exiting...');
+        await run(['--removeShortcut=' + target + '']);
+        log('Shortcuts removed');
+        return false;
+    }
+
+    // Handle install - create shortcuts (shows installer gif) and exit without launching app
+    if (cmd === '--squirrel-install') {
+        log('Install event - creating shortcuts...');
+        await run(['--createShortcut=' + target + '']);
+        log('Shortcuts created, waiting 5 seconds...');
+        await sleep(5000);
+        log('Wait complete, exiting without launching app...');
+        return false;
+    }
+
+    // Handle update - create shortcuts (shows installer gif) and exit without launching app
+    if (cmd === '--squirrel-updated') {
+        log('Update event - creating shortcuts...');
+        await run(['--createShortcut=' + target + '']);
+        log('Shortcuts created, waiting 5 seconds...');
+        await sleep(5000);
+        log('Wait complete, exiting without launching app...');
+        return false;
+    }
+
+    // Handle obsolete (being replaced by newer version) - prevent app from launching
+    if (cmd === '--squirrel-obsolete') {
+        log('App obsolete - exiting...');
+        return false;
+    }
+
+    // Handle first run - launch app (shortcuts already created during install)
+    if (cmd === '--squirrel-firstrun') {
+        log('First run - launching app...');
+    }
+
+    return true;
 }

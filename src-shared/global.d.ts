@@ -1,40 +1,72 @@
-export {};
+export { };
 
-import { BracketDTO } from './BracketDTO';
+import { BracketDTO } from './DoubleEliminationBracketDTO';
 import { TournamentDTO } from './TournamentDTO';
 import type {
   CreateTournamentInput,
   DeleteTournamentInput,
   AddBracketsToTournamentInput,
   RemoveBracketFromTournamentInput,
+  UpdateCompetitorInput,
+  DeleteCompetitorInput,
   UpdateBracketInput,
   AddCompetitorToBracketInput,
   RemoveCompetitorFromBracketInput,
-  StartBracketInput,
   RandomizeCompetitorsInput,
+  EnterRoundRobinResultInput,
+  ResetRoundRobinMatchInput,
   SaveKeyValueInput,
+  ExportToAERSInput,
+  ExportTournamentInput,
+  ExportToPDFInput,
+  ApiResponse
 } from './types';
 
 declare global {
   interface Window {
     electron: {
       // tournament
-      loadAllTournaments: () => Promise<TournamentDTO[]>;
-      createTournament: (input: CreateTournamentInput) => Promise<TournamentDTO>;
-      deleteTournament: (input: DeleteTournamentInput) => Promise<void>;
-      addBracketToTournament: (input: AddBracketsToTournamentInput) => Promise<TournamentDTO>;
-      removeBracketFromTournament: (input: RemoveBracketFromTournamentInput) => Promise<TournamentDTO>;
+      loadAllTournaments: () => Promise<ApiResponse<TournamentDTO[]>>;
+      createTournament: (input: CreateTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      deleteTournament: (input: DeleteTournamentInput) => Promise<ApiResponse<void>>;
+      addBracketsToTournament: (input: AddBracketsToTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      removeBracketFromTournament: (input: RemoveBracketFromTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      exportTournament: (input: ExportTournamentInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      importTournament: () => Promise<ApiResponse<TournamentDTO | null>>; // null when the user cancels
+      updateCompetitor: (input: UpdateCompetitorInput) => Promise<ApiResponse<TournamentDTO>>;
+      deleteCompetitor: (input: DeleteCompetitorInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // bracket
-      addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<TournamentDTO>;
-      removeCompetitorFromBracket: (input: RemoveCompetitorFromBracketInput) => Promise<TournamentDTO>;
-      startBracket: (input: StartBracketInput) => Promise<TournamentDTO>;
-      enterResult: (input: UpdateBracketInput) => Promise<TournamentDTO>;
-      randomizeCompetitors: (input: RandomizeCompetitorsInput) => Promise<TournamentDTO>;
+      addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<ApiResponse<TournamentDTO>>;
+      removeCompetitorFromBracket: (input: RemoveCompetitorFromBracketInput) => Promise<ApiResponse<TournamentDTO>>;
+      enterResult: (input: UpdateBracketInput) => Promise<ApiResponse<TournamentDTO>>;
+      enterRoundRobinResult: (input: EnterRoundRobinResultInput) => Promise<ApiResponse<TournamentDTO>>;
+      resetRoundRobinMatch: (input: ResetRoundRobinMatchInput) => Promise<ApiResponse<TournamentDTO>>;
+      randomizeCompetitors: (input: RandomizeCompetitorsInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // misc
-      getSaveData: () => Promise<Record<string, any>>;
-      saveKeyValue: (input: SaveKeyValueInput) => Promise<Record<string, any>>;
+      getSavedValue: (key: string) => Promise<ApiResponse<any>>;
+      saveKeyValue: (input: SaveKeyValueInput) => Promise<ApiResponse<Record<string, any>>>;
+      openUrl: (url: string) => Promise<void>;
+      saveCsv: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      saveFile: (filename: string, data: string) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      loadFile: (fileExtension: string) => Promise<ApiResponse<{ canceled: boolean; data?: string; filePath?: string }>>;
+      getZoomLevel: () => Promise<ApiResponse<number>>;
+      setZoomLevel: (zoomPercent: number) => Promise<ApiResponse<void>>;
+
+      // tournament loading
+      loadTournament: (tournamentId: string) => Promise<ApiResponse<TournamentDTO>>;
+
+      // aers
+      exportToAERS: (input: ExportToAERSInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      exportToPDF: (input: ExportToPDFInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+      exportToJPG: (input: ExportToPDFInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
+
+      // window controls
+      windowMinimize: () => Promise<void>;
+      windowMaximize: () => Promise<void>;
+      windowClose: () => Promise<void>;
+      windowIsMaximized: () => Promise<boolean>;
     };
   }
 }
