@@ -52,18 +52,18 @@ export default function BracketInfoCard({ bracket, onClick, onDelete }: BracketI
 
             {/* Right side: Placement information and delete button */}
             <div className="flex items-center gap-4">
-                <div className="flex flex-col gap-1 text-sm text-gray-300 bg-slate-900/30 rounded-lg p-3 border border-slate-600/30">
-                    <div className="flex justify-between gap-4">
-                        <span className="text-yellow-400 font-semibold">🥇 1st:</span>
-                        <span className="text-white text-right">{bracket.firstPlace || "TBD"}</span>
+                <div className="flex flex-col gap-1 text-sm text-gray-300 bg-slate-900/30 rounded-lg p-3 border border-slate-600/30 w-64 flex-shrink-0">
+                    <div className="flex justify-between gap-4 min-w-0">
+                        <span className="text-yellow-400 font-semibold flex-shrink-0">🥇 1st:</span>
+                        <span className="text-white text-right truncate min-w-0" title={bracket.firstPlace}>{bracket.firstPlace || "TBD"}</span>
                     </div>
-                    <div className="flex justify-between gap-4">
-                        <span className="text-gray-400 font-semibold">🥈 2nd:</span>
-                        <span className="text-white text-right">{bracket.secondPlace || "TBD"}</span>
+                    <div className="flex justify-between gap-4 min-w-0">
+                        <span className="text-gray-400 font-semibold flex-shrink-0">🥈 2nd:</span>
+                        <span className="text-white text-right truncate min-w-0" title={bracket.secondPlace}>{bracket.secondPlace || "TBD"}</span>
                     </div>
-                    <div className="flex justify-between gap-4">
-                        <span className="text-orange-400 font-semibold">🥉 3rd:</span>
-                        <span className="text-white text-right">{bracket.thirdPlace || "TBD"}</span>
+                    <div className="flex justify-between gap-4 min-w-0">
+                        <span className="text-orange-400 font-semibold flex-shrink-0">🥉 3rd:</span>
+                        <span className="text-white text-right truncate min-w-0" title={bracket.thirdPlace}>{bracket.thirdPlace || "TBD"}</span>
                     </div>
                 </div>
 
