@@ -49,6 +49,8 @@ export default function CompetitorList() {
             name: string;
             bracketCount: number;
             brackets: Array<{ id: string; name: string }>;
+            officialWeight: number | null;
+            paid: boolean;
         }>();
 
         tournament.competitors.forEach((competitor) => {
@@ -57,7 +59,9 @@ export default function CompetitorList() {
                 id: competitor.id,
                 name: competitorFullName(competitor),
                 bracketCount: 0,
-                brackets: []
+                brackets: [],
+                officialWeight: competitor.officialWeight ?? null,
+                paid: competitor.paid ?? false
             });
         });
 
@@ -101,6 +105,28 @@ export default function CompetitorList() {
             });
         });
     }, [allCompetitors, searchTerm]);
+
+    // Save a change to a competitor's paid status or official weight (null weight = unknown)
+    const handleUpdateCompetitor = async (competitorId: string, updates: { paid?: boolean; officialWeight?: number | null }) => {
+        if (!tournament) return;
+
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.updateCompetitor({
+                tournamentId: tournament.id,
+                competitorId,
+                updates
+            })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
+    };
 
     // Handle removing a competitor from every bracket and from the tournament
     const handleRemoveCompetitor = async (competitorId: string) => {
@@ -211,6 +237,10 @@ export default function CompetitorList() {
                                     name={competitor.name}
                                     bracketCount={competitor.bracketCount}
                                     brackets={competitor.brackets}
+                                    officialWeight={competitor.officialWeight}
+                                    paid={competitor.paid}
+                                    onPaidChange={(paid) => handleUpdateCompetitor(competitor.id, { paid })}
+                                    onWeightChange={(officialWeight) => handleUpdateCompetitor(competitor.id, { officialWeight })}
                                     onClick={() => setSelectedCompetitor(competitor.id)}
                                     onRemove={() => setCompetitorToRemove({ id: competitor.id, name: competitor.name, brackets: competitor.brackets })}
                                 />

@@ -47,6 +47,7 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Api
 
         const deserializedTournaments = [];
         for (const tournamentData of tournaments) {
+            console.log('about to deserialize tournament')
             const tournament = Tournament.deserialize(tournamentData);
             deserializedTournaments.push(tournament.toDTO());
         }
@@ -141,11 +142,21 @@ const update_competitor = async (_: Electron.IpcMainInvokeEvent, input: UpdateCo
         if (!firstName && !lastName) {
             return errorResponse('Competitor name cannot be empty.');
         }
+        // only enforced when the name is being edited: competitors migrated from old data may have no last name,
+        // and changing their paid status or weight must still work
+        if ((updates.firstName !== undefined || updates.lastName !== undefined) && (!firstName || !lastName)) {
+            return errorResponse('Competitors must have a first and last name.');
+        }
 
         // names identify competitors when they are added to brackets, so they must stay unique
         const sameName = tournament.findCompetitorByName(`${firstName} ${lastName}`);
         if (sameName && sameName.id !== competitor.id) {
             return errorResponse(`A competitor named "${sameName.name()}" already exists in this tournament.`);
+        }
+
+        const weight = updates.officialWeight;
+        if (typeof weight === 'number' && (!Number.isFinite(weight) || weight < 0)) {
+            return errorResponse('Official weight must be a positive number.');
         }
 
         competitor.firstName = firstName;

@@ -7,6 +7,7 @@ import { RoundRobinBracketDTO } from '../../../src-shared/RoundRobinBracketDTO';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+import { useUnpaidStartGuard } from '../hooks/useUnpaidStartGuard';
 
 import { CURRENT_STATE } from '../components/App';
 import CompetitorInput from '../components/CompetitorInput';
@@ -28,7 +29,14 @@ export default function RoundRobinBracketView({ bracket }: { bracket: RoundRobin
     onConfirm: () => { }
   });
 
+  const { guardStart, UnpaidWarningModal } = useUnpaidStartGuard(bracket);
+
+  // entering the first result starts the bracket, so warn first if anyone has not paid
   const updateMatchScore = async (matchId: string, player1Score: number, player2Score: number): Promise<void> => {
+    guardStart(() => { void submitMatchScore(matchId, player1Score, player2Score); });
+  };
+
+  const submitMatchScore = async (matchId: string, player1Score: number, player2Score: number): Promise<void> => {
     const [newTournament, error] = await safeApiCall(
       window.electron.enterRoundRobinResult({
         tournamentId: bracket.tournamentId,
@@ -73,6 +81,7 @@ export default function RoundRobinBracketView({ bracket }: { bracket: RoundRobin
   return (
     <>
       <ErrorToastContainer />
+      <UnpaidWarningModal />
       <BracketResetWarningModal
         isOpen={warningModal.isOpen}
         onClose={() => setWarningModal({ ...warningModal, isOpen: false })}

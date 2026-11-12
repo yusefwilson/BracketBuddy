@@ -5,6 +5,7 @@ import { calculateDoubleEliminationMatchPositions } from '../../../src-shared/ut
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+import { useUnpaidStartGuard } from '../hooks/useUnpaidStartGuard';
 import { isDoubleEliminationBracketStarted } from '../../../src-shared/bracketHelpers';
 
 import { CURRENT_STATE } from '../components/App';
@@ -39,7 +40,14 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
     }
   }, [finalRematchJustSpawned]);
 
+  const { guardStart, UnpaidWarningModal } = useUnpaidStartGuard(bracket);
+
+  // entering the first result starts the bracket, so warn first if anyone has not paid
   const updateMatch = async (matchId: string, status: MatchStatus): Promise<void> => {
+    guardStart(() => { void submitMatchResult(matchId, status); });
+  };
+
+  const submitMatchResult = async (matchId: string, status: MatchStatus): Promise<void> => {
     const [newTournament, error] = await safeApiCall(
       window.electron.enterResult({
         tournamentId: bracket.tournamentId,
@@ -78,6 +86,7 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
   return (
     <>
       <ErrorToastContainer />
+      <UnpaidWarningModal />
       <BracketResetWarningModal
         isOpen={warningModal.isOpen}
         onClose={() => setWarningModal({ ...warningModal, isOpen: false })}

@@ -91,8 +91,8 @@ const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, input: 
             // a competitor that is already in the tournament
             competitor = tournament.getCompetitor(competitorId);
         } else if (newCompetitor) {
-            if (!newCompetitor.firstName.trim() && !newCompetitor.lastName.trim()) {
-                return errorResponse('Competitor name cannot be empty.');
+            if (!newCompetitor.firstName.trim() || !newCompetitor.lastName.trim()) {
+                return errorResponse('Competitors must have a first and last name.');
             }
             // a name identifies a person within a tournament, so reuse the competitor if the name is taken
             competitor = tournament.findCompetitorByName(`${newCompetitor.firstName} ${newCompetitor.lastName}`)
