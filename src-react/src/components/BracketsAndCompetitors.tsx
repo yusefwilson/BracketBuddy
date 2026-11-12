@@ -27,7 +27,7 @@ export default function BracketsAndCompetitors() {
 
     const handleAddCompetitor = async (bracketId: string, competitor: CompetitorDTO) => {
         const [updatedTournament, error] = await safeApiCall(
-            window.electron.addCompetitorToBracket({ tournamentId: tournament.id, bracketId, competitor })
+            window.electron.addCompetitorToBracket({ tournamentId: tournament.id, bracketId, ...(competitor.id ? { competitorId: competitor.id } : { competitor }) })
         );
 
         if (error) {

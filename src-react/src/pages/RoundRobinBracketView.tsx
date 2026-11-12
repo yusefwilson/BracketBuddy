@@ -130,7 +130,8 @@ export default function RoundRobinBracketView({ bracket }: { bracket: RoundRobin
                     window.electron.addCompetitorToBracket({
                       tournamentId: bracket.tournamentId,
                       bracketId: bracket.id,
-                      competitor
+                      // an id means attach an existing competitor, no id means register a new one
+                      ...(competitor.id ? { competitorId: competitor.id } : { competitor })
                     })
                   );
 

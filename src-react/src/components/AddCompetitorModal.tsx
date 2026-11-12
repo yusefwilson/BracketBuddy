@@ -23,6 +23,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     const [lastName, setLastName] = useState('');
     const [gender, setGender] = useState<Gender>('Male');
     const [paid, setPaid] = useState(false);
+    const [weightText, setWeightText] = useState(''); // empty means the official weight is unknown
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
     const [showSuccessFeedback, setShowSuccessFeedback] = useState(false);
     const { search: bracketSearch, setSearch: setBracketSearch, sorted: filteredBrackets, sortFieldItems, handleSortDragEnd } =
@@ -32,6 +33,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
         setFirstName('');
         setLastName('');
         setPaid(false);
+        setWeightText('');
         setSelectedBrackets(new Set());
     };
 
@@ -73,6 +75,14 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
             return;
         }
 
+        // official weight is optional: blank is saved as unknown
+        const trimmedWeight = weightText.trim();
+        const officialWeight = trimmedWeight === '' ? null : Number(trimmedWeight);
+        if (officialWeight !== null && (!Number.isFinite(officialWeight) || officialWeight < 0)) {
+            showError('Official weight must be a positive number');
+            return;
+        }
+
         if (selectedBrackets.size === 0) {
             showError('Please select at least one class');
             return;
@@ -88,7 +98,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                     window.electron.addCompetitorToBracket({
                         tournamentId: tournament.id,
                         bracketId: bracketId,
-                        competitor: { firstName: firstName.trim(), lastName: lastName.trim(), gender, paid }
+                        competitor: { firstName: firstName.trim(), lastName: lastName.trim(), gender, paid, officialWeight }
                     })
                 );
 
@@ -156,6 +166,15 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
                                 className='flex-1 min-w-0 bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
+                            />
+                            <input
+                                type='text'
+                                inputMode='decimal'
+                                placeholder='Weight (lbs)'
+                                value={weightText}
+                                onChange={(e) => setWeightText(e.target.value)}
+                                className='w-32 min-w-0 bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
+                                title='Official weight (leave blank if unknown)'
                             />
                             {/* appearance-none removes the native arrow, which sits far from the text. the chevron is drawn just inside the box instead. */}
                             <div className='relative'>
