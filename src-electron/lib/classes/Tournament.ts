@@ -85,8 +85,8 @@ class Tournament {
     }
 
     static deserialize(serialized: string): Tournament {
-        console.log('about to deserialize tournament data');
-        const tournament = deserialize(serialized, { Tournament, Match, DoubleEliminationBracket, RoundRobinBracket, Competitor }) as Tournament;
+        // Bracket is mapped to DoubleElimination since old save files before the bracket split used __class: 'Bracket' for what is now a DoubleEliminationBracket
+        const tournament = deserialize(serialized, { Tournament, Match, Bracket: DoubleEliminationBracket, DoubleEliminationBracket, RoundRobinBracket, Competitor }) as Tournament;
         // Rewire bracket references
         tournament.brackets.forEach(bracket => {
             bracket.tournament = tournament;
@@ -119,7 +119,6 @@ class Tournament {
         };
 
         for (const bracket of this.brackets) {
-
             const legacyBracket = bracket as any;
             if (Array.isArray(legacyBracket.competitorNames)) {
                 bracket.competitors = legacyBracket.competitorNames.map((name: string) => getOrCreate(name, bracket.gender));
