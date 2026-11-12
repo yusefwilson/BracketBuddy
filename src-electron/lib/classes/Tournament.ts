@@ -92,6 +92,7 @@ class Tournament {
             bracket.tournament = tournament;
         });
 
+        // even though we assert 'as Tournament' above, it still might get deserialized and rehydrated as a legacy tournament. So, we have to migrate it no matter what.
         tournament.migrateLegacyData();
         tournament.syncCompetitorRegistry();
 
