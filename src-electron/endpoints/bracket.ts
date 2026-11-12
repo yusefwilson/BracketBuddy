@@ -81,12 +81,28 @@ const reset_round_robin_result = async (_: Electron.IpcMainInvokeEvent, input: R
 // add a competitor to a bracket
 const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, input: AddCompetitorToBracketInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketId, competitor } = input;
+        const { tournamentId, bracketId, competitorId, competitor: newCompetitor } = input;
 
         const tournament = await load_tournament(_, tournamentId);
         const bracket = tournament.getBracket(bracketId);
 
-        bracket.addCompetitor(Competitor.fromDTO(competitor));
+        let competitor: Competitor;
+        if (competitorId) {
+            // a competitor that is already in the tournament
+            competitor = tournament.getCompetitor(competitorId);
+        } else if (newCompetitor) {
+            if (!newCompetitor.firstName.trim() && !newCompetitor.lastName.trim()) {
+                return errorResponse('Competitor name cannot be empty.');
+            }
+            // a name identifies a person within a tournament, so reuse the competitor if the name is taken
+            competitor = tournament.findCompetitorByName(`${newCompetitor.firstName} ${newCompetitor.lastName}`)
+                ?? Competitor.fromDTO({ ...newCompetitor, firstName: newCompetitor.firstName.trim(), lastName: newCompetitor.lastName.trim() });
+        } else {
+            return errorResponse('Provide either an existing competitor id or the details of a new competitor.');
+        }
+
+        tournament.registerCompetitor(competitor);
+        bracket.addCompetitor(competitor);
         await save_tournament(_, tournament);
 
         return successResponse(tournament.toDTO());

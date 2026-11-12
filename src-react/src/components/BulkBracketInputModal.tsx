@@ -2,7 +2,7 @@ import { useState, useContext, useEffect, useMemo } from 'react';
 import { HiCheck as CheckIcon } from 'react-icons/hi2';
 
 import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../../src-shared/types';
-import { DEFAULT_WEIGHTS } from '../../../src-shared/registrationParser';
+import { DEFAULT_WEIGHTS } from '../../../src-shared/constants';
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
@@ -163,7 +163,7 @@ export default function BulkBracketInputModal({ setBulkBracketModalOpen }: BulkB
         const [data, error] = await safeApiCall(
             window.electron.addBracketsToTournament({
                 tournamentId: tournament.id,
-                brackets: resultingBrackets.map(b => ({ ...b, type: selectedType, competitorNames: [] }))
+                brackets: resultingBrackets.map(b => ({ ...b, type: selectedType }))
             })
         );
 

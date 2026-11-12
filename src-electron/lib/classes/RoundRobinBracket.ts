@@ -60,9 +60,10 @@ class RoundRobinBracket extends Bracket {
     // standings ranked by total points scored across all decided matches
     getStandings(): RoundRobinStanding[] {
 
-        const standingsByName = new Map<string, RoundRobinStanding>();
+        // keyed by competitor id (not name) so two competitors with the same name stay separate
+        const standingsById = new Map<string, RoundRobinStanding>();
         for (const competitor of this.competitors) {
-            standingsByName.set(competitor.name(), { name: competitor.name(), points: 0, wins: 0, losses: 0 });
+            standingsById.set(competitor.id, { competitorId: competitor.id, name: competitor.name(), points: 0, wins: 0, losses: 0 });
         }
 
         for (const match of this.getMatches()) {
@@ -72,8 +73,8 @@ class RoundRobinBracket extends Bracket {
                 continue;
             }
 
-            const player1Standing = standingsByName.get(match.competitor1.name());
-            const player2Standing = standingsByName.get(match.competitor2.name());
+            const player1Standing = standingsById.get(match.competitor1.id);
+            const player2Standing = standingsById.get(match.competitor2.id);
 
             if (player1Standing) {
                 player1Standing.points += match.competitor1Score ?? 0;
@@ -91,24 +92,24 @@ class RoundRobinBracket extends Bracket {
             }
         }
 
-        return [...standingsByName.values()].sort((a, b) => b.points - a.points);
+        return [...standingsById.values()].sort((a, b) => b.points - a.points);
     }
 
-    getFirstPlace(): string | undefined {
+    getFirstPlaceName(): string | undefined {
         if (!this.hasAnyResult()) {
             return undefined;
         }
         return this.getStandings()[0]?.name;
     }
 
-    getSecondPlace(): string | undefined {
+    getSecondPlaceName(): string | undefined {
         if (!this.hasAnyResult()) {
             return undefined;
         }
         return this.getStandings()[1]?.name;
     }
 
-    getThirdPlace(): string | undefined {
+    getThirdPlaceName(): string | undefined {
         if (!this.hasAnyResult() || this.competitors.length < 3) {
             return undefined;
         }
@@ -132,9 +133,9 @@ class RoundRobinBracket extends Bracket {
             rounds: this.rounds.map(round => round.map(match => match.toDTO())),
             standings: this.getStandings(),
             currentMatchNumber: this.getLowestUnfilledMatchNumber(),
-            firstPlace: this.getFirstPlace(),
-            secondPlace: this.getSecondPlace(),
-            thirdPlace: this.getThirdPlace(),
+            firstPlace: this.getFirstPlaceName(),
+            secondPlace: this.getSecondPlaceName(),
+            thirdPlace: this.getThirdPlaceName(),
         };
     }
 }

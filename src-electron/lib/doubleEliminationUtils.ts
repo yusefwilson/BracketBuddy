@@ -12,7 +12,7 @@ import Competitor from './classes/Competitor.js';
 
 function prepareMatches(competitors: Competitor[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } {
 
-    console.log('in prepareMatches with competitorNames: ', competitors);
+    console.log('in prepareMatches with competitors: ', competitors.map(c => c.name()));
 
     if (competitors.length < 2) {
         throw new Error('Bracket must have at least 2 cometitors');

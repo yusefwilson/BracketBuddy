@@ -27,7 +27,7 @@ export default function BracketCheckboxList({
         <div className='grid grid-cols-1 gap-3'>
             {brackets.map((bracket) => {
                 const isSelected = selectedBracketIds.has(bracket.id);
-                const competitorCount = bracket.competitorNames.length;
+                const competitorCount = bracket.competitors.length;
 
                 return (
                     <button

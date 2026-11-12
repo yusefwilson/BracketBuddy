@@ -6,8 +6,8 @@ interface Props {
 }
 
 export default function TournamentReport({ tournament }: Props) {
-  const totalEntries = tournament.brackets.reduce((sum, b) => sum + b.competitorNames.length, 0);
-  const uniqueCompetitors = new Set(tournament.brackets.flatMap(b => b.competitorNames)).size;
+  const totalEntries = tournament.brackets.reduce((sum, b) => sum + b.competitors.length, 0);
+  const uniqueCompetitors = new Set(tournament.brackets.flatMap(b => b.competitors.map(c => c.id))).size;
   const date = new Date(tournament.date).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   });
@@ -50,7 +50,7 @@ export default function TournamentReport({ tournament }: Props) {
               {title}
             </div>
             <div style={{ fontSize: '13px', color: '#555', marginBottom: '6px' }}>
-              Entries: {bracket.competitorNames.length}
+              Entries: {bracket.competitors.length}
             </div>
             <div style={{ fontSize: '13px', color: '#333', lineHeight: '1.8' }}>
               <div>1st: {bracket.firstPlace ?? '—'}</div>

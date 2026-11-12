@@ -34,8 +34,8 @@ export default function RoundRobinBracketView({ bracket }: { bracket: RoundRobin
         tournamentId: bracket.tournamentId,
         bracketId: bracket.id,
         matchId,
-        player1Score,
-        player2Score
+        competitor1Score: player1Score,
+        competitor2Score: player2Score
       })
     );
 
@@ -113,14 +113,15 @@ export default function RoundRobinBracketView({ bracket }: { bracket: RoundRobin
 
             <div className='flex-1 w-full min-h-0'>
               <CompetitorInput
-                competitors={bracket.competitorNames ?? []}
+                competitors={bracket.competitors ?? []}
+                defaultGender={bracket.gender === 'Female' ? 'Female' : 'Male'}
                 bracketStarted={isRoundRobinBracketStarted(bracket)}
-                addCompetitor={async (name) => {
+                addCompetitor={async (competitor) => {
                   const [newTournament, error] = await safeApiCall(
                     window.electron.addCompetitorToBracket({
                       tournamentId: bracket.tournamentId,
                       bracketId: bracket.id,
-                      competitorName: name
+                      competitor
                     })
                   );
 
@@ -133,12 +134,12 @@ export default function RoundRobinBracketView({ bracket }: { bracket: RoundRobin
                     setTournament(newTournament);
                   }
                 }}
-                removeCompetitor={async (name) => {
+                removeCompetitor={async (competitorId) => {
                   const [newTournament, error] = await safeApiCall(
                     window.electron.removeCompetitorFromBracket({
                       tournamentId: bracket.tournamentId,
                       bracketId: bracket.id,
-                      competitorName: name
+                      competitorId
                     })
                   );
 
@@ -177,7 +178,7 @@ export default function RoundRobinBracketView({ bracket }: { bracket: RoundRobin
 
           {/* Bracket Display */}
           <div className='bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 shadow-xl relative overflow-auto flex-1' ref={containerRef}>
-            {bracket.competitorNames && bracket.competitorNames.length < 2 ? (
+            {bracket.competitors && bracket.competitors.length < 2 ? (
               <div className='text-white text-center font-semibold text-lg py-12'>
                 Not enough competitors yet.
                 <br />
@@ -234,7 +235,7 @@ export default function RoundRobinBracketView({ bracket }: { bracket: RoundRobin
                 </thead>
                 <tbody>
                   {bracket.standings.map((s, index) => (
-                    <tr key={s.name} className='border-t border-slate-700/50'>
+                    <tr key={s.competitorId} className='border-t border-slate-700/50'>
                       <td className='py-1 pr-2'>{index + 1}</td>
                       <td className='py-1 pr-2 truncate max-w-[120px]'>{s.name}</td>
                       <td className='py-1 text-right font-semibold'>{s.points}</td>

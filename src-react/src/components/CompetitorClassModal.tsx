@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 
+import { competitorFullName } from '../../../src-shared/utils';
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
 import { useBracketSearchAndSort } from '../hooks/useBracketSearchAndSort';
@@ -9,14 +10,17 @@ import BracketCheckboxList from './BracketCheckboxList';
 import BracketSortDropdown from './BracketSortDropdown';
 
 interface CompetitorClassModalProps {
-    competitorName: string;
+    competitorId: string;
     onClose: () => void;
 }
 
-export default function CompetitorClassModal({ competitorName, onClose }: CompetitorClassModalProps) {
+export default function CompetitorClassModal({ competitorId, onClose }: CompetitorClassModalProps) {
     const state = useContext(CURRENT_STATE);
     const { tournament, setTournament = () => { } } = state || {};
     const { showError, ErrorToastContainer } = useErrorToast();
+
+    const competitor = tournament?.competitors.find(c => c.id === competitorId);
+    const competitorName = competitor ? competitorFullName(competitor) : '';
 
     const [loading, setLoading] = useState(false);
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
@@ -28,11 +32,11 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
 
         // Find which brackets this competitor is already in
         const bracketsWithCompetitor = tournament.brackets
-            .filter(bracket => bracket.competitorNames.includes(competitorName))
+            .filter(bracket => bracket.competitors.some(c => c.id === competitorId))
             .map(bracket => bracket.id);
 
         setSelectedBrackets(new Set(bracketsWithCompetitor));
-    }, [tournament, competitorName]);
+    }, [tournament, competitorId]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -63,7 +67,7 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
                     window.electron.removeCompetitorFromBracket({
                         tournamentId: tournament.id,
                         bracketId: bracketId,
-                        competitorName: competitorName
+                        competitorId
                     })
                 );
 
@@ -82,7 +86,7 @@ export default function CompetitorClassModal({ competitorName, onClose }: Compet
                     window.electron.addCompetitorToBracket({
                         tournamentId: tournament.id,
                         bracketId: bracketId,
-                        competitorName: competitorName
+                        competitorId
                     })
                 );
 

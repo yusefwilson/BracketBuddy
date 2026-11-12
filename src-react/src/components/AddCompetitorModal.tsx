@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { HiCheck as CheckIcon } from 'react-icons/hi2';
 
+import { Gender } from '../../../src-shared/types';
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
 import { useBracketSearchAndSort } from '../hooks/useBracketSearchAndSort';
@@ -18,14 +19,17 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     const { tournament, setTournament = () => { } } = state || {};
     const { showError, ErrorToastContainer } = useErrorToast();
 
-    const [competitorName, setCompetitorName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [gender, setGender] = useState<Gender>('Male');
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
     const [showSuccessFeedback, setShowSuccessFeedback] = useState(false);
     const { search: bracketSearch, setSearch: setBracketSearch, sorted: filteredBrackets, sortFieldItems, handleSortDragEnd } =
         useBracketSearchAndSort(tournament?.brackets ?? []);
 
     const resetModal = () => {
-        setCompetitorName('');
+        setFirstName('');
+        setLastName('');
         setSelectedBrackets(new Set());
     };
 
@@ -57,8 +61,8 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     };
 
     const handleSubmit = async () => {
-        if (!competitorName) {
-            showError('Please enter a competitor name');
+        if (!firstName.trim()) {
+            showError('Please enter a first name');
             return;
         }
 
@@ -70,17 +74,20 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
         try {
             let updatedTournament = tournament;
 
-            // Add competitor to each selected bracket
+            // Add competitor to each selected bracket. the backend registers the competitor the first time
+            // and reuses that same competitor (matched by name) for the rest, so they are one person everywhere.
             for (const bracketId of selectedBrackets) {
                 const [data, error] = await safeApiCall(
                     window.electron.addCompetitorToBracket({
                         tournamentId: tournament.id,
                         bracketId: bracketId,
-                        competitorName: competitorName
+                        competitor: { firstName: firstName.trim(), lastName: lastName.trim(), gender }
                     })
                 );
 
                 if (error) {
+                    // keep the UI in sync with whatever was already added before the failure
+                    setTournament(updatedTournament);
                     showError(error);
                     return;
                 }
@@ -127,14 +134,32 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                         <label className='text-gray-300 text-sm font-medium'>
                             Competitor Name
                         </label>
-                        <input
-                            type='text'
-                            placeholder='Enter competitor name...'
-                            value={competitorName}
-                            onChange={(e) => setCompetitorName(e.target.value)}
-                            className='bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
-                            autoFocus
-                        />
+                        <div className='flex gap-3'>
+                            <input
+                                type='text'
+                                placeholder='First name'
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                className='flex-1 min-w-0 bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
+                                autoFocus
+                            />
+                            <input
+                                type='text'
+                                placeholder='Last name'
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                                className='flex-1 min-w-0 bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
+                            />
+                            <select
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value as Gender)}
+                                className='bg-slate-700 text-white px-3 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
+                                title='Gender'
+                            >
+                                <option value='Male'>Male</option>
+                                <option value='Female'>Female</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div className='flex flex-col gap-2'>
@@ -165,7 +190,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                         <button
                             className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
                             onClick={handleSubmit}
-                            disabled={!competitorName.trim() || selectedBrackets.size === 0}
+                            disabled={!firstName.trim() || selectedBrackets.size === 0}
                         >
                             Add Competitor
                         </button>

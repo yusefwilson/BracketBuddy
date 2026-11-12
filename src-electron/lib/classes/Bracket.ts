@@ -37,7 +37,7 @@ abstract class Bracket {
         this.competitors = competitors;
     }
 
-    // create the initial bracket structure from the current competitor names
+    // create the initial bracket structure from the current competitors
     abstract initialize(): void;
 
     // return all matches flattened and in no particular order
@@ -45,7 +45,7 @@ abstract class Bracket {
 
     abstract toDTO(): BracketDTO;
 
-    setCompetitorNames(competitors: Competitor[]) {
+    setCompetitors(competitors: Competitor[]) {
 
         this.competitors = competitors;
 
@@ -60,16 +60,16 @@ abstract class Bracket {
             throw new Error('Competitor already exists!');
         }
 
-        this.setCompetitorNames([...this.competitors, competitor]);
+        this.setCompetitors([...this.competitors, competitor]);
     }
 
     removeCompetitor(competitorId: string) {
-        this.setCompetitorNames(this.competitors.filter(c => c.id !== competitorId));
+        this.setCompetitors(this.competitors.filter(c => c.id !== competitorId));
     }
 
     randomizeCompetitors() {
         shuffle(this.competitors);
-        this.setCompetitorNames(this.competitors); // ugly way to trigger bracket initialization
+        this.setCompetitors(this.competitors); // ugly way to trigger bracket initialization
     }
 
     updateMatchById(matchId: string, status: MatchStatus) {

@@ -43,7 +43,7 @@ class DoubleEliminationBracket extends Bracket {
             return;
         }
 
-        console.log('about to initialize bracket with competitor names: ', this.competitors);
+        console.log('about to initialize bracket with competitors: ', this.competitors.map(c => c.name()));
 
         const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(this.competitors);
 
@@ -79,7 +79,7 @@ class DoubleEliminationBracket extends Bracket {
         this.winnersBracket.forEach((round, i) => {
             console.log(`Round ${i + 1}:`);
             round.forEach(match => {
-                console.log(`Match ${match.match}: ${match.competitor1} vs ${match.competitor2}`);
+                console.log(`Match ${match.match}: ${match.competitor1?.name()} vs ${match.competitor2?.name()}`);
             });
         });
 
@@ -87,7 +87,7 @@ class DoubleEliminationBracket extends Bracket {
         this.losersBracket.forEach((round, i) => {
             console.log(`Round ${i + 1}:`);
             round.forEach(match => {
-                console.log(`Match ${match.match}: ${match.competitor1} vs ${match.competitor2}`);
+                console.log(`Match ${match.match}: ${match.competitor1?.name()} vs ${match.competitor2?.name()}`);
             });
         });
     }
@@ -102,7 +102,7 @@ class DoubleEliminationBracket extends Bracket {
         }
         const winnersBracketFinal = this.winnersBracket[this.winnersBracket.length - 1][0];
         // return true if winner of final is winner of winners bracket final too
-        return this.final.isDecided() && this.final.getWinningPlayer() === winnersBracketFinal.getWinningPlayer();
+        return this.final.isDecided() && this.final.getWinningPlayer().id === winnersBracketFinal.getWinningPlayer().id;
     }
 
     getFirstPlaceName(): string | undefined {
@@ -177,11 +177,11 @@ class DoubleEliminationBracket extends Bracket {
 
         // if winner of final came from winners bracket, final rematch not needed
         const winnersBracketFinalWinner = winnersBracketFinal.getWinningPlayer();
-        const finalWinner = this.final?.getWinningPlayer();
+        const finalWinner = this.final.getWinningPlayer();
 
         //console.log('returning ', winnersBracketFinalWinner !== finalWinner, ' because winners bracket final winner is ', winnersBracketFinalWinner, ', and final winner is ', finalWinner);
 
-        return winnersBracketFinalWinner !== finalWinner;
+        return winnersBracketFinalWinner.id !== finalWinner.id;
     }
 
     toDTO(): DoubleEliminationBracketDTO {

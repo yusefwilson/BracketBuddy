@@ -5,6 +5,8 @@ import type {
     DeleteTournamentInput,
     AddBracketsToTournamentInput,
     RemoveBracketFromTournamentInput,
+    UpdateCompetitorInput,
+    DeleteCompetitorInput,
     UpdateBracketInput,
     AddCompetitorToBracketInput,
     RemoveCompetitorFromBracketInput,
@@ -35,6 +37,12 @@ contextBridge.exposeInMainWorld('electron', {
 
     removeBracketFromTournament: async (input: RemoveBracketFromTournamentInput) =>
         ipcRenderer.invoke('remove-bracket-from-tournament', input),
+
+    updateCompetitor: async (input: UpdateCompetitorInput) =>
+        ipcRenderer.invoke('update-competitor', input),
+
+    deleteCompetitor: async (input: DeleteCompetitorInput) =>
+        ipcRenderer.invoke('delete-competitor', input),
 
     exportTournament: async (input: ExportTournamentInput) =>
         ipcRenderer.invoke('export-tournament', input),

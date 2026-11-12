@@ -7,6 +7,8 @@ import type {
   DeleteTournamentInput,
   AddBracketsToTournamentInput,
   RemoveBracketFromTournamentInput,
+  UpdateCompetitorInput,
+  DeleteCompetitorInput,
   UpdateBracketInput,
   AddCompetitorToBracketInput,
   RemoveCompetitorFromBracketInput,
@@ -17,7 +19,6 @@ import type {
   ExportToAERSInput,
   ExportTournamentInput,
   ExportToPDFInput,
-  ImportTournamentInput,
   ApiResponse
 } from './types';
 
@@ -31,7 +32,9 @@ declare global {
       addBracketsToTournament: (input: AddBracketsToTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
       removeBracketFromTournament: (input: RemoveBracketFromTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
       exportTournament: (input: ExportTournamentInput) => Promise<ApiResponse<{ canceled: boolean; filePath?: string }>>;
-      importTournament: (input: ImportTournamentInput) => Promise<ApiResponse<TournamentDTO>>;
+      importTournament: () => Promise<ApiResponse<TournamentDTO | null>>; // null when the user cancels
+      updateCompetitor: (input: UpdateCompetitorInput) => Promise<ApiResponse<TournamentDTO>>;
+      deleteCompetitor: (input: DeleteCompetitorInput) => Promise<ApiResponse<TournamentDTO>>;
 
       // bracket
       addCompetitorToBracket: (input: AddCompetitorToBracketInput) => Promise<ApiResponse<TournamentDTO>>;

@@ -14,24 +14,24 @@ import type {
     DeleteTournamentInput,
     AddBracketsToTournamentInput,
     RemoveBracketFromTournamentInput,
+    UpdateCompetitorInput,
+    DeleteCompetitorInput,
     ExportToAERSInput,
     ExportTournamentInput,
     ExportToPDFInput,
     ApiResponse
 } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
-import { isBracketStarted } from '../../src-shared/bracketHelpers.js';
-import { DEFAULT_WEIGHTS, parseCsv, parseRegistrationRows } from '../../src-shared/registrationParser.js';
 
 import Tournament from '../lib/classes/Tournament.js';
+import Competitor from '../lib/classes/Competitor.js';
 import Bracket from '../lib/classes/Bracket.js';
 import DoubleEliminationBracket from '../lib/classes/DoubleEliminationBracket.js';
 import RoundRobinBracket from '../lib/classes/RoundRobinBracket.js';
 
-import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
+import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
 import { save_data_to_file, load_file } from './misc.js';
 import { bracketsAreEqual } from '../lib/utils.js';
-import Competitor from '@electron/lib/classes/Competitor.js';
 
 const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<ApiResponse<TournamentDTO[]>> => {
     try {
@@ -101,7 +101,7 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
         }
 
         for (const bracketData of brackets) {
-            const { type, gender, experienceLevel, hand, weightLimit, competitors } = bracketData;
+            const { type, gender, experienceLevel, hand, weightLimit } = bracketData;
 
             let bracket: Bracket;
             switch (type ?? 'DoubleEliminationBracket') {
@@ -115,7 +115,6 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
                     return errorResponse(`Bracket type "${type}" is not supported yet.`);
             }
 
-            competitors.forEach(c => bracket.addCompetitor(Competitor.fromDTO(c)));
             await tournament.addBracket(bracket);
         }
 
@@ -126,6 +125,57 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
     } catch (error) {
         console.error('Error adding bracket:', error);
         const message = error instanceof Error ? error.message : 'Failed to add bracket. Please try again.';
+        return errorResponse(message);
+    }
+};
+
+// edit a competitor. every bracket holds the same Competitor instance, so no bracket needs to be reset.
+const update_competitor = async (_: Electron.IpcMainInvokeEvent, input: UpdateCompetitorInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, competitorId, updates } = input;
+        const tournament = await load_tournament(_, tournamentId);
+        const competitor = tournament.getCompetitor(competitorId);
+
+        const firstName = updates.firstName?.trim() ?? competitor.firstName;
+        const lastName = updates.lastName?.trim() ?? competitor.lastName;
+        if (!firstName && !lastName) {
+            return errorResponse('Competitor name cannot be empty.');
+        }
+
+        // names identify competitors when they are added to brackets, so they must stay unique
+        const sameName = tournament.findCompetitorByName(`${firstName} ${lastName}`);
+        if (sameName && sameName.id !== competitor.id) {
+            return errorResponse(`A competitor named "${sameName.name()}" already exists in this tournament.`);
+        }
+
+        competitor.firstName = firstName;
+        competitor.lastName = lastName;
+        if (updates.gender !== undefined) competitor.gender = updates.gender;
+        if (updates.officialWeight !== undefined) competitor.officialWeight = updates.officialWeight;
+        if (updates.paid !== undefined) competitor.paid = updates.paid;
+
+        await save_tournament(_, tournament);
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error updating competitor:', error);
+        const message = error instanceof Error ? error.message : 'Failed to update competitor. Please try again.';
+        return errorResponse(message);
+    }
+};
+
+// remove a competitor from every bracket and from the tournament (the brackets they were in are reset)
+const delete_competitor = async (_: Electron.IpcMainInvokeEvent, input: DeleteCompetitorInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, competitorId } = input;
+        const tournament = await load_tournament(_, tournamentId);
+
+        tournament.removeCompetitor(competitorId);
+        await save_tournament(_, tournament);
+
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error deleting competitor:', error);
+        const message = error instanceof Error ? error.message : 'Failed to delete competitor. Please try again.';
         return errorResponse(message);
     }
 };
@@ -328,6 +378,8 @@ export {
     delete_tournament,
     add_brackets_to_tournament,
     remove_bracket_from_tournament,
+    update_competitor,
+    delete_competitor,
     load_tournament,
     save_tournament,
     export_to_AERS,

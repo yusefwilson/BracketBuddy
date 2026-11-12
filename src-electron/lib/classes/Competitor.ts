@@ -1,4 +1,6 @@
-import { Gender } from "../../../src-shared/types.js";
+import { randomUUID } from 'node:crypto';
+
+import type { Gender } from "../../../src-shared/types.js";
 import { serialize } from "../utils.js";
 import type { CompetitorDTO } from "../../../src-shared/CompetitorDTO.js";
 
@@ -14,9 +16,10 @@ class Competitor {
     officialWeight: number | null // in lbs by default
     paid: boolean
 
+    // id is only passed when rehydrating an existing competitor; new competitors get a fresh one
     constructor(id?: string, gender: Gender = 'Male', firstName: string = 'First', lastName: string = 'Last', officialWeight: number | null = null, paid: boolean = false) {
 
-        this.id = firstName + lastName + String(Math.random() * 1000000);
+        this.id = id ?? randomUUID();
 
         this.firstName = firstName;
         this.lastName = lastName;
@@ -26,7 +29,7 @@ class Competitor {
     }
 
     name() {
-        return this.firstName + ' ' + this.lastName;
+        return (this.firstName + ' ' + this.lastName).trim();
     }
 
     serialize(): string {
@@ -44,8 +47,8 @@ class Competitor {
         }
     }
 
-    static fromDTO(dto: CompetitorDTO)
-    {
+    // build a Competitor from a DTO, preserving its id. a DTO without an id gets a fresh one.
+    static fromDTO(dto: CompetitorDTO) {
         return new Competitor(
             dto.id,
             dto.gender,

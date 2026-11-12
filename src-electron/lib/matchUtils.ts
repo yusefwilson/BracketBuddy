@@ -24,8 +24,19 @@ const createInternalMatch = (match: ExternalMatch, competitorMap: Map<string, Co
 
     const id = match.round + '-' + match.match;
 
-    // assert player1 and player2 as strings because they were produced by tournament-pairings and we're pretty sure there are no nulls from DoubleELimination
-    return new Match(id, -1, match.round, match.match, competitorMap.get(match.player1 as string), competitorMap.get(match.player2 as string), 'UNDECIDED', win, loss);
+    // a null player from tournament-pairings is a bye. any other id must be one we passed in, so fail loudly.
+    const resolveCompetitor = (competitorId: string | null): Competitor | null => {
+        if (competitorId === null) {
+            return null;
+        }
+        const competitor = competitorMap.get(competitorId);
+        if (!competitor) {
+            throw new Error(`Unknown competitor id "${competitorId}" in generated match ${id}`);
+        }
+        return competitor;
+    };
+
+    return new Match(id, -1, match.round, match.match, resolveCompetitor(match.player1), resolveCompetitor(match.player2), 'UNDECIDED', win, loss);
 }
 
 // organize matches into a 2-dimensional array for easy access by round and match

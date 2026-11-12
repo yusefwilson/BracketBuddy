@@ -9,7 +9,7 @@ interface BracketInfoCardProps {
 }
 
 export default function BracketInfoCard({ bracket, onClick, onDelete }: BracketInfoCardProps) {
-    const competitorCount = bracket.competitorNames.length;
+    const competitorCount = bracket.competitors.length;
     const isComplete = isBracketComplete(bracket);
 
     return (

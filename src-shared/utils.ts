@@ -2,6 +2,7 @@ import { DoubleEliminationBracketDTO } from './DoubleEliminationBracketDTO';
 import { MatchDTO } from './MatchDTO';
 import { RoundRobinBracketDTO } from './RoundRobinBracketDTO';
 import type { ApiResponse } from './types';
+import type { CompetitorDTO } from './CompetitorDTO';
 
 /* API RESPONSE HELPERS */
 export function successResponse<T>(data: T): ApiResponse<T> {
@@ -20,6 +21,12 @@ export function errorResponse(message: string, code?: string, field?: string): A
             field
         }
     };
+}
+
+/* COMPETITORS */
+// CompetitorDTO has no name() method like the Competitor class does, so build the display name here
+export function competitorFullName(competitor: Pick<CompetitorDTO, 'firstName' | 'lastName'>): string {
+    return (competitor.firstName + ' ' + competitor.lastName).trim();
 }
 
 /* MATH */
@@ -83,7 +90,7 @@ const calculateInitialRoundsMatchPositions = (bracket: DoubleEliminationBracketD
         return [];
     }
 
-    numberOfCompetitors = side === 'winner' ? (bracket?.competitorNames.length || 0) : ((bracket?.winnersBracket[0].length || 0) + (bracket?.winnersBracket[1].length || 0));
+    numberOfCompetitors = side === 'winner' ? (bracket?.competitors.length || 0) : ((bracket?.winnersBracket[0].length || 0) + (bracket?.winnersBracket[1].length || 0));
 
     // calculate initial rounds positions (if power of 2, only one round, if not power of 2, two rounds)
     if (!isPowerOfTwo(numberOfCompetitors)) {
@@ -224,14 +231,14 @@ const calculateDoubleEliminationMatchPositions = (bracket: DoubleEliminationBrac
 
     let winnerMatches: MatchAndPosition[] = [], loserMatches: MatchAndPosition[] = [], WINNERS_BOTTOM = 0, LAST_WINNER_Y = 0, WINNERS_RIGHTMOST = 0;
 
-    if (bracket.competitorNames && bracket.competitorNames.length >= 2) {
+    if (bracket.competitors && bracket.competitors.length >= 2) {
         // {match, x, y}[][]
         const winnerRounds = calculateInitialRoundsMatchPositions(bracket, 'winner', WINNER_HORIZONTAL_OFFSET, WINNER_VERTICAL_OFFSET);
         const initialWinnerMatches = winnerRounds.slice();
 
         // iteratively calculate the positions of the rest of the matches by referencing and taking averages of the heights of their parents
         for (
-            let roundIndex = isPowerOfTwo(bracket.competitorNames.length) ? 1 : 2;
+            let roundIndex = isPowerOfTwo(bracket.competitors.length) ? 1 : 2;
             roundIndex < (bracket.winnersBracket.length || 0);
             roundIndex++
         ) {
@@ -266,7 +273,7 @@ const calculateDoubleEliminationMatchPositions = (bracket: DoubleEliminationBrac
 
         // figure out whether match numbers stay constant or halve on even rounds based on index-1 match numbers
         let halving: boolean;
-        if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(bracket.competitorNames.length)) {
+        if (initialWinnerMatches[initialWinnerMatches.length - 1]?.length === initialLoserRounds[initialLoserRounds.length - 1]?.length || isPowerOfTwo(bracket.competitors.length)) {
             halving = true;
         } else {
             halving = false;

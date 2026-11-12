@@ -1,5 +1,4 @@
-import { CompetitorDTO } from './CompetitorDTO';
-import type { TournamentDTO } from './TournamentDTO';
+import type { CompetitorDTO } from './CompetitorDTO';
 
 type Gender = 'Male' | 'Female' | 'Mixed';
 
@@ -35,6 +34,7 @@ type SlotCoordinates = {
 }
 
 interface RoundRobinStanding {
+    competitorId: string
     name: string
     points: number
     wins: number
@@ -51,10 +51,27 @@ interface UpdateBracketInput {
     status: MatchStatus;
 }
 
+// provide exactly one of:
+//  - competitorId: attach a competitor that is already registered in the tournament
+//  - competitor: register a new competitor (if one with the same name is already registered, that one is reused)
 interface AddCompetitorToBracketInput {
     tournamentId: string;
     bracketId: string;
-    competitor: CompetitorDTO;
+    competitorId?: string;
+    competitor?: CompetitorDTO;
+}
+
+// edit a competitor everywhere they appear (name, gender, weight, paid)
+interface UpdateCompetitorInput {
+    tournamentId: string;
+    competitorId: string;
+    updates: Partial<Omit<CompetitorDTO, 'id'>>;
+}
+
+// remove a competitor from every bracket and from the tournament
+interface DeleteCompetitorInput {
+    tournamentId: string;
+    competitorId: string;
 }
 
 interface RemoveCompetitorFromBracketInput {
@@ -100,7 +117,6 @@ interface AddBracketsToTournamentInput {
         experienceLevel: ExperienceLevel;
         hand: Hand;
         weightLimit: WeightLimit;
-        competitors: CompetitorDTO[];
     }[];
 }
 
@@ -145,6 +161,7 @@ export type {
     Gender, Hand, ExperienceLevel, WeightLimit, MatchStatus, BracketType,
     ExternalMatch, SlotCoordinates, RoundRobinStanding,
     UpdateBracketInput, AddCompetitorToBracketInput, RemoveCompetitorFromBracketInput, RandomizeCompetitorsInput, EnterRoundRobinResultInput, ResetRoundRobinMatchInput,
+    UpdateCompetitorInput, DeleteCompetitorInput,
     CreateTournamentInput, DeleteTournamentInput, AddBracketsToTournamentInput, RemoveBracketFromTournamentInput,
     SaveKeyValueInput, ExportToAERSInput, ExportTournamentInput, ExportToPDFInput,
     ApiResponse

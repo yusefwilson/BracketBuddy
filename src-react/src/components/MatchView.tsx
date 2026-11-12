@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { HiExclamationTriangle as ExclamationTriangleIcon, HiCheck as CheckIcon } from 'react-icons/hi2';
 import { MatchDTO } from '../../../src-shared/MatchDTO';
 import { MatchStatus } from '../../../src-shared/types';
+import { competitorFullName } from '../../../src-shared/utils';
 
 import WinnerCheckbox from './WinnerCheckbox';
 
@@ -93,7 +94,7 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId, }:
                             onClick={() => toggleStatus('PLAYER_1_WON')}
                             title="Mark as winner">
                             <div className='text-sm truncate w-0 flex-1'>
-                                {match.player1 || match.slot1GenericName}
+                                {match.competitor1 ? competitorFullName(match.competitor1) : match.slot1GenericName}
                             </div>
                             <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_1_WON')} checked={match.status === 'PLAYER_1_WON' || match.status === 'PLAYER_2_DROPOUT' || match.status === 'PLAYER_2_NO_SHOW'} />
                         </div>
@@ -135,7 +136,7 @@ export default function MatchView({ match, updateMatch, x, y, currentMatchId, }:
                             onClick={() => toggleStatus('PLAYER_2_WON')}
                             title="Mark as winner">
                             <div className='text-sm truncate w-0 flex-1'>
-                                {match.player2 || match.slot2GenericName}
+                                {match.competitor2 ? competitorFullName(match.competitor2) : match.slot2GenericName}
                             </div>
                             <WinnerCheckbox toggleWinner={() => toggleStatus('PLAYER_2_WON')} checked={match.status === 'PLAYER_2_WON' || match.status === 'PLAYER_1_DROPOUT' || match.status === 'PLAYER_1_NO_SHOW'} />
                         </div>
