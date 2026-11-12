@@ -10,6 +10,7 @@ import type {
 } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
 
+import Competitor from '../lib/classes/Competitor.js';
 import RoundRobinBracket from '../lib/classes/RoundRobinBracket.js';
 import { load_tournament, save_tournament } from './tournament.js';
 
@@ -34,7 +35,7 @@ const update_bracket = async (_: Electron.IpcMainInvokeEvent, input: UpdateBrack
 // enter point scores for a round robin match (winner is auto-derived; no draws)
 const enter_round_robin_result = async (_: Electron.IpcMainInvokeEvent, input: EnterRoundRobinResultInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketId, matchId, player1Score, player2Score } = input;
+        const { tournamentId, bracketId, matchId, competitor1Score: player1Score, competitor2Score: player2Score } = input;
 
         const tournament = await load_tournament(_, tournamentId);
         const bracket = tournament.getBracket(bracketId);
@@ -80,12 +81,28 @@ const reset_round_robin_result = async (_: Electron.IpcMainInvokeEvent, input: R
 // add a competitor to a bracket
 const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, input: AddCompetitorToBracketInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketId, competitorName } = input;
+        const { tournamentId, bracketId, competitorId, competitor: newCompetitor } = input;
 
         const tournament = await load_tournament(_, tournamentId);
         const bracket = tournament.getBracket(bracketId);
 
-        bracket.addCompetitor(competitorName);
+        let competitor: Competitor;
+        if (competitorId) {
+            // a competitor that is already in the tournament
+            competitor = tournament.getCompetitor(competitorId);
+        } else if (newCompetitor) {
+            if (!newCompetitor.firstName.trim() || !newCompetitor.lastName.trim()) {
+                return errorResponse('Competitors must have a first and last name.');
+            }
+            // a name identifies a person within a tournament, so reuse the competitor if the name is taken
+            competitor = tournament.findCompetitorByName(`${newCompetitor.firstName} ${newCompetitor.lastName}`)
+                ?? Competitor.fromDTO({ ...newCompetitor, firstName: newCompetitor.firstName.trim(), lastName: newCompetitor.lastName.trim() });
+        } else {
+            return errorResponse('Provide either an existing competitor id or the details of a new competitor.');
+        }
+
+        tournament.registerCompetitor(competitor);
+        bracket.addCompetitor(competitor);
         await save_tournament(_, tournament);
 
         return successResponse(tournament.toDTO());
@@ -100,12 +117,12 @@ const add_competitor_to_bracket = async (_: Electron.IpcMainInvokeEvent, input: 
 // remove a competitor from a bracket
 const remove_competitor_from_bracket = async (_: Electron.IpcMainInvokeEvent, input: RemoveCompetitorFromBracketInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketId, competitorName } = input;
+        const { tournamentId, bracketId, competitorId } = input;
 
         const tournament = await load_tournament(_, tournamentId);
         const bracket = tournament.getBracket(bracketId);
 
-        bracket.removeCompetitor(competitorName);
+        bracket.removeCompetitor(competitorId);
         await save_tournament(_, tournament);
 
         return successResponse(tournament.toDTO());

@@ -1,6 +1,7 @@
 import { HiTrash as TrashIcon } from 'react-icons/hi2';
 
 import { BracketDTO } from '../../../src-shared/BracketDTO';
+import { CompetitorDTO } from '../../../src-shared/CompetitorDTO';
 import { isBracketStarted, isBracketComplete } from '../../../src-shared/bracketHelpers';
 import CompetitorInput from './CompetitorInput';
 import BracketResetWarningModal from './BracketResetWarningModal';
@@ -8,8 +9,8 @@ import { useState } from 'react';
 
 interface BracketCompetitorInputProps {
     bracket: BracketDTO;
-    onAddCompetitor: (bracketId: string, name: string) => Promise<void>;
-    onRemoveCompetitor: (bracketId: string, name: string) => Promise<void>;
+    onAddCompetitor: (bracketId: string, competitor: CompetitorDTO) => Promise<void>;
+    onRemoveCompetitor: (bracketId: string, competitorId: string) => Promise<void>;
     onRandomize: (bracketId: string) => Promise<void>;
     onRemoveBracket: (bracketId: string) => Promise<void>;
     onBracketClick: (bracketId: string) => Promise<void>;
@@ -75,9 +76,10 @@ export default function BracketCompetitorInput({
 
                 <div className="flex-1 min-h-0">
                     <CompetitorInput
-                        competitors={bracket.competitorNames}
-                        addCompetitor={(name) => onAddCompetitor(bracket.id, name)}
-                        removeCompetitor={(name) => onRemoveCompetitor(bracket.id, name)}
+                        competitors={bracket.competitors}
+                        defaultGender={bracket.gender === 'Female' ? 'Female' : 'Male'}
+                        addCompetitor={(competitor) => onAddCompetitor(bracket.id, competitor)}
+                        removeCompetitor={(competitorId) => onRemoveCompetitor(bracket.id, competitorId)}
                         randomizeCompetitors={() => onRandomize(bracket.id)}
                         bracketStarted={isBracketStarted(bracket)}
                         onShowWarning={(message, onConfirm) => {

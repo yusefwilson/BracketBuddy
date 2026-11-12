@@ -1,6 +1,7 @@
 import { useState, useContext, useMemo, useEffect } from 'react';
 import { HiUser as UserIcon, HiPlus as PlusIcon } from 'react-icons/hi2';
 
+import { competitorFullName } from '../../../src-shared/utils';
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
 
@@ -20,7 +21,7 @@ export default function CompetitorList() {
     const [selectedCompetitor, setSelectedCompetitor] = useState<string | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [competitorToRemove, setCompetitorToRemove] = useState<{ name: string; brackets: Array<{ id: string; name: string }> } | null>(null);
+    const [competitorToRemove, setCompetitorToRemove] = useState<{ id: string; name: string; brackets: Array<{ id: string; name: string }> } | null>(null);
 
     // Load saved modal state on mount
     useEffect(() => {
@@ -39,30 +40,39 @@ export default function CompetitorList() {
         await safeApiCall(window.electron.saveKeyValue({ key: 'isAddCompetitorModalOpen', value: isOpen }));
     };
 
-    // Get all unique competitors from all brackets
+    // Every competitor in the tournament, along with the brackets they are in
     const allCompetitors = useMemo(() => {
         if (!tournament) return [];
 
         const competitorMap = new Map<string, {
+            id: string;
             name: string;
             bracketCount: number;
             brackets: Array<{ id: string; name: string }>;
+            officialWeight: number | null;
+            paid: boolean;
         }>();
+
+        tournament.competitors.forEach((competitor) => {
+            if (!competitor.id) return; // competitors from the backend always have an id
+            competitorMap.set(competitor.id, {
+                id: competitor.id,
+                name: competitorFullName(competitor),
+                bracketCount: 0,
+                brackets: [],
+                officialWeight: competitor.officialWeight ?? null,
+                paid: competitor.paid ?? false
+            });
+        });
 
         tournament.brackets.forEach((bracket) => {
             const bracketName = `${bracket.gender} | ${bracket.experienceLevel} | ${bracket.hand} | ${bracket.weightLimit === 'Superheavyweight' ? 'SHW' : bracket.weightLimit + ' lbs'}`;
 
-            bracket.competitorNames.forEach((competitorName) => {
-                if (competitorMap.has(competitorName)) {
-                    const existing = competitorMap.get(competitorName)!;
-                    existing.bracketCount++;
-                    existing.brackets.push({ id: bracket.id, name: bracketName });
-                } else {
-                    competitorMap.set(competitorName, {
-                        name: competitorName,
-                        bracketCount: 1,
-                        brackets: [{ id: bracket.id, name: bracketName }]
-                    });
+            bracket.competitors.forEach((competitor) => {
+                const entry = competitor.id ? competitorMap.get(competitor.id) : undefined;
+                if (entry) {
+                    entry.bracketCount++;
+                    entry.brackets.push({ id: bracket.id, name: bracketName });
                 }
             });
         });
@@ -96,33 +106,47 @@ export default function CompetitorList() {
         });
     }, [allCompetitors, searchTerm]);
 
-    // Handle removing competitor from all brackets
-    const handleRemoveCompetitor = async (competitorName: string, brackets: Array<{ id: string; name: string }>) => {
+    // Save a change to a competitor's paid status or official weight (null weight = unknown)
+    const handleUpdateCompetitor = async (competitorId: string, updates: { paid?: boolean; officialWeight?: number | null }) => {
         if (!tournament) return;
 
-        // Remove from each bracket sequentially
-        let currentTournament = tournament;
-        for (const bracket of brackets) {
-            const [updatedTournament, error] = await safeApiCall(
-                window.electron.removeCompetitorFromBracket({
-                    tournamentId: currentTournament.id,
-                    bracketId: bracket.id,
-                    competitorName
-                })
-            );
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.updateCompetitor({
+                tournamentId: tournament.id,
+                competitorId,
+                updates
+            })
+        );
 
-            if (error) {
-                showError(error);
-                return;
-            }
-
-            if (updatedTournament) {
-                currentTournament = updatedTournament;
-            }
+        if (error) {
+            showError(error);
+            return;
         }
 
-        // Update tournament after all removals
-        setTournament(currentTournament);
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
+    };
+
+    // Handle removing a competitor from every bracket and from the tournament
+    const handleRemoveCompetitor = async (competitorId: string) => {
+        if (!tournament) return;
+
+        const [updatedTournament, error] = await safeApiCall(
+            window.electron.deleteCompetitor({
+                tournamentId: tournament.id,
+                competitorId
+            })
+        );
+
+        if (error) {
+            showError(error);
+            return;
+        }
+
+        if (updatedTournament) {
+            setTournament(updatedTournament);
+        }
         setCompetitorToRemove(null);
     };
 
@@ -209,12 +233,16 @@ export default function CompetitorList() {
                         <div className="flex flex-col gap-2">
                             {filteredCompetitors.map((competitor) => (
                                 <CompetitorInfoCard
-                                    key={competitor.name}
+                                    key={competitor.id}
                                     name={competitor.name}
                                     bracketCount={competitor.bracketCount}
                                     brackets={competitor.brackets}
-                                    onClick={() => setSelectedCompetitor(competitor.name)}
-                                    onRemove={() => setCompetitorToRemove({ name: competitor.name, brackets: competitor.brackets })}
+                                    officialWeight={competitor.officialWeight}
+                                    paid={competitor.paid}
+                                    onPaidChange={(paid) => handleUpdateCompetitor(competitor.id, { paid })}
+                                    onWeightChange={(officialWeight) => handleUpdateCompetitor(competitor.id, { officialWeight })}
+                                    onClick={() => setSelectedCompetitor(competitor.id)}
+                                    onRemove={() => setCompetitorToRemove({ id: competitor.id, name: competitor.name, brackets: competitor.brackets })}
                                 />
                             ))}
                         </div>
@@ -225,7 +253,7 @@ export default function CompetitorList() {
             {/* Modals */}
             {selectedCompetitor && (
                 <CompetitorClassModal
-                    competitorName={selectedCompetitor}
+                    competitorId={selectedCompetitor}
                     onClose={() => setSelectedCompetitor(null)}
                 />
             )}
@@ -260,7 +288,7 @@ export default function CompetitorList() {
                                 Cancel
                             </button>
                             <button
-                                onClick={() => handleRemoveCompetitor(competitorToRemove.name, competitorToRemove.brackets)}
+                                onClick={() => handleRemoveCompetitor(competitorToRemove.id)}
                                 className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
                             >
                                 Remove

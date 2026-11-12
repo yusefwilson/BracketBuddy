@@ -1,3 +1,4 @@
+import { CompetitorDTO } from './CompetitorDTO';
 import { Gender, Hand, ExperienceLevel } from './types';
 import { BracketType } from './types';
 
@@ -13,7 +14,7 @@ interface BracketDTO {
     hand: Hand
     weightLimit: number | 'Superheavyweight' // in lbs, -1 for no limit
 
-    competitorNames: string[]
+    competitors: CompetitorDTO[]
 
     // every bracket type resolves final placings; concrete DTOs populate these
     firstPlace: string | undefined

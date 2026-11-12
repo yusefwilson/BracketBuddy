@@ -5,6 +5,8 @@ import type {
     DeleteTournamentInput,
     AddBracketsToTournamentInput,
     RemoveBracketFromTournamentInput,
+    UpdateCompetitorInput,
+    DeleteCompetitorInput,
     UpdateBracketInput,
     AddCompetitorToBracketInput,
     RemoveCompetitorFromBracketInput,
@@ -14,8 +16,7 @@ import type {
     SaveKeyValueInput,
     ExportToAERSInput,
     ExportTournamentInput,
-    ExportToPDFInput,
-    ImportRegistrationsInput,
+    ExportToPDFInput
 } from '../src-shared/types.js';
 
 contextBridge.exposeInMainWorld('electron', {
@@ -37,8 +38,11 @@ contextBridge.exposeInMainWorld('electron', {
     removeBracketFromTournament: async (input: RemoveBracketFromTournamentInput) =>
         ipcRenderer.invoke('remove-bracket-from-tournament', input),
 
-    importRegistrations: async (input: ImportRegistrationsInput) =>
-        ipcRenderer.invoke('import-registrations', input),
+    updateCompetitor: async (input: UpdateCompetitorInput) =>
+        ipcRenderer.invoke('update-competitor', input),
+
+    deleteCompetitor: async (input: DeleteCompetitorInput) =>
+        ipcRenderer.invoke('delete-competitor', input),
 
     exportTournament: async (input: ExportTournamentInput) =>
         ipcRenderer.invoke('export-tournament', input),

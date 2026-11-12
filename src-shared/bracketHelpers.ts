@@ -1,4 +1,5 @@
 import { BracketDTO } from './BracketDTO';
+import { CompetitorDTO } from './CompetitorDTO';
 import { DoubleEliminationBracketDTO } from './DoubleEliminationBracketDTO';
 import { RoundRobinBracketDTO } from './RoundRobinBracketDTO';
 
@@ -64,6 +65,13 @@ export function isBracketStarted(bracket: BracketDTO): boolean {
         default:
             return false;
     }
+}
+
+/**
+ * Competitors in a bracket who have not paid yet.
+ */
+export function getUnpaidCompetitors(bracket: BracketDTO): CompetitorDTO[] {
+    return bracket.competitors.filter(competitor => !competitor.paid);
 }
 
 /**

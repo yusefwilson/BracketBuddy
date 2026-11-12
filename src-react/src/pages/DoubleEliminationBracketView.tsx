@@ -5,6 +5,7 @@ import { calculateDoubleEliminationMatchPositions } from '../../../src-shared/ut
 
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
+import { useUnpaidStartGuard } from '../hooks/useUnpaidStartGuard';
 import { isDoubleEliminationBracketStarted } from '../../../src-shared/bracketHelpers';
 
 import { CURRENT_STATE } from '../components/App';
@@ -39,7 +40,14 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
     }
   }, [finalRematchJustSpawned]);
 
+  const { guardStart, UnpaidWarningModal } = useUnpaidStartGuard(bracket);
+
+  // entering the first result starts the bracket, so warn first if anyone has not paid
   const updateMatch = async (matchId: string, status: MatchStatus): Promise<void> => {
+    guardStart(() => { void submitMatchResult(matchId, status); });
+  };
+
+  const submitMatchResult = async (matchId: string, status: MatchStatus): Promise<void> => {
     const [newTournament, error] = await safeApiCall(
       window.electron.enterResult({
         tournamentId: bracket.tournamentId,
@@ -78,6 +86,7 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
   return (
     <>
       <ErrorToastContainer />
+      <UnpaidWarningModal />
       <BracketResetWarningModal
         isOpen={warningModal.isOpen}
         onClose={() => setWarningModal({ ...warningModal, isOpen: false })}
@@ -118,19 +127,17 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
 
             <div className='flex-1 w-full min-h-0'>
               <CompetitorInput
-                competitors={bracket.competitorNames ?? []}
+                competitors={bracket.competitors ?? []}
+                defaultGender={bracket.gender === 'Female' ? 'Female' : 'Male'}
                 bracketStarted={isDoubleEliminationBracketStarted(bracket)}
-                addCompetitor={async (name) => {
-                  console.log('about to add competitor to bracket: ', name);
+                addCompetitor={async (competitor) => {
                   const [newTournament, error] = await safeApiCall(
                     window.electron.addCompetitorToBracket({
                       tournamentId: bracket.tournamentId,
                       bracketId: bracket.id,
-                      competitorName: name
+                      competitor
                     })
                   );
-
-                  console.log('got response from addCompetitorToBracket:', newTournament, error);
 
                   if (error) {
                     showError(error);
@@ -141,12 +148,12 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
                     setTournament(newTournament);
                   }
                 }}
-                removeCompetitor={async (name) => {
+                removeCompetitor={async (competitorId) => {
                   const [newTournament, error] = await safeApiCall(
                     window.electron.removeCompetitorFromBracket({
                       tournamentId: bracket.tournamentId,
                       bracketId: bracket.id,
-                      competitorName: name
+                      competitorId
                     })
                   );
 
@@ -194,7 +201,7 @@ export default function DoubleEliminationBracketView({ bracket }: { bracket: Dou
 
           {/* Bracket Display */}
           <div className='bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 shadow-xl relative overflow-auto flex-1' ref={containerRef}>
-            {bracket.competitorNames && bracket.competitorNames.length < 2 ? (
+            {bracket.competitors && bracket.competitors.length < 2 ? (
               <div className='text-white text-center font-semibold text-lg py-12'>
                 Not enough competitors yet.
                 <br />

@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
-import { HiCheck as CheckIcon } from 'react-icons/hi2';
+import { HiCheck as CheckIcon, HiChevronDown as ChevronDownIcon } from 'react-icons/hi2';
 
+import { Gender } from '../../../src-shared/types';
 import { safeApiCall } from '../utils/apiHelpers';
 import { useErrorToast } from '../hooks/useErrorToast';
 import { useBracketSearchAndSort } from '../hooks/useBracketSearchAndSort';
@@ -18,14 +19,19 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     const { tournament, setTournament = () => { } } = state || {};
     const { showError, ErrorToastContainer } = useErrorToast();
 
-    const [competitorName, setCompetitorName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [gender, setGender] = useState<Gender>('Male');
+    const [paid, setPaid] = useState(false);
     const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(new Set());
     const [showSuccessFeedback, setShowSuccessFeedback] = useState(false);
     const { search: bracketSearch, setSearch: setBracketSearch, sorted: filteredBrackets, sortFieldItems, handleSortDragEnd } =
         useBracketSearchAndSort(tournament?.brackets ?? []);
 
     const resetModal = () => {
-        setCompetitorName('');
+        setFirstName('');
+        setLastName('');
+        setPaid(false);
         setSelectedBrackets(new Set());
     };
 
@@ -57,8 +63,13 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
     };
 
     const handleSubmit = async () => {
-        if (!competitorName) {
-            showError('Please enter a competitor name');
+        if (!firstName.trim()) {
+            showError('Please enter a first name');
+            return;
+        }
+
+        if (!lastName.trim()) {
+            showError('Please enter a last name');
             return;
         }
 
@@ -70,17 +81,20 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
         try {
             let updatedTournament = tournament;
 
-            // Add competitor to each selected bracket
+            // Add competitor to each selected bracket. the backend registers the competitor the first time
+            // and reuses that same competitor (matched by name) for the rest, so they are one person everywhere.
             for (const bracketId of selectedBrackets) {
                 const [data, error] = await safeApiCall(
                     window.electron.addCompetitorToBracket({
                         tournamentId: tournament.id,
                         bracketId: bracketId,
-                        competitorName: competitorName
+                        competitor: { firstName: firstName.trim(), lastName: lastName.trim(), gender, paid }
                     })
                 );
 
                 if (error) {
+                    // keep the UI in sync with whatever was already added before the failure
+                    setTournament(updatedTournament);
                     showError(error);
                     return;
                 }
@@ -125,16 +139,49 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
 
                     <div className='flex flex-col gap-2'>
                         <label className='text-gray-300 text-sm font-medium'>
-                            Competitor Name
+                            Competitor Info
                         </label>
-                        <input
-                            type='text'
-                            placeholder='Enter competitor name...'
-                            value={competitorName}
-                            onChange={(e) => setCompetitorName(e.target.value)}
-                            className='bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
-                            autoFocus
-                        />
+                        <div className='flex gap-3'>
+                            <input
+                                type='text'
+                                placeholder='First name'
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                className='flex-1 min-w-0 bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
+                                autoFocus
+                            />
+                            <input
+                                type='text'
+                                placeholder='Last name'
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                                className='flex-1 min-w-0 bg-slate-700 text-white px-4 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition'
+                            />
+                            {/* appearance-none removes the native arrow, which sits far from the text. the chevron is drawn just inside the box instead. */}
+                            <div className='relative'>
+                                <select
+                                    value={gender}
+                                    onChange={(e) => setGender(e.target.value as Gender)}
+                                    className='appearance-none bg-slate-700 text-white pl-3 pr-9 py-3 rounded-lg border border-slate-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition h-full'
+                                    title='Gender'
+                                >
+                                    <option value='Male'>Male</option>
+                                    <option value='Female'>Female</option>
+                                </select>
+                                <div className='pointer-events-none absolute inset-y-0 right-2.5 flex items-center'>
+                                    <ChevronDownIcon className='h-4 w-4 text-gray-400' aria-hidden='true' />
+                                </div>
+                            </div>
+                            <label className='flex items-center gap-2 text-gray-300 text-sm cursor-pointer select-none'>
+                                <input
+                                    type='checkbox'
+                                    checked={paid}
+                                    onChange={(e) => setPaid(e.target.checked)}
+                                    className='h-4 w-4 accent-green-500 cursor-pointer'
+                                />
+                                Paid
+                            </label>
+                        </div>
                     </div>
 
                     <div className='flex flex-col gap-2'>
@@ -165,7 +212,7 @@ export default function AddCompetitorModal({ onClose }: AddCompetitorModalProps)
                         <button
                             className='bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
                             onClick={handleSubmit}
-                            disabled={!competitorName.trim() || selectedBrackets.size === 0}
+                            disabled={!firstName.trim() || !lastName.trim() || selectedBrackets.size === 0}
                         >
                             Add Competitor
                         </button>

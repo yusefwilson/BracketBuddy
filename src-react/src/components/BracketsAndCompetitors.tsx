@@ -10,6 +10,7 @@ import { CURRENT_STATE } from './App';
 import { HiPlus } from 'react-icons/hi2';
 import { CgArrowUp } from 'react-icons/cg';
 import BracketCompetitorInput from './BracketCompetitorInput';
+import { CompetitorDTO } from '../../../src-shared/CompetitorDTO';
 
 export default function BracketsAndCompetitors() {
     const state = useContext(CURRENT_STATE);
@@ -24,9 +25,9 @@ export default function BracketsAndCompetitors() {
         return <div>No tournament id</div>;
     }
 
-    const handleAddCompetitor = async (bracketId: string, name: string) => {
+    const handleAddCompetitor = async (bracketId: string, competitor: CompetitorDTO) => {
         const [updatedTournament, error] = await safeApiCall(
-            window.electron.addCompetitorToBracket({ tournamentId: tournament.id, bracketId, competitorName: name })
+            window.electron.addCompetitorToBracket({ tournamentId: tournament.id, bracketId, competitor })
         );
 
         if (error) {
@@ -40,9 +41,9 @@ export default function BracketsAndCompetitors() {
         }
     };
 
-    const handleRemoveCompetitor = async (bracketId: string, name: string) => {
+    const handleRemoveCompetitor = async (bracketId: string, competitorId: string) => {
         const [updatedTournament, error] = await safeApiCall(
-            window.electron.removeCompetitorFromBracket({ tournamentId: tournament.id, bracketId, competitorName: name })
+            window.electron.removeCompetitorFromBracket({ tournamentId: tournament.id, bracketId, competitorId })
         );
 
         if (error) {

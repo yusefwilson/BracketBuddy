@@ -14,27 +14,22 @@ import type {
     DeleteTournamentInput,
     AddBracketsToTournamentInput,
     RemoveBracketFromTournamentInput,
+    UpdateCompetitorInput,
+    DeleteCompetitorInput,
     ExportToAERSInput,
     ExportTournamentInput,
     ExportToPDFInput,
-    ImportRegistrationsInput,
-    ImportRegistrationsResult,
-    Gender,
-    Hand,
-    ExperienceLevel,
-    WeightLimit,
     ApiResponse
 } from '../../src-shared/types.js';
 import { successResponse, errorResponse } from '../../src-shared/utils.js';
-import { isBracketStarted } from '../../src-shared/bracketHelpers.js';
-import { DEFAULT_WEIGHTS, parseCsv, parseRegistrationRows } from '../../src-shared/registrationParser.js';
 
 import Tournament from '../lib/classes/Tournament.js';
+import Competitor from '../lib/classes/Competitor.js';
 import Bracket from '../lib/classes/Bracket.js';
 import DoubleEliminationBracket from '../lib/classes/DoubleEliminationBracket.js';
 import RoundRobinBracket from '../lib/classes/RoundRobinBracket.js';
 
-import { SAVE_DIR, SAVE_FILE_NAME, SAVE_FILE_PATH } from '../constants.js';
+import { SAVE_DIR, SAVE_FILE_NAME } from '../constants.js';
 import { save_data_to_file, load_file } from './misc.js';
 import { bracketsAreEqual } from '../lib/utils.js';
 
@@ -52,6 +47,7 @@ const load_all_tournaments = async (_: Electron.IpcMainInvokeEvent): Promise<Api
 
         const deserializedTournaments = [];
         for (const tournamentData of tournaments) {
+            console.log('about to deserialize tournament')
             const tournament = Tournament.deserialize(tournamentData);
             deserializedTournaments.push(tournament.toDTO());
         }
@@ -106,7 +102,7 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
         }
 
         for (const bracketData of brackets) {
-            const { type, gender, experienceLevel, hand, weightLimit, competitorNames } = bracketData;
+            const { type, gender, experienceLevel, hand, weightLimit } = bracketData;
 
             let bracket: Bracket;
             switch (type ?? 'DoubleEliminationBracket') {
@@ -120,7 +116,6 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
                     return errorResponse(`Bracket type "${type}" is not supported yet.`);
             }
 
-            competitorNames.forEach(competitorName => bracket.addCompetitor(competitorName));
             await tournament.addBracket(bracket);
         }
 
@@ -135,79 +130,64 @@ const add_brackets_to_tournament = async (_: Electron.IpcMainInvokeEvent, input:
     }
 };
 
-const import_registrations = async (_: Electron.IpcMainInvokeEvent, input: ImportRegistrationsInput): Promise<ApiResponse<ImportRegistrationsResult>> => {
+// edit a competitor. every bracket holds the same Competitor instance, so no bracket needs to be reset.
+const update_competitor = async (_: Electron.IpcMainInvokeEvent, input: UpdateCompetitorInput): Promise<ApiResponse<TournamentDTO>> => {
     try {
-        const { tournamentId, bracketType, csv } = input;
+        const { tournamentId, competitorId, updates } = input;
         const tournament = await load_tournament(_, tournamentId);
+        const competitor = tournament.getCompetitor(competitorId);
 
-        // recognized weights are the defaults plus any custom weights saved from the UI
-        let customWeights: number[] = [];
-        try {
-            const saved = JSON.parse(await readFile(SAVE_FILE_PATH, 'utf-8'));
-            if (Array.isArray(saved.customWeights)) customWeights = saved.customWeights;
-        } catch {
-            // no save file or no custom weights
+        const firstName = updates.firstName?.trim() ?? competitor.firstName;
+        const lastName = updates.lastName?.trim() ?? competitor.lastName;
+        if (!firstName && !lastName) {
+            return errorResponse('Competitor name cannot be empty.');
         }
-        const recognizedWeights: WeightLimit[] = [...DEFAULT_WEIGHTS, ...customWeights.filter(w => !DEFAULT_WEIGHTS.includes(w))];
-
-        const parsed = parseRegistrationRows(parseCsv(csv), recognizedWeights);
-        if ('error' in parsed) {
-            return errorResponse(parsed.error);
-        }
-        const { valid, invalid } = parsed;
-
-        const findBracket = (gender: Gender, experienceLevel: ExperienceLevel, hand: Hand, weightLimit: WeightLimit) =>
-            tournament.brackets.find(b => bracketsAreEqual(b, { gender, experienceLevel, hand, weightLimit }));
-
-        let added = 0;
-        let alreadyPresent = 0;
-        let classesCreated = 0;
-
-        for (const row of valid) {
-            // a row is all-or-nothing: if any target class has already started, skip the whole row
-            const startedClass = row.classes.find(c => {
-                const existing = findBracket(row.gender, c.experienceLevel, c.hand, row.weightLimit);
-                return existing && isBracketStarted(existing.toDTO());
-            });
-            if (startedClass) {
-                invalid.push({
-                    rowNumber: row.rowNumber,
-                    raw: row.raw,
-                    reasons: [`Class "${startedClass.hand} ${startedClass.experienceLevel}" at this weight has already started.`],
-                    fields: ['classes']
-                });
-                continue;
-            }
-
-            for (const { hand, experienceLevel } of row.classes) {
-                let bracket = findBracket(row.gender, experienceLevel, hand, row.weightLimit);
-
-                if (!bracket) {
-                    bracket = bracketType === 'RoundRobinBracket'
-                        ? new RoundRobinBracket(tournament, row.gender, experienceLevel, hand, row.weightLimit)
-                        : new DoubleEliminationBracket(tournament, row.gender, experienceLevel, hand, row.weightLimit);
-                    await tournament.addBracket(bracket);
-                    classesCreated++;
-                }
-
-                if (bracket.competitorNames.includes(row.name)) {
-                    alreadyPresent++;
-                } else {
-                    bracket.addCompetitor(row.name);
-                    added++;
-                }
-            }
+        // only enforced when the name is being edited: competitors migrated from old data may have no last name,
+        // and changing their paid status or weight must still work
+        if ((updates.firstName !== undefined || updates.lastName !== undefined) && (!firstName || !lastName)) {
+            return errorResponse('Competitors must have a first and last name.');
         }
 
-        invalid.sort((a, b) => a.rowNumber - b.rowNumber);
+        // names identify competitors when they are added to brackets, so they must stay unique
+        const sameName = tournament.findCompetitorByName(`${firstName} ${lastName}`);
+        if (sameName && sameName.id !== competitor.id) {
+            return errorResponse(`A competitor named "${sameName.name()}" already exists in this tournament.`);
+        }
+
+        const weight = updates.officialWeight;
+        if (typeof weight === 'number' && (!Number.isFinite(weight) || weight < 0)) {
+            return errorResponse('Official weight must be a positive number.');
+        }
+
+        competitor.firstName = firstName;
+        competitor.lastName = lastName;
+        if (updates.gender !== undefined) competitor.gender = updates.gender;
+        if (updates.officialWeight !== undefined) competitor.officialWeight = updates.officialWeight;
+        if (updates.paid !== undefined) competitor.paid = updates.paid;
 
         await save_tournament(_, tournament);
-        console.log(`Imported registrations into tournament ${tournamentId}: ${added} added, ${invalid.length} invalid rows`);
-
-        return successResponse({ tournament: tournament.toDTO(), invalidRows: invalid, added, alreadyPresent, classesCreated });
+        return successResponse(tournament.toDTO());
     } catch (error) {
-        console.error('Error importing registrations:', error);
-        return errorResponse(error instanceof Error ? error.message : 'Failed to import registrations. Please try again.');
+        console.error('Error updating competitor:', error);
+        const message = error instanceof Error ? error.message : 'Failed to update competitor. Please try again.';
+        return errorResponse(message);
+    }
+};
+
+// remove a competitor from every bracket and from the tournament (the brackets they were in are reset)
+const delete_competitor = async (_: Electron.IpcMainInvokeEvent, input: DeleteCompetitorInput): Promise<ApiResponse<TournamentDTO>> => {
+    try {
+        const { tournamentId, competitorId } = input;
+        const tournament = await load_tournament(_, tournamentId);
+
+        tournament.removeCompetitor(competitorId);
+        await save_tournament(_, tournament);
+
+        return successResponse(tournament.toDTO());
+    } catch (error) {
+        console.error('Error deleting competitor:', error);
+        const message = error instanceof Error ? error.message : 'Failed to delete competitor. Please try again.';
+        return errorResponse(message);
     }
 };
 
@@ -408,8 +388,9 @@ export {
     create_tournament,
     delete_tournament,
     add_brackets_to_tournament,
-    import_registrations,
     remove_bracket_from_tournament,
+    update_competitor,
+    delete_competitor,
     load_tournament,
     save_tournament,
     export_to_AERS,

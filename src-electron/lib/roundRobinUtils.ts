@@ -7,25 +7,26 @@ import { ExternalMatch } from '../../src-shared/types.js';
 
 import Match from './classes/Match.js';
 import { createInternalMatch, numberMatchesSequentially } from './matchUtils.js';
+import Competitor from './classes/Competitor.js';
 
 // generate the round robin schedule grouped into rounds (each inner array is one round)
-function prepareRoundRobinMatches(competitorNames: string[]): Match[][] {
+function prepareRoundRobinMatches(competitors: Competitor[]): Match[][] {
 
-    if (competitorNames.length < 2) {
+    if (competitors.length < 2) {
         throw new Error('Bracket must have at least 2 competitors');
     }
+    
+    const competitorIds = competitors.map(c => c.id);
+    const competitorMap = new Map(competitors.map(c => [c.id, c]));
 
-    // ordered: true keeps the competitor order we pass in; the bracket handles shuffling
-    // itself via the inherited randomizeCompetitors().
-    // NOTE: pass a copy — with ordered: true the library aliases this array and push()es a
-    // null onto it for odd counts (the bye), which would otherwise corrupt competitorNames.
-    const externalMatches = RoundRobin([...competitorNames], 1, true) as ExternalMatch[];
+    // i think RoundRobin mutates competitorIds, but that's fine since we don't use it past this.
+    const externalMatches = RoundRobin(competitorIds, 1, true) as ExternalMatch[];
 
     // drop byes (a null player is inserted when there is an odd number of competitors)
     const realMatches = externalMatches.filter(m => m.player1 !== null && m.player2 !== null);
 
     // round robin matches have no win/loss pointers, so slots are not passed in here
-    const internalMatches = realMatches.map(m => createInternalMatch(m));
+    const internalMatches = realMatches.map(m => createInternalMatch(m, competitorMap));
 
     // group matches by round
     const roundsMap = new Map<number, Match[]>();

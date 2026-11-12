@@ -1,5 +1,6 @@
 import { DoubleEliminationBracketDTO } from '../../../src-shared/DoubleEliminationBracketDTO.js';
 import { Gender, Hand, ExperienceLevel, WeightLimit } from '../../../src-shared/types.js';
+import Competitor from './Competitor.js';
 import Match from './Match.js';
 import Bracket from './Bracket.js';
 import Tournament from './Tournament.js';
@@ -19,9 +20,9 @@ class DoubleEliminationBracket extends Bracket {
     final: Match | null
     finalRematch: Match | null
 
-    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitorNames: string[] = []) {
+    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitors: Competitor[] = []) {
 
-        super(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
+        super(tournament, gender, experienceLevel, hand, weightLimit, competitors);
 
         this.winnersBracket = [];
         this.losersBracket = [];
@@ -34,7 +35,7 @@ class DoubleEliminationBracket extends Bracket {
     initialize() {
 
         // if there is only one competitor, there is no need to create a bracket
-        if (this.competitorNames.length <= 1) {
+        if (this.competitors.length <= 1) {
             this.winnersBracket = [];
             this.losersBracket = [];
             this.final = null;
@@ -42,9 +43,9 @@ class DoubleEliminationBracket extends Bracket {
             return;
         }
 
-        console.log('about to initialize bracket with competitor names: ', this.competitorNames);
+        console.log('about to initialize bracket with competitors: ', this.competitors.map(c => c.name()));
 
-        const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(this.competitorNames);
+        const { winnersBracket, losersBracket, final, finalRematch } = prepareMatches(this.competitors);
 
         this.winnersBracket = winnersBracket;
         this.losersBracket = losersBracket;
@@ -78,7 +79,7 @@ class DoubleEliminationBracket extends Bracket {
         this.winnersBracket.forEach((round, i) => {
             console.log(`Round ${i + 1}:`);
             round.forEach(match => {
-                console.log(`Match ${match.match}: ${match.player1} vs ${match.player2}`);
+                console.log(`Match ${match.match}: ${match.competitor1?.name()} vs ${match.competitor2?.name()}`);
             });
         });
 
@@ -86,7 +87,7 @@ class DoubleEliminationBracket extends Bracket {
         this.losersBracket.forEach((round, i) => {
             console.log(`Round ${i + 1}:`);
             round.forEach(match => {
-                console.log(`Match ${match.match}: ${match.player1} vs ${match.player2}`);
+                console.log(`Match ${match.match}: ${match.competitor1?.name()} vs ${match.competitor2?.name()}`);
             });
         });
     }
@@ -101,17 +102,17 @@ class DoubleEliminationBracket extends Bracket {
         }
         const winnersBracketFinal = this.winnersBracket[this.winnersBracket.length - 1][0];
         // return true if winner of final is winner of winners bracket final too
-        return this.final.isDecided() && this.final.getWinningPlayer() === winnersBracketFinal.getWinningPlayer();
+        return this.final.isDecided() && this.final.getWinningPlayer().id === winnersBracketFinal.getWinningPlayer().id;
     }
 
-    getFirstPlace(): string | undefined {
+    getFirstPlaceName(): string | undefined {
 
         if (!this.final) {
             return undefined;
         }
         // if the final rematch has not taken place, and the final has, and the winner of the final is the winner of the last winnners bracket match
         if (this.canGetWinnerFromFinal()) {
-            return this.final.getWinningPlayer();
+            return this.final.getWinningPlayer().name();
         }
 
         if (!this.finalRematch) {
@@ -120,40 +121,40 @@ class DoubleEliminationBracket extends Bracket {
 
         // if the final rematch has taken place, then the first place is the winner of the final rematch
         if (this.finalRematch.isDecided()) {
-            return this.finalRematch.getWinningPlayer();
+            return this.finalRematch.getWinningPlayer().name();
         }
 
         // if cannot get winner from final, and final rematch has not taken place, return undefined
         return undefined;
     }
 
-    getSecondPlace(): string | undefined {
+    getSecondPlaceName(): string | undefined {
 
         if (this.canGetWinnerFromFinal()) {
-            return this.final?.getLosingPlayer();
+            return this.final?.getLosingPlayer().name();
         }
 
         if (this.finalRematch?.isDecided()) {
-            return this.finalRematch?.getLosingPlayer();
+            return this.finalRematch?.getLosingPlayer().name();
         }
 
         return undefined;
     }
 
-    getThirdPlace(): string | undefined {
+    getThirdPlaceName(): string | undefined {
 
         if (!this.finalRematch) {
             return undefined;
         }
 
-        if (this.competitorNames.length === 2) {
+        if (this.competitors.length === 2) {
             return undefined;
         }
 
         const losersBracketFinal = this.losersBracket[this.losersBracket.length - 1][0];
 
         if (losersBracketFinal.isDecided()) {
-            return losersBracketFinal.getLosingPlayer();
+            return losersBracketFinal.getLosingPlayer().name();
         }
 
         return undefined;
@@ -176,11 +177,11 @@ class DoubleEliminationBracket extends Bracket {
 
         // if winner of final came from winners bracket, final rematch not needed
         const winnersBracketFinalWinner = winnersBracketFinal.getWinningPlayer();
-        const finalWinner = this.final?.getWinningPlayer();
+        const finalWinner = this.final.getWinningPlayer();
 
         //console.log('returning ', winnersBracketFinalWinner !== finalWinner, ' because winners bracket final winner is ', winnersBracketFinalWinner, ', and final winner is ', finalWinner);
 
-        return winnersBracketFinalWinner !== finalWinner;
+        return winnersBracketFinalWinner.id !== finalWinner.id;
     }
 
     toDTO(): DoubleEliminationBracketDTO {
@@ -193,16 +194,16 @@ class DoubleEliminationBracket extends Bracket {
             experienceLevel: this.experienceLevel,
             hand: this.hand,
             weightLimit: this.weightLimit,
-            competitorNames: this.competitorNames,
+            competitors: this.competitors.map(c => c.toDTO()),
             winnersBracket: this.winnersBracket.map(round => round.map(match => match.toDTO())),
             losersBracket: this.losersBracket.map(round => round.map(match => match.toDTO())),
             final: this.final ? this.final.toDTO() : null,
             finalRematch: this.finalRematch ? this.finalRematch.toDTO() : null,
             currentMatchNumber: this.getLowestUnfilledMatchNumber(),
             finalRematchNeeded: this.finalRematchNeeded(),
-            firstPlace: this.getFirstPlace(),
-            secondPlace: this.getSecondPlace(),
-            thirdPlace: this.getThirdPlace(),
+            firstPlace: this.getFirstPlaceName(),
+            secondPlace: this.getSecondPlaceName(),
+            thirdPlace: this.getThirdPlaceName(),
         };
 
         return DTO;

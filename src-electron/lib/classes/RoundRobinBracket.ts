@@ -1,11 +1,12 @@
-import { RoundRobinBracketDTO, RoundRobinStanding } from '../../../src-shared/RoundRobinBracketDTO.js';
-import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType } from '../../../src-shared/types.js';
+import { RoundRobinBracketDTO } from '../../../src-shared/RoundRobinBracketDTO.js';
+import { Gender, Hand, ExperienceLevel, WeightLimit, BracketType, RoundRobinStanding } from '../../../src-shared/types.js';
 
 import Match from './Match.js';
 import Bracket from './Bracket.js';
 import Tournament from './Tournament.js';
 import { serialize } from '../utils.js';
 import { prepareRoundRobinMatches } from '../roundRobinUtils.js';
+import Competitor from './Competitor.js';
 
 class RoundRobinBracket extends Bracket {
 
@@ -15,9 +16,9 @@ class RoundRobinBracket extends Bracket {
 
     rounds: Match[][]
 
-    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitorNames: string[] = []) {
+    constructor(tournament: Tournament = new Tournament(), gender: Gender = 'Male', experienceLevel: ExperienceLevel = 'Amateur', hand: Hand = 'Left', weightLimit: WeightLimit = 0, competitors: Competitor[] = []) {
 
-        super(tournament, gender, experienceLevel, hand, weightLimit, competitorNames);
+        super(tournament, gender, experienceLevel, hand, weightLimit, competitors);
 
         this.rounds = [];
     }
@@ -26,12 +27,12 @@ class RoundRobinBracket extends Bracket {
     initialize() {
 
         // need at least 2 competitors to schedule any matches
-        if (this.competitorNames.length <= 1) {
+        if (this.competitors.length <= 1) {
             this.rounds = [];
             return;
         }
 
-        this.rounds = prepareRoundRobinMatches(this.competitorNames);
+        this.rounds = prepareRoundRobinMatches(this.competitors);
     }
 
     // return all matches flattened and in no particular order
@@ -59,26 +60,27 @@ class RoundRobinBracket extends Bracket {
     // standings ranked by total points scored across all decided matches
     getStandings(): RoundRobinStanding[] {
 
-        const standingsByName = new Map<string, RoundRobinStanding>();
-        for (const name of this.competitorNames) {
-            standingsByName.set(name, { name, points: 0, wins: 0, losses: 0 });
+        // keyed by competitor id (not name) so two competitors with the same name stay separate
+        const standingsById = new Map<string, RoundRobinStanding>();
+        for (const competitor of this.competitors) {
+            standingsById.set(competitor.id, { competitorId: competitor.id, name: competitor.name(), points: 0, wins: 0, losses: 0 });
         }
 
         for (const match of this.getMatches()) {
 
             // only decided matches with scores contribute
-            if (match.status === 'UNDECIDED' || match.player1 === null || match.player2 === null) {
+            if (match.status === 'UNDECIDED' || match.competitor1 === null || match.competitor2 === null) {
                 continue;
             }
 
-            const player1Standing = standingsByName.get(match.player1);
-            const player2Standing = standingsByName.get(match.player2);
+            const player1Standing = standingsById.get(match.competitor1.id);
+            const player2Standing = standingsById.get(match.competitor2.id);
 
             if (player1Standing) {
-                player1Standing.points += match.player1Score ?? 0;
+                player1Standing.points += match.competitor1Score ?? 0;
             }
             if (player2Standing) {
-                player2Standing.points += match.player2Score ?? 0;
+                player2Standing.points += match.competitor2Score ?? 0;
             }
 
             if (match.status === 'PLAYER_1_WON') {
@@ -90,25 +92,25 @@ class RoundRobinBracket extends Bracket {
             }
         }
 
-        return [...standingsByName.values()].sort((a, b) => b.points - a.points);
+        return [...standingsById.values()].sort((a, b) => b.points - a.points);
     }
 
-    getFirstPlace(): string | undefined {
+    getFirstPlaceName(): string | undefined {
         if (!this.hasAnyResult()) {
             return undefined;
         }
         return this.getStandings()[0]?.name;
     }
 
-    getSecondPlace(): string | undefined {
+    getSecondPlaceName(): string | undefined {
         if (!this.hasAnyResult()) {
             return undefined;
         }
         return this.getStandings()[1]?.name;
     }
 
-    getThirdPlace(): string | undefined {
-        if (!this.hasAnyResult() || this.competitorNames.length < 3) {
+    getThirdPlaceName(): string | undefined {
+        if (!this.hasAnyResult() || this.competitors.length < 3) {
             return undefined;
         }
         return this.getStandings()[2]?.name;
@@ -127,13 +129,13 @@ class RoundRobinBracket extends Bracket {
             experienceLevel: this.experienceLevel,
             hand: this.hand,
             weightLimit: this.weightLimit,
-            competitorNames: this.competitorNames,
+            competitors: this.competitors.map(c => c.toDTO()),
             rounds: this.rounds.map(round => round.map(match => match.toDTO())),
             standings: this.getStandings(),
             currentMatchNumber: this.getLowestUnfilledMatchNumber(),
-            firstPlace: this.getFirstPlace(),
-            secondPlace: this.getSecondPlace(),
-            thirdPlace: this.getThirdPlace(),
+            firstPlace: this.getFirstPlaceName(),
+            secondPlace: this.getSecondPlaceName(),
+            thirdPlace: this.getThirdPlaceName(),
         };
     }
 }

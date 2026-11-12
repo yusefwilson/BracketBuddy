@@ -71,7 +71,7 @@ export default function Home() {
             <button
               onClick={async () => {
                 const [result, error] = await safeApiCall(
-                  window.electron.importTournament({})
+                  window.electron.importTournament()
                 );
 
                 if (error) {

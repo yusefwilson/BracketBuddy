@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HiCheck as CheckIcon, HiArrowPath as ResetIcon } from 'react-icons/hi2';
 import { MatchDTO } from '../../../src-shared/MatchDTO';
+import { competitorFullName } from '../../../src-shared/utils';
 
 interface RoundRobinMatchViewProps {
     match: MatchDTO;
@@ -13,14 +14,14 @@ interface RoundRobinMatchViewProps {
 
 export default function RoundRobinMatchView({ match, updateMatchScore, resetMatch, x, y, currentMatchId }: RoundRobinMatchViewProps) {
 
-    const [player1Score, setPlayer1Score] = useState<string>(match.player1Score?.toString() ?? '');
-    const [player2Score, setPlayer2Score] = useState<string>(match.player2Score?.toString() ?? '');
+    const [player1Score, setPlayer1Score] = useState<string>(match.competitor1Score?.toString() ?? '');
+    const [player2Score, setPlayer2Score] = useState<string>(match.competitor2Score?.toString() ?? '');
 
     // keep local inputs in sync when the bracket refreshes (e.g. after saving)
     useEffect(() => {
-        setPlayer1Score(match.player1Score?.toString() ?? '');
-        setPlayer2Score(match.player2Score?.toString() ?? '');
-    }, [match.player1Score, match.player2Score]);
+        setPlayer1Score(match.competitor1Score?.toString() ?? '');
+        setPlayer2Score(match.competitor2Score?.toString() ?? '');
+    }, [match.competitor1Score, match.competitor2Score]);
 
     const highlighted = match.number === currentMatchId;
 
@@ -71,7 +72,7 @@ export default function RoundRobinMatchView({ match, updateMatchScore, resetMatc
                 <div className='flex flex-col gap-2'>
                     {/* Player 1 */}
                     <div className={'flex flex-row justify-between items-center p-2 rounded-md w-52 gap-2 transition duration-200 ease-in-out ' + player1RowStyle}>
-                        <div className='text-sm truncate w-0 flex-1'>{match.player1}</div>
+                        <div className='text-sm truncate w-0 flex-1'>{match.competitor1 ? competitorFullName(match.competitor1) : ''}</div>
                         <input
                             type='number'
                             min={0}
@@ -84,7 +85,7 @@ export default function RoundRobinMatchView({ match, updateMatchScore, resetMatc
 
                     {/* Player 2 */}
                     <div className={'flex flex-row justify-between items-center p-2 rounded-md w-52 gap-2 transition duration-200 ease-in-out ' + player2RowStyle}>
-                        <div className='text-sm truncate w-0 flex-1'>{match.player2}</div>
+                        <div className='text-sm truncate w-0 flex-1'>{match.competitor2 ? competitorFullName(match.competitor2) : ''}</div>
                         <input
                             type='number'
                             min={0}
