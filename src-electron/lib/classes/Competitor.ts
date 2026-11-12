@@ -12,8 +12,9 @@ class Competitor {
     lastName: string
     gender: Gender
     officialWeight: number | null // in lbs by default
+    paid: boolean
 
-    constructor(gender: Gender = 'Male', firstName: string = 'First', lastName: string = 'Last', officialWeight: number | null = null, paid: boolean = false) {
+    constructor(id?: string, gender: Gender = 'Male', firstName: string = 'First', lastName: string = 'Last', officialWeight: number | null = null, paid: boolean = false) {
 
         this.id = firstName + lastName + String(Math.random() * 1000000);
 
@@ -21,7 +22,7 @@ class Competitor {
         this.lastName = lastName;
         this.gender = gender;
         this.officialWeight = officialWeight;
-
+        this.paid = paid;
     }
 
     name() {
@@ -32,9 +33,21 @@ class Competitor {
         return serialize(this);
     }
 
+    toDTO(): CompetitorDTO {
+        return {
+            id: this.id,
+            firstName: this.firstName,
+            lastName: this.lastName,
+            gender: this.gender,
+            officialWeight: this.officialWeight,
+            paid: this.paid
+        }
+    }
+
     static fromDTO(dto: CompetitorDTO)
     {
         return new Competitor(
+            dto.id,
             dto.gender,
             dto.firstName,
             dto.lastName,

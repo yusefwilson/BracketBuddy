@@ -8,25 +8,31 @@ import { ExternalMatch } from '../../src-shared/types.js';
 import Match from './classes/Match.js';
 import { createInternalMatch, putMatchesIntoMatrix, numberMatchesSequentially } from './matchUtils.js';
 import { isPowerOfTwo } from './utils.js';
+import Competitor from './classes/Competitor.js';
 
-function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } {
+function prepareMatches(competitors: Competitor[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } {
 
-    console.log('in prepareMatches with competitorNames: ', competitorNames);
+    console.log('in prepareMatches with competitorNames: ', competitors);
 
-    if (competitorNames.length < 2) {
+    if (competitors.length < 2) {
         throw new Error('Bracket must have at least 2 cometitors');
     }
 
-    if (competitorNames.length == 2 || competitorNames.length == 3) {
-        return prepareMatchesForSpecialLowNumbers(competitorNames);
+    if (competitors.length == 2 || competitors.length == 3) {
+        return prepareMatchesForSpecialLowNumbers(competitors);
     }
 
+    // competitor IDs since external library only takes list of strings
+    const competitorIds = competitors.map(c => c.id);
+    // map for later competitor rehydration
+    const competitorMap = new Map(competitors.map(c => [c.id, c]));
+
     // generate pairings using external library
-    const matches = DoubleElimination(competitorNames) as ExternalMatch[];
+    const matches = DoubleElimination(competitorIds) as ExternalMatch[];
     //console.log('1. matches', matches);
 
     // convert to internal matches
-    const convertedMatches = convertExternalMatchesToInternalMatches(matches);
+    const convertedMatches = convertExternalMatchesToInternalMatches(matches, competitorMap);
     //console.log('2. convertedMatches', convertedMatches);
 
     // link matches
@@ -42,7 +48,7 @@ function prepareMatches(competitorNames: string[]): { winnersBracket: Match[][],
     //console.log('5. final, finalRematch', final, finalRematch);
 
     // number matches
-    numberMatches(competitorNames.length, winnersBracket, losersBracket, final, finalRematch);
+    numberMatches(competitors.length, winnersBracket, losersBracket, final, finalRematch);
     //console.log('6. after numbering, winnersBracket: ', winnersBracket, 'losersBracket: ', losersBracket, 'final: ', final, 'finalRematch: ', finalRematch);
 
     // group parent matches together in winner round 1 and loser round 1. Necessary since child matches are rendered in the middle of the two parent matches
@@ -83,10 +89,10 @@ const groupParentMatches = (matches: Match[]) => {
 }
 
 // brute force matches creation for <= 3 competitors
-const prepareMatchesForSpecialLowNumbers = (competitorNames: string[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } => {
+const prepareMatchesForSpecialLowNumbers = (competitors: Competitor[]): { winnersBracket: Match[][], losersBracket: Match[][], final: Match, finalRematch: Match } => {
 
-    if (competitorNames.length === 2) {
-        const match1 = new Match('1-1', 1, 1, 1, competitorNames[0], competitorNames[1], 'UNDECIDED',
+    if (competitors.length === 2) {
+        const match1 = new Match('1-1', 1, 1, 1, competitors[0], competitors[1], 'UNDECIDED',
             { round: 2, match: 1, slot: 1 }, { round: 2, match: 1, slot: 2 });
 
         const final = new Match('2-1', 2, 2, 1, null, null, 'UNDECIDED',
@@ -112,11 +118,11 @@ const prepareMatchesForSpecialLowNumbers = (competitorNames: string[]): { winner
         return { winnersBracket: [[match1]], losersBracket: [], final, finalRematch };
     }
 
-    else if (competitorNames.length === 3) {
-        const match1 = new Match('1-1', 1, 1, 1, competitorNames[0], competitorNames[1], 'UNDECIDED',
+    else if (competitors.length === 3) {
+        const match1 = new Match('1-1', 1, 1, 1, competitors[0], competitors[1], 'UNDECIDED',
             { round: 2, match: 1, slot: 1 }, { round: 4, match: 1, slot: 1 });
 
-        const match2 = new Match('2-1', 2, 2, 1, competitorNames[2], null, 'UNDECIDED',
+        const match2 = new Match('2-1', 2, 2, 1, competitors[2], null, 'UNDECIDED',
             { round: 3, match: 1, slot: 1 }, { round: 4, match: 1, slot: 2 });
 
         const match3 = new Match('4-1', 3, 4, 1, null, null, 'UNDECIDED',
@@ -157,11 +163,11 @@ const prepareMatchesForSpecialLowNumbers = (competitorNames: string[]): { winner
         return { winnersBracket: [[match1], [match2]], losersBracket: [[match3]], final, finalRematch };
     }
 
-    throw new Error('Invalid number of competitors: ' + competitorNames.length);
+    throw new Error('Invalid number of competitors: ' + competitors.length);
 }
 
 // function to convert tournament-pairings output to the internal Match class
-const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Match[] => {
+const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[], competitorMap: Map<string, Competitor>): Match[] => {
 
     const convertedMatches = [];
 
@@ -212,7 +218,7 @@ const convertExternalMatchesToInternalMatches = (matches: ExternalMatch[]): Matc
         }
 
         // TODO: match number should be -1 for now, but should be replaced with the actual match number later
-        const convertedMatch = createInternalMatch(match, winSlot, lossSlot);
+        const convertedMatch = createInternalMatch(match, competitorMap, winSlot, lossSlot);
         convertedMatches.push(convertedMatch);
     }
     return convertedMatches;

@@ -3,13 +3,14 @@
    format (double elimination, round robin, single elimination, ...). */
 
 import { ExternalMatch } from '../../src-shared/types.js';
+import Competitor from './classes/Competitor.js';
 
 import Match from './classes/Match.js';
 
 // create an internal Match from a tournament-pairings ExternalMatch and its slot
 // information. win/loss coordinates are only attached when the external match has
 // them, so formats without win/loss pointers (e.g. round robin) work unchanged.
-const createInternalMatch = (match: ExternalMatch, winSlot?: 1 | 2, lossSlot?: 1 | 2): Match => {
+const createInternalMatch = (match: ExternalMatch, competitorMap: Map<string, Competitor>, winSlot?: 1 | 2, lossSlot?: 1 | 2): Match => {
 
     let win, loss;
 
@@ -23,7 +24,8 @@ const createInternalMatch = (match: ExternalMatch, winSlot?: 1 | 2, lossSlot?: 1
 
     const id = match.round + '-' + match.match;
 
-    return new Match(id, -1, match.round, match.match, match.player1, match.player2, 'UNDECIDED', win, loss);
+    // assert player1 and player2 as strings because they were produced by tournament-pairings and we're pretty sure there are no nulls from DoubleELimination
+    return new Match(id, -1, match.round, match.match, competitorMap.get(match.player1 as string), competitorMap.get(match.player2 as string), 'UNDECIDED', win, loss);
 }
 
 // organize matches into a 2-dimensional array for easy access by round and match

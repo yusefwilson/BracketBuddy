@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 import { app, BrowserWindow, ipcMain } from 'electron';
 
-import { load_all_tournaments, load_one_tournament, create_tournament, delete_tournament, add_brackets_to_tournament, import_registrations, remove_bracket_from_tournament, export_to_AERS, export_to_pdf, export_to_jpg, export_tournament, import_tournament } from './endpoints/tournament.js';
+import { load_all_tournaments, load_one_tournament, create_tournament, delete_tournament, add_brackets_to_tournament, remove_bracket_from_tournament, export_to_AERS, export_to_pdf, export_to_jpg, export_tournament, import_tournament } from './endpoints/tournament.js';
 import { add_competitor_to_bracket, remove_competitor_from_bracket, update_bracket, randomize_competitors, enter_round_robin_result, reset_round_robin_result } from './endpoints/bracket.js';
 import { ensure_save_environment, get_saved_value, save_key_value, get_constants, open_url, save_data_to_file, load_file, get_zoom_level, set_zoom_level } from './endpoints/misc.js';
 import { readFile } from 'fs/promises';
@@ -93,7 +93,6 @@ ipcMain.handle('create-tournament', create_tournament);
 ipcMain.handle('delete-tournament', delete_tournament);
 ipcMain.handle('add-brackets-to-tournament', add_brackets_to_tournament);
 ipcMain.handle('remove-bracket-from-tournament', remove_bracket_from_tournament);
-ipcMain.handle('import-registrations', import_registrations);
 ipcMain.handle('export-tournament', export_tournament);
 ipcMain.handle('import-tournament', import_tournament);
 ipcMain.handle('export-to-AERS', export_to_AERS);

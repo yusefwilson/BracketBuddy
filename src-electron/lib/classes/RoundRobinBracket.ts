@@ -61,8 +61,8 @@ class RoundRobinBracket extends Bracket {
     getStandings(): RoundRobinStanding[] {
 
         const standingsByName = new Map<string, RoundRobinStanding>();
-        for (const name of this.competitors) {
-            standingsByName.set(name, { name, points: 0, wins: 0, losses: 0 });
+        for (const competitor of this.competitors) {
+            standingsByName.set(competitor.name(), { name: competitor.name(), points: 0, wins: 0, losses: 0 });
         }
 
         for (const match of this.getMatches()) {
@@ -72,8 +72,8 @@ class RoundRobinBracket extends Bracket {
                 continue;
             }
 
-            const player1Standing = standingsByName.get(match.competitor1);
-            const player2Standing = standingsByName.get(match.competitor2);
+            const player1Standing = standingsByName.get(match.competitor1.name());
+            const player2Standing = standingsByName.get(match.competitor2.name());
 
             if (player1Standing) {
                 player1Standing.points += match.competitor1Score ?? 0;
@@ -128,7 +128,7 @@ class RoundRobinBracket extends Bracket {
             experienceLevel: this.experienceLevel,
             hand: this.hand,
             weightLimit: this.weightLimit,
-            competitorNames: this.competitors,
+            competitors: this.competitors.map(c => c.toDTO()),
             rounds: this.rounds.map(round => round.map(match => match.toDTO())),
             standings: this.getStandings(),
             currentMatchNumber: this.getLowestUnfilledMatchNumber(),
